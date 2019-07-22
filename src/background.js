@@ -13,14 +13,11 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 let mainWindow
 
 // Standard scheme must be registered before the app is ready
-protocol.registerStandardSchemes(['app'], { secure: true })
+//protocol.registerStandardSchemes(['app'], { secure: true })
+protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: {  secure: true } }]);
+
 function createMainWindow () {
-  
-  const window = new BrowserWindow({
-    webPreferences: { webSecurity: false },
-    icon:  'assets/icon.png'
-  })
-  
+  const window = new BrowserWindow({ webPreferences: { webSecurity: false , nodeIntegration: true}, icon:  'assets/icon.png'  })
 
   if (isDevelopment) {
     // Load the url of the dev server if in development mode
