@@ -56,7 +56,7 @@ export default {
       try {
         const out = await sync_exec('C:\\PROGRA~1\\7-Zip\\7z -h ');
         // check 7z valid
-        console.log(`${out}`);
+        console.log(out.stdout);
         this.is_7z_ok = true
         const contents = remote.getCurrentWebContents()
         this.printers = contents.getPrinters()
