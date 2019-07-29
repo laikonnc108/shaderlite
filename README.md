@@ -16,6 +16,12 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 - Add window.maximize()
 - Changing icon for serve in background.js main window BrowserWindow config `icon:  'assets/logo.png'`
 
+### Adding sqlite3
+```
+npm install --save-dev electron-builder
+npm install --save sqlite3
+npm run postinstall
+```
 ---
 
 ## Project setup

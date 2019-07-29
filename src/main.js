@@ -10,7 +10,6 @@ Vue.config.productionTip = false
 
 export * from './tools';
 
-
 new Vue({
   router,
   store,
