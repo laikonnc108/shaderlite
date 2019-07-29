@@ -3,7 +3,8 @@ module.exports = {
       electronBuilder: {
         builderOptions: {
           // options placed here will be merged with default configuration and passed to electron-builder
-          icon: 'assets/ico.ico'
+          icon: 'src/assets/app.ico',
+          extraResources: ['./db/**/*']
         }
       }
     },

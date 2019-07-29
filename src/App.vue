@@ -122,6 +122,7 @@
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import { Settings, DateTime } from 'luxon'
+
 Settings.defaultLocale = 'ar'
 Settings.defaultZoneName = 'UTC'
 

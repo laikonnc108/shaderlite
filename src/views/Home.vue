@@ -7,6 +7,10 @@
       {{breeds}}
     
     Check if 7z installed {{is_7z_ok}}
+    <pre>
+      {{ $store.state.electron_data }}
+      {{ $store.state.lorem }}
+    </pre>
   <div class="card" style="width: 18rem;">
     <div class="card-body">
       <h5 class="card-title">System printers </h5>
