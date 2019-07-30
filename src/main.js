@@ -30,8 +30,10 @@ let sqlite_config = {
   useNullAsDefault: true
 }
 const knex = require('knex')(sqlite_config);
+const bookshelf = require('bookshelf')(knex)
+bookshelf.plugin(require('bookshelf-soft-delete'))
 
-export { knex, sqlite_config };
+export { knex, sqlite_config, bookshelf };
 export * from './tools';
 
 /*

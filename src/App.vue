@@ -128,6 +128,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import { Settings, DateTime } from 'luxon'
 import { ShaderConfigsCtrl } from './ctrls/ShaderConfigsCtrl'
+import { CustomersCtrl } from './ctrls/CustomersCtrl'
 
 Settings.defaultLocale = 'ar'
 Settings.defaultZoneName = 'UTC'
@@ -135,13 +136,18 @@ Settings.defaultZoneName = 'UTC'
 export default {
   data() {
     return {
-      menu_labels: []
+      menu_labels: [],
+      shaderConfigsCtrl: new ShaderConfigsCtrl()
     }
   },
   async beforeMount () {
     console.log("beforeMount",this.$store.state)
-    const shaderConfigsCtrl = new ShaderConfigsCtrl()
-    this.menu_labels = await shaderConfigsCtrl.getAppLabels()
+
+    const customersCtrl = new CustomersCtrl()
+    let all_customers = await customersCtrl.findAll()
+    console.log(all_customers)
+    
+    this.menu_labels = await this.shaderConfigsCtrl.getAppLabels()
     const moment = require('moment')
     // to get current local time correctly
     moment.locale('en')

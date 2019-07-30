@@ -1,11 +1,11 @@
-import { knex } from '../main'
+import { bookshelf } from '../main'
 
 export class ShaderConfigsCtrl {
   /**@type {import('bookshelf').Model} */
   model
 
   constructor() {
-    this.model = require('../models/ShaderConfigsModel')(knex)
+    this.model = require('../models/ShaderConfigsModel')(bookshelf)
   }
   
   async godada(){
@@ -18,7 +18,7 @@ export class ShaderConfigsCtrl {
     console.log(tata.id)
   }
 
-  findAll(filter) {
+  findAll(filter = {}) {
     
     /*
     let all = await this.model.findAll()

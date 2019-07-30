@@ -1,7 +1,7 @@
 'use strict';
 
-module.exports = (knex) => {
-    const bookshelf = require('bookshelf')(knex)
+module.exports = (bookshelf) => {
+    
     /**@type {import('bookshelf').Model} */
     const ShaderConfigsModel = bookshelf.Model.extend({
         tableName: 'shader_configs',

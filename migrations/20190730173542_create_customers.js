@@ -7,11 +7,11 @@ exports.up = function(knex) {
     return knex.schema.createTable('customers', function(table){
         table.increments();
         table.string('name').notNullable()
-        table.float('debt')
+        table.specificType('debt','REAL')
         table.string('phone')
         table.string('address')
         table.string('notes')
-        table.boolean('is_self')
+        table.integer('is_self')
         table.timestamp('deleted_at')
     })
 };
