@@ -12,18 +12,27 @@ export * from './tools';
 
 const {app} = require('electron').remote
 const path = require('path')
-console.log(app.getPath('userData'))
+
 store.commit('setElectronData',{
   app_path: app.getAppPath(),
-  curr_dir: path.resolve(__dirname, '..'),
-  curr_dir2: path.dirname(app.getAppPath()),
+  curr_dir: path.dirname(app.getAppPath()),
   db_path: path.resolve(path.dirname(app.getAppPath()), './db/shaderlite.db'),
   env:process.env
 })
 
-var sqlite3 = require('sqlite3').verbose();
+//var sqlite3 = require('sqlite3').verbose();
 const dbFile = path.resolve(path.dirname(app.getAppPath()), './db/shaderlite.db')
 
+const knex = require('knex')({
+  client: 'sqlite3',
+  connection: {
+    filename: dbFile
+  },
+  useNullAsDefault: true
+});
+
+export {knex};
+/*
 var db = new sqlite3.Database(dbFile);
  
 db.serialize(function() {
@@ -41,6 +50,7 @@ db.serialize(function() {
 });
  
 db.close();
+*/
 
 new Vue({
   router,

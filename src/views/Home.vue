@@ -26,7 +26,7 @@
 <script>
 // @ is an alias to /src
 import HelloWorld from '@/components/HelloWorld.vue'
-import { sync_exec } from '../main'
+import { sync_exec, knex } from '../main'
 import { remote } from 'electron'
 
 const fs = require('fs')
@@ -47,6 +47,13 @@ export default {
   async mounted() {
     const res = await axios.get('https://jsonplaceholder.typicode.com/todos/1')
     this.breeds = res.data
+    let lorem = await knex('lorem').select().limit(10);
+    let text = ''
+    lorem.map(_=>{
+      text += JSON.stringify(_)
+    })
+    console.log(lorem,text)
+    this.$store.commit('setLorem',text)
   },
   methods: {
     async addUser(){
