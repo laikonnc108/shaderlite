@@ -7,7 +7,6 @@ export default new Vuex.Store({
   state: {
     day: {},
     shader_configs: [],
-    lorem: [],
     electron_data: {}
   },
   mutations: {
@@ -19,9 +18,6 @@ export default new Vuex.Store({
     },
     setElectronData (state, payload) {
       state.electron_data = payload
-    },
-    setLorem(state, payload) {
-      state.lorem = payload
     }
   },
   actions: {

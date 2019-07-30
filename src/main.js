@@ -4,11 +4,10 @@ import router from './router'
 import store from './store'
 import BootstrapVue from 'bootstrap-vue'
 
+
 Vue.use(BootstrapVue)
 
 Vue.config.productionTip = false
-
-export * from './tools';
 
 const {app} = require('electron').remote
 const path = require('path')
@@ -23,15 +22,18 @@ store.commit('setElectronData',{
 //var sqlite3 = require('sqlite3').verbose();
 const dbFile = path.resolve(path.dirname(app.getAppPath()), './db/shaderlite.db')
 
-const knex = require('knex')({
+let sqlite_config = {
   client: 'sqlite3',
   connection: {
     filename: dbFile
   },
   useNullAsDefault: true
-});
+}
+const knex = require('knex')(sqlite_config);
 
-export {knex};
+export { knex, sqlite_config };
+export * from './tools';
+
 /*
 var db = new sqlite3.Database(dbFile);
  

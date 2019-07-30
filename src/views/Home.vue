@@ -3,14 +3,9 @@
     <!-- <img alt="Vue logo" src="../assets/logo.png"> 
     <HelloWorld msg="Welcome to Your Vue.js App"/>
     -->
-
-      {{breeds}}
     
     Check if 7z installed {{is_7z_ok}}
-    <pre>
-      {{ $store.state.electron_data }}
-      {{ $store.state.lorem }}
-    </pre>
+    <pre>{{ $store.state.electron_data }}</pre>
   <div class="card" style="width: 18rem;">
     <div class="card-body">
       <h5 class="card-title">System printers </h5>
@@ -18,26 +13,24 @@
       <a href="#" @click="check7z()" class="btn btn-primary">Go somewhere</a> 
       <span>&nbsp;</span>
       <a href="#" @click="addUser()" class="btn btn-primary">Add User</a>
+      <a href="#" @click="reload_electron()" class="btn btn-primary">Reload</a>
     </div>
   </div>
   </div>
 </template>
 
-<script>
-// @ is an alias to /src
+<script >
 import HelloWorld from '@/components/HelloWorld.vue'
-import { sync_exec, knex } from '../main'
+import { sync_exec } from '../main'
 import { remote } from 'electron'
 
 const fs = require('fs')
-const axios = require('axios')
 
 export default {
   name: 'home',
   data() {
     return {
       is_7z_ok: null,
-      breeds: null,
       printers: []
     }
   },
@@ -45,21 +38,22 @@ export default {
     HelloWorld
   },
   async mounted() {
+    /*
+    let all = await ShaderConfigsModel.where({shader_name:'nada', category:'label'}).fetchAll()
+    console.log(all)
     const res = await axios.get('https://jsonplaceholder.typicode.com/todos/1')
     this.breeds = res.data
-    let lorem = await knex('lorem').select().limit(10);
-    let text = ''
-    lorem.map(_=>{
-      text += JSON.stringify(_)
-    })
-    console.log(lorem,text)
-    this.$store.commit('setLorem',text)
+    */
+    
   },
   methods: {
     async addUser(){
       /*
       await UsersCTRL.addNew({username:"abido",password:"arika",nono: "no"})
       */
+    },
+    reload_electron(){
+      remote.getCurrentWindow().reload();
     },
     async check7z(){
       

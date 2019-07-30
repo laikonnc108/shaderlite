@@ -24,10 +24,9 @@ npm run postinstall
 ```
 ---
 
-## Project setup
-```
-npm install
-```
+## Tools And Resources
+
+- SQLiteDatabaseBrowserPortable
 
 ### Lints and fixes files
 ```

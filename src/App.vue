@@ -82,23 +82,28 @@
               <li class="nav-item">
                 <router-link class="nav-link active" to="/suppliers">
                   <span class="fa fa-th-list"></span>
-                  ادارة العملاء <span class="sr-only">(current)</span>
+                  {{ menu_labels['manage_suppliers'] }} 
                 </router-link>
               </li>
               <li class="nav-item">
                 <router-link class="nav-link active" to="/customers">
                   <span class="fa fa-handshake"></span>
-                  الزمامات <span class="sr-only">(current)</span>
+                  {{ menu_labels['manage_customers'] }} 
                 </router-link>
               </li>
               <li class="nav-item">
                 <router-link class="nav-link active" to="/products">
                   <span class="fa fa-apple-alt"></span>
-                   ادارة الاصناف 
-                   <span class="sr-only">(current)</span>
+                  {{ menu_labels['manage_products'] }} 
                 </router-link>
               </li>
-              
+              <li class="nav-item">
+                <router-link class="nav-link active" to="/developer">
+                  <span class="fa fa-code"></span>
+                   {{ menu_labels['manage_users'] }} 
+                </router-link>
+              </li>
+
               <li class="nav-item">
                 <router-link class="nav-link active" to="/developer">
                   <span class="fa fa-code"></span>
@@ -122,6 +127,7 @@
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import { Settings, DateTime } from 'luxon'
+import { ShaderConfigsCtrl } from './ctrls/ShaderConfigsCtrl'
 
 Settings.defaultLocale = 'ar'
 Settings.defaultZoneName = 'UTC'
@@ -134,10 +140,12 @@ export default {
   },
   async beforeMount () {
     console.log("beforeMount",this.$store.state)
+    const shaderConfigsCtrl = new ShaderConfigsCtrl()
+    this.menu_labels = await shaderConfigsCtrl.getAppLabels()
     const moment = require('moment')
     // to get current local time correctly
     moment.locale('en')
-    let dateTime= DateTime.fromISO(moment().format('YYYY-MM-DD'))
+    let dateTime = DateTime.fromISO(moment().format('YYYY-MM-DD'))
     moment.locale('ar')
 
     const day = {
@@ -169,6 +177,11 @@ body {
 
 h1,h2,h3,h4,h5 {
   color: #666
+}
+
+pre {
+  direction: ltr;
+  text-align: left;
 }
 
 .feather {
