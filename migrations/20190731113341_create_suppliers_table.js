@@ -4,10 +4,10 @@
 
 /**@param {knex} knex */
 exports.up = function(knex) {
-    return knex.schema.createTable('customers', function(table){
+    return knex.schema.createTable('suppliers', function(table){
         table.increments();
         table.string('name').notNullable().unique()
-        table.specificType('debt','REAL')
+        table.specificType('balance','REAL')
         table.string('phone')
         table.string('address')
         table.text('notes')
@@ -17,5 +17,5 @@ exports.up = function(knex) {
 };
 /**@param {knex} knex */
 exports.down = function(knex) {
-    return knex.schema.dropTable('customers')
+    return knex.schema.dropTable('suppliers')
 };

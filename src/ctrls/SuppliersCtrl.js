@@ -1,10 +1,10 @@
 import { bookshelf } from '../main'
 
-export class CustomerDAO {
+export class SupplierDAO {
 
   id 
   name 
-  debt 
+  balance 
   phone
   address
   notes
@@ -16,7 +16,7 @@ export class CustomerDAO {
   }
 
   parseTypes() {
-    this.debt = this.debt ? parseFloat(this.debt) : 0 
+    this.balance = this.debt ? parseFloat(this.debt) : 0 
   }
 
   constructor (data) {
@@ -24,34 +24,27 @@ export class CustomerDAO {
   }
 }
 
-export class CustomersCtrl {
+export class SuppliersCtrl {
   /**@type {import('bookshelf').Model} */
   model
 
   constructor() {
-    this.model = require('../models/CustomersModel')(bookshelf)
+    this.model = require('../models/SuppliersModel')(bookshelf)
   }
 
-  /**@param {CustomerDAO} data */
+  /**@param {SupplierDAO} data */
   async create(data) {
     data.parseTypes()
 
     // It Creates And Saves !!!
-    let record_id = null
-    try {
-      let record = await this.model.forge(data).save()
-      record_id = record.id
-    } catch (error) {
-      throw error
-    }
-    return record_id
+    return await this.model.forge(data).save()
     // TODO Add Customer Trans
   }
 
   async findAll(filter = {}) {
     let all = await this.model.where(filter).fetchAll({softDelete: false})
     console.log(all.toJSON())
-    return all.map( _=> new CustomerDAO(_.attributes))
+    return all.map( _=> new SupplierDAO(_.attributes))
   }
 
   async deleteById(id){
@@ -66,7 +59,6 @@ export class CustomersCtrl {
   async resotreById(id) {
     /**@type import('bookshelf').ModelBase */
     let instance = await this.model.where('id',id).fetch({softDelete: false})
-    console.log(instance.attributes)
     instance.set('deleted_at',null)
     return await instance.save()
   }

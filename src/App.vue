@@ -146,7 +146,6 @@ export default {
     const customersCtrl = new CustomersCtrl()
     let all_customers = await customersCtrl.findAll()
     console.log(all_customers)
-    
     this.menu_labels = await this.shaderConfigsCtrl.getAppLabels()
     const moment = require('moment')
     // to get current local time correctly

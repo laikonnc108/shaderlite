@@ -12,15 +12,14 @@ Vue.config.productionTip = false
 const {app} = require('electron').remote
 const path = require('path')
 
+const dbFile = path.resolve(path.dirname(app.getAppPath()), './db/shaderlite.db')
+
 store.commit('setElectronData',{
   app_path: app.getAppPath(),
   curr_dir: path.dirname(app.getAppPath()),
-  db_path: path.resolve(path.dirname(app.getAppPath()), './db/shaderlite.db'),
+  db_path: dbFile,
   env:process.env
 })
-
-//var sqlite3 = require('sqlite3').verbose();
-const dbFile = path.resolve(path.dirname(app.getAppPath()), './db/shaderlite.db')
 
 let sqlite_config = {
   client: 'sqlite3',
@@ -29,6 +28,7 @@ let sqlite_config = {
   },
   useNullAsDefault: true
 }
+
 const knex = require('knex')(sqlite_config);
 const bookshelf = require('bookshelf')(knex)
 bookshelf.plugin(require('bookshelf-soft-delete'))
@@ -36,25 +36,14 @@ bookshelf.plugin(require('bookshelf-soft-delete'))
 export { knex, sqlite_config, bookshelf };
 export * from './tools';
 
-/*
-var db = new sqlite3.Database(dbFile);
- 
-db.serialize(function() {
- 
-  var stmt = db.prepare("INSERT INTO lorem VALUES (?)");
-  for (var i = 0; i < 10; i++) {
-      stmt.run("Ipsum " + i);
-  }
-  stmt.finalize();
-  let lorem = []
-  db.each("SELECT rowid AS id, info FROM lorem", function(err, row) {
-      lorem.push(row.id + ": " + row.info);
-  });
-  store.commit('setLorem',lorem)
-});
- 
-db.close();
-*/
+String.prototype.toAR= function() {
+  return this.replace(/\d/g, d =>  '٠١٢٣٤٥٦٧٨٩'[d])
+}
+
+Vue.filter('toAR' , function(number) {
+  let num = ( number || number === 0 ) ? parseFloat(number) : '--'
+  return num.toLocaleString('ar-EG')
+})
 
 new Vue({
   router,
