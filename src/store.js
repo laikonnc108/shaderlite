@@ -18,6 +18,9 @@ export default new Vuex.Store({
     },
     setElectronData (state, payload) {
       state.electron_data = payload
+    },
+    setCustomLabels (state, payload) {
+      state.custom_labels = payload
     }
   },
   actions: {

@@ -3,7 +3,7 @@
         <div class="col-5 d-print-none">
     <br/>
 <button @click="fresh_form" class="btn btn-primary m-1" v-if="form_collabsed">
-  ادخال بياع جديد 
+  {{custom_labels['add_new_customer']}}
   &nbsp; <span class="fa fa-address-book"></span>
 </button>
   <!-- Element to collapse -->
@@ -79,21 +79,22 @@
     </div>
     <div class="pr-hideme" >
       <br>
-      <input v-model="search_term" class="form-control "  placeholder="بحث في البائعين">
+      <input v-model="search_term" class="form-control "  :placeholder="custom_labels['search_customers']">
     </div>
     <br/>
   <h2 :class="{ 'text-danger': ! show_active }">
-    <span v-if="show_active"> كشف </span>
-    <span v-if="! show_active"> ارشيف </span>
+    <span v-if="show_active"> {{custom_labels['list']}} </span>
+    <span v-if="! show_active"> {{custom_labels['archive']}} </span>
+    {{custom_labels['customers']}}
   </h2>
       <div class="table-responsive">
         <table class="table table-striped table-sm">
           <thead>
             <tr>
-              <th> رقم البائع </th>
-              <th>اسم البائع</th>
+              <th> كود </th>
+              <th>اسم</th>
               <th v-if="! zm_mode" >التليفون</th>
-              <th>المديونية</th>
+              <th>مديونية</th>
               <th v-if=" zm_mode" width="25%">تحصيل</th>
               <th>ملاحظات</th>
               
@@ -155,6 +156,7 @@ export default {
       form_collabsed: true,
       zm_mode: false,
       search_term: '',
+      custom_labels: this.$store.state.custom_labels,
       now_day: moment().format('LL'),
       now_hour: moment().format('hh:mm a')
     }

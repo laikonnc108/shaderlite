@@ -32,9 +32,16 @@ export class ShaderConfigsCtrl {
 
   async getAppLabels(){
 
-    let all_labels = await this.findAll({shader_name: 'nada',category:'label'})
+    let all_labels = await this.findAll({shader_name: 'default',category:'label'})
     let labels_arr = []
+    // Can do map 
     all_labels.forEach( element => {
+      element.get('config_name')
+      labels_arr[element.get('config_name')] = element.get('config_value')
+    });
+    // Override with custom labels
+    let custom_labels = await this.findAll({shader_name: 'magdy',category:'label'})
+    custom_labels.forEach( element => {
       element.get('config_name')
       labels_arr[element.get('config_name')] = element.get('config_value')
     });

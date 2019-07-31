@@ -29,44 +29,44 @@
               <li class="nav-item bg-incoming ">
                 <router-link class="nav-link active" to="/">
                   <span class="fa fa-sign-in-alt "></span>
-                  {{ menu_labels['incomings'] }} <span class="sr-only">(current)</span>
+                  {{ custom_labels['incomings'] }} <span class="sr-only">(current)</span>
                 </router-link>
               </li>
               <li class="nav-item bg-outgoing ">
                 <router-link class="nav-link active" to="/outgoing">
                   <span class="fa fa-sign-out-alt"></span>
-                  {{ menu_labels['outgoings'] }}  <span class="sr-only">(current)</span>
+                  {{ custom_labels['outgoings'] }}  <span class="sr-only">(current)</span>
                 </router-link>
               </li>
               <li class="nav-item bg-dailymoves">
                 <router-link class="nav-link active" to="/daily_moves">
                   <span class="fa fa-dolly"></span>
-                  {{ menu_labels['daily_moves'] }} <span class="sr-only">(current)</span>
+                  {{ custom_labels['daily_moves'] }} <span class="sr-only">(current)</span>
                 </router-link>
               </li>
               <li class="nav-item bg-receipts">
                 <router-link class="nav-link active" to="/suppliers_receipts">
                   <span class="fa fa-receipt"></span>
-                  {{ menu_labels['suppliers_receipts'] }}
+                  {{ custom_labels['suppliers_receipts'] }}
                 </router-link>
               </li>
               <li class="nav-item bg-accounts">
                 <router-link class="nav-link active" to="/customers_accounts">
                   <span class="fa fa-cash-register"></span>
-                  {{ menu_labels['customers_accounts'] }}
+                  {{ custom_labels['customers_accounts'] }}
                 </router-link>
               </li>
 
               <li class="nav-item">
                 <router-link class="nav-link active" to="/expenses">
                   <span class="fa fa-money-bill-wave"></span>
-                  {{ menu_labels['expenses'] }} 
+                  {{ custom_labels['expenses'] }} 
                 </router-link>
               </li>
               <li class="nav-item">
                 <router-link class="nav-link active" to="/collecting">
                   <span class="fa fa-credit-card"></span>
-                  {{ menu_labels['collecting'] }} 
+                  {{ custom_labels['collecting'] }} 
                 </router-link>
               </li>
 
@@ -82,25 +82,25 @@
               <li class="nav-item">
                 <router-link class="nav-link active" to="/suppliers">
                   <span class="fa fa-th-list"></span>
-                  {{ menu_labels['manage_suppliers'] }} 
+                  {{ custom_labels['manage_suppliers'] }} 
                 </router-link>
               </li>
               <li class="nav-item">
                 <router-link class="nav-link active" to="/customers">
                   <span class="fa fa-handshake"></span>
-                  {{ menu_labels['manage_customers'] }} 
+                  {{ custom_labels['manage_customers'] }} 
                 </router-link>
               </li>
               <li class="nav-item">
                 <router-link class="nav-link active" to="/products">
                   <span class="fa fa-apple-alt"></span>
-                  {{ menu_labels['manage_products'] }} 
+                  {{ custom_labels['manage_products'] }} 
                 </router-link>
               </li>
               <li class="nav-item">
                 <router-link class="nav-link active" to="/developer">
                   <span class="fa fa-code"></span>
-                   {{ menu_labels['manage_users'] }} 
+                   {{ custom_labels['manage_users'] }} 
                 </router-link>
               </li>
 
@@ -136,17 +136,14 @@ Settings.defaultZoneName = 'UTC'
 export default {
   data() {
     return {
-      menu_labels: [],
+      custom_labels: [],
       shaderConfigsCtrl: new ShaderConfigsCtrl()
     }
   },
   async beforeMount () {
     console.log("beforeMount",this.$store.state)
-
-    const customersCtrl = new CustomersCtrl()
-    let all_customers = await customersCtrl.findAll()
-    console.log(all_customers)
-    this.menu_labels = await this.shaderConfigsCtrl.getAppLabels()
+    this.custom_labels = await this.shaderConfigsCtrl.getAppLabels()
+    this.$store.commit('setCustomLabels', this.custom_labels)
     const moment = require('moment')
     // to get current local time correctly
     moment.locale('en')
