@@ -1,4 +1,7 @@
 
 const sync_exec = require('util').promisify(require('child_process').exec)
 
-export {sync_exec}
+const moment = require('moment')
+moment.locale('ar')
+
+export {sync_exec, moment}

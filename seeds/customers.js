@@ -5,9 +5,9 @@ exports.seed = function(knex) {
     .then(function () {
       // Inserts seed entries
       return knex('customers').insert([
-        { name: 'عبدالقادر بو علم', debt: 115.5},
-        { name: 'rowValue2'},
-        { name: 'rowValue3'}
+        { name: 'عابد احمد صادق'},
+        { name: 'ابو فوزي'},
+        { name: 'كارم الدميري'}
       ]);
     });
 };
