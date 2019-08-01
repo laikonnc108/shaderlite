@@ -47,7 +47,7 @@ export class CustomerTransDAO {
   kg_price
   actual_sale
 
-  constructor(data) {
+  constructor(data = {}) {
     Object.assign(this, data)
   }
 

@@ -7,6 +7,7 @@ export default new Vuex.Store({
   state: {
     day: {},
     shader_configs: [],
+    custom_labels: [],
     electron_data: {}
   },
   mutations: {

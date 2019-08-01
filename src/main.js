@@ -42,6 +42,10 @@ Vue.filter('arDate' , function(date) {
   return moment(date).format('LL')
 })
 
+Vue.filter('tr_label' , function(string) {
+  return (store.state.custom_labels[string])? store.state.custom_labels[string] : string
+})
+
 String.prototype.toAR= function() {
   return this.replace(/\d/g, d =>  '٠١٢٣٤٥٦٧٨٩'[d])
 }
