@@ -2,7 +2,7 @@
   <section class="customers row">
         <div class="col-5 d-print-none">
     <br/>
-<button @click="fresh_form" class="btn btn-primary m-1" v-if="form_collabsed">
+<button @click="fresh_form" class="btn btn-primary mr-3" v-if="form_collabsed">
   {{custom_labels['add_new_customer']}}
   &nbsp; <span class="fa fa-address-book"></span>
 </button>
@@ -39,7 +39,7 @@
       <div class="form-group row">
         <label class="col-sm-2">مبلغ المديونية</label>
         <div class="col-sm-10">
-          <input v-model="customer_form.debt" :disabled="edit_id > 0"
+          <input v-model="customer_form.debt" :disabled="customer_form.id"
           class="form-control"  placeholder="ادخل المبلغ">
         </div>
       </div>
@@ -50,14 +50,14 @@
           <input v-model="customer_form.notes" class="form-control "  placeholder="ادخال الملاحظات">
         </div>
       </div>
-      <p class="text-danger" v-if="! edit_id"> سيتم اضافة البياع بمبلغ مديونية يساوي 
+      <p class="text-danger" v-if="! customer_form.id"> سيتم اضافة البياع بمبلغ مديونية يساوي 
         <template v-if="! customer_form.debt"> 0 </template>
         <template v-if="customer_form.debt"> {{customer_form.debt}} </template>
          جنيه</p>
 
       <button type="submit" class="btn btn-success" :disabled="! valid_form">
-        <template v-if="! edit_id"> اضافة</template>
-        <template v-if="edit_id"> حفظ </template>
+        <template v-if="! customer_form.id"> اضافة</template>
+        <template v-if="customer_form.id"> حفظ </template>
       </button>
       &nbsp;
       <button type="button" @click="fresh_form" class="btn btn-danger"> اغلاق </button>
@@ -69,11 +69,11 @@
     
     <div class="m-1">
       <br/>
-      <button  class="btn btn-danger " @click="show_active=false" v-if="show_active">
+      <button  class="btn btn-danger " @click="show_active=false;refresh_all()" v-if="show_active">
       عرض الارشيف
       &nbsp; <span class="fa fa-archive"></span>
     </button>
-    <button  class="btn btn-success " @click="show_active=true" v-if="! show_active">
+    <button  class="btn btn-success " @click="show_active=true;refresh_all()" v-if="! show_active">
       اغلاق الارشيف   &nbsp; <span class="fa fa-external-link-square-alt"></span>
     </button>
     </div>
@@ -96,7 +96,7 @@
               <th v-if="! zm_mode" >التليفون</th>
               <th>مديونية</th>
               <th v-if=" zm_mode" width="25%">تحصيل</th>
-              <th>ملاحظات</th>
+              <th v-if="false">ملاحظات</th>
               
               <th></th>
             </tr>
@@ -114,7 +114,7 @@
               <td v-if=" zm_mode" >
                 <span class="collect-box "></span>
               </td>
-              <td>{{item.notes}}</td>
+              <td v-if="false">{{item.notes}}</td>
 
               <td v-if="! zm_mode" class="d-print-none">
                 <button class="btn text-danger" @click="archive(item.id)" v-if="! item.deleted_at">
@@ -150,7 +150,6 @@ export default {
       customer_form: new CustomerDAO(CustomerDAO.INIT_DAO),
       customersCtrl: new CustomersCtrl(),
       customers_arr: [],
-      edit_id: 0,
       show_active: true,
       confirm_step: [],
       form_collabsed: true,
@@ -164,7 +163,8 @@ export default {
 
   methods: {
     async refresh_all() {
-      this.customers_arr = await this.customersCtrl.findAll()
+      let soft_delete = this.show_active ? true : false;
+      this.customers_arr = await this.customersCtrl.findAll({},{softDelete: soft_delete})
     },
     fresh_form(){
       this.customer_form = new CustomerDAO(CustomerDAO.INIT_DAO)
@@ -173,9 +173,8 @@ export default {
     async saveCustomer(evt) {
       evt.preventDefault()
       try {
-        await this.customersCtrl.create(this.customer_form)
+        await this.customersCtrl.save(this.customer_form)
       } catch (error) {
-        console.log(error.message)
         this.$bvToast.show('example-toast')
         return
       }
@@ -184,11 +183,10 @@ export default {
       this.refresh_all()
     },
     async edit(id) {
-      this.edit_id = id
-      let edit_customer_obj = this.customers_arr.filter( element =>{
+      let filtered_arr = this.customers_arr.filter( element =>{
         return element.id == id
       })
-      this.customer_form = new CustomerDAO(edit_customer_obj[0])
+      this.customer_form = new CustomerDAO(filtered_arr[0])
       // Show form only if collabsed
       if(this.form_collabsed) {
         this.$root.$emit('bv::toggle::collapse', 'collapse_form')

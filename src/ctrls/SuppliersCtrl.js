@@ -33,17 +33,16 @@ export class SuppliersCtrl {
   }
 
   /**@param {SupplierDAO} data */
-  async create(data) {
+  async save(data) {
     data.parseTypes()
-
-    // It Creates And Saves !!!
-    return await this.model.forge(data).save()
-    // TODO Add Customer Trans
+    let record = await this.model.forge(data).save()
+    return record.id
+    // TODO Add Supplier Trans
   }
 
-  async findAll(filter = {}) {
-    let all = await this.model.where(filter).fetchAll({softDelete: false})
-    console.log(all.toJSON())
+  async findAll(filter = {}, options = {}) {
+    let all = await this.model.where(filter).fetchAll(options)
+    console.log(all)
     return all.map( _=> new SupplierDAO(_.attributes))
   }
 

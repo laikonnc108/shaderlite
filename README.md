@@ -28,6 +28,21 @@ npm run postinstall
 
 - SQLiteDatabaseBrowserPortable
 
+## Manual migration
+**Customers**
+- export from phpmyadmin as csv with no "" or NULL
+- import 
+- remove date_crated
+- update active NULL where = 1 / 1 where = 0 (Reverse)
+- rename active to deleted_at
+
+**Suppliers**
+- export sql
+- remove all bluff
+- edit cols and datatypes (and add unique)
+- update active NULL where = 1 / 1 where = 0 (Reverse)
+- rename active to deleted_at
+
 ### Lints and fixes files
 ```
 npm run lint

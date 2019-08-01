@@ -24,6 +24,44 @@ export class CustomerDAO {
   }
 }
 
+/**
+ * CustomerTransDAO
+ * 
+*/
+export class CustomerTransDAO {
+
+  id
+  day
+  customer_id
+  outgoing_id
+  product_id
+  product_name
+  cashflow_id
+  amount
+  sum
+  trans_type
+  debt_after
+  notes
+  count
+  weight
+  kg_price
+  actual_sale
+
+  constructor(data) {
+    Object.assign(this, data)
+  }
+
+  static get INIT_DAO() {
+    return { sum: '+' }
+  }
+
+  parseTypes () {
+    this.amount = this.amount? parseFloat(this.amount): 0
+    this.debt_after = this.debt_after? parseFloat(this.debt_after) : 0
+    this.actual_sale = this.actual_sale? parseFloat(this.actual_sale) : 0
+  }
+}
+
 export class CustomersCtrl {
   /**@type {import('bookshelf').Model} */
   model
@@ -33,25 +71,23 @@ export class CustomersCtrl {
   }
 
   /**@param {CustomerDAO} data */
-  async create(data) {
+  async save(data) {
     data.parseTypes()
-
-    // It Creates And Saves !!!
-    let record_id = null
-    try {
-      let record = await this.model.forge(data).save()
-      record_id = record.id
-    } catch (error) {
-      throw error
-    }
-    return record_id
+    let record = await this.model.forge(data).save()
+    return record.id
     // TODO Add Customer Trans
   }
 
-  async findAll(filter = {}) {
-    let all = await this.model.where(filter).fetchAll({softDelete: false})
-    console.log(all.toJSON())
+  async findAll(filter = {}, options = {}) {
+
+    let all = await this.model.where(filter).fetchAll(options)
     return all.map( _=> new CustomerDAO(_.attributes))
+  }
+
+  async getCustomerDetails(id){
+    let one = await this.model.forge('id',id).fetch({withRelated:['trans']})
+    let trans = one.related('trans').map( _=> new CustomerTransDAO(_.attributes))
+    return {dao: new CustomerDAO(one.toJSON()), trans: trans}
   }
 
   async deleteById(id){
@@ -66,7 +102,6 @@ export class CustomersCtrl {
   async resotreById(id) {
     /**@type import('bookshelf').ModelBase */
     let instance = await this.model.where('id',id).fetch({softDelete: false})
-    console.log(instance.attributes)
     instance.set('deleted_at',null)
     return await instance.save()
   }

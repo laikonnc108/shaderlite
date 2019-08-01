@@ -5,6 +5,7 @@ import store from './store'
 import BootstrapVue from 'bootstrap-vue'
 
 
+
 Vue.use(BootstrapVue)
 
 Vue.config.productionTip = false
@@ -35,6 +36,11 @@ bookshelf.plugin(require('bookshelf-soft-delete'))
 
 export { knex, sqlite_config, bookshelf };
 export * from './tools';
+import {moment} from './tools'
+
+Vue.filter('arDate' , function(date) {
+  return moment(date).format('LL')
+})
 
 String.prototype.toAR= function() {
   return this.replace(/\d/g, d =>  '٠١٢٣٤٥٦٧٨٩'[d])

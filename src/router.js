@@ -4,6 +4,7 @@ import Home from './views/Home.vue'
 import Incomings from './views/Incomings.vue'
 import Customers from './views/Customers.vue'
 import Suppliers from './views/Suppliers.vue'
+import CustomerDetails from './views/CustomerDetails.vue'
 
 Vue.use(Router)
 
@@ -30,6 +31,11 @@ export default new Router({
       path: '/suppliers',
       name: 'suppliers',
       component: Suppliers
+    },
+    {
+      path: '/customer_details/:id',
+      name: 'customer_details',
+      component: CustomerDetails
     },
   ]
 })
