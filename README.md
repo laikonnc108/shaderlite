@@ -43,6 +43,12 @@ npm run postinstall
 - update active NULL where = 1 / 1 where = 0 (Reverse)
 - rename active to deleted_at
 
+** Supplier_trans**
+- export sql
+- remove all bluff
+- edit cols and datatypes 
+- remove unwanted cols d_product, date_created
+
 ### Lints and fixes files
 ```
 npm run lint

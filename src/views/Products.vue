@@ -87,8 +87,8 @@
 </template>
 
 <script>
-
-import { getShaderConfigValue } from '../main'
+//import { getShaderConfigValue } from '../main'
+import { ProductDAO, ProductsCtrl} from '../ctrls/ProductsCtrl'
 export default {
   name: 'products',
   data() {
@@ -97,21 +97,12 @@ export default {
       confirm_step: [],
       show_active: true,
       product_form: new ProductDAO(ProductDAO.INIT_DAO),
-      isBoth: getShaderConfigValue(this.$store.state , 'work_in') === 'both'
-    }
-  },
-  computed: {
-    comp_products_arr: function () {
-      let active = (this.show_active ) ? 1 : 0;
-      return this.products_arr.filter( item => item.active === active)
+      //isBoth: getShaderConfigValue(this.$store.state , 'work_in') === 'both'
     }
   },
   methods: {
-    async addNewProduct(evt){
+    async SaveProduct(evt){
       evt.preventDefault()
-      delete this.product_form.id
-      await ProductsDB.addNew(this.product_form)
-      this.product_form = new ProductDAO(ProductDAO.INIT_DAO)
       this.refresh_products()
     },
     async refresh_products() {
@@ -120,14 +111,6 @@ export default {
     async archive( id ,undo = '') {
       if( this.confirm_step[id] ) {
         let active = (undo === 'undo') ? 1 : 0 ;
-        /*
-        try {
-          await conn_pool.query('UPDATE product SET active = '+ active +' WHERE product.id ='+ id)
-          this.refresh_products_arr()
-        } catch(err) {
-            throw new Error(err)
-        }
-        */
         await ProductsDB.saveById( id, {active: active})
         this.confirm_step = []
         this.refresh_products()
@@ -140,6 +123,12 @@ export default {
   },
   async mounted() {
     this.refresh_products()
-  }
+  },
+  computed: {
+    comp_products_arr: function () {
+      let active = (this.show_active ) ? 1 : 0;
+      return this.products_arr.filter( item => item.active === active)
+    }
+  },
 }
 </script>
