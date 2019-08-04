@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+
+import Daily from './views/Daily.vue'
 import Home from './views/Home.vue'
 import Incomings from './views/Incomings.vue'
 import Customers from './views/Customers.vue'
@@ -14,9 +16,14 @@ export default new Router({
   base: process.env.BASE_URL,
   routes: [
     {
-      path: '/',
+      path: '/asasy',
       name: 'home',
       component: Home
+    },
+    {
+      path: '/daily',
+      name: 'daily',
+      component: Daily
     },
     {
       path: '/incomings',

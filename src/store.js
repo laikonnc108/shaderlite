@@ -3,11 +3,12 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state: {
     day: {},
     shader_configs: [],
     custom_labels: [],
+    products_arr: [],
     electron_data: {}
   },
   mutations: {
@@ -22,9 +23,20 @@ export default new Vuex.Store({
     },
     setCustomLabels (state, payload) {
       state.custom_labels = payload
+    },
+    setProductsArr (state, payload) {
+      state.products_arr = payload
     }
   },
   actions: {
 
   }
 })
+
+class MyStoreMutations {
+  static setShaderConfigs = 'setShaderConfigs'
+  static setElectronData = 'setElectronData'
+  static setCustomLabels = 'setCustomLabels'
+  static setProductsArr = 'setProductsArr'
+}
+export {store, MyStoreMutations}

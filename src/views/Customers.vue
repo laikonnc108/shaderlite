@@ -2,7 +2,7 @@
   <section class="customers row">
         <div class="col-5 d-print-none">
     <br/>
-<button @click="fresh_form" class="btn btn-primary mr-3" v-if="form_collabsed">
+<button @click="fresh_form" class="btn btn-primary mr-3" v-if="flags.form_collabsed">
   {{custom_labels['add_new_customer']}}
   &nbsp; <span class="fa fa-address-book"></span>
 </button>
@@ -69,11 +69,11 @@
     
     <div class="m-1">
       <br/>
-      <button  class="btn btn-danger " @click="show_active=false;refresh_all()" v-if="show_active">
+      <button  class="btn btn-danger " @click="flags.show_active=false;refresh_all()" v-if="flags.show_active">
       عرض الارشيف
       &nbsp; <span class="fa fa-archive"></span>
     </button>
-    <button  class="btn btn-success " @click="show_active=true;refresh_all()" v-if="! show_active">
+    <button  class="btn btn-success " @click="flags.show_active=true;refresh_all()" v-if="! flags.show_active">
       اغلاق الارشيف   &nbsp; <span class="fa fa-external-link-square-alt"></span>
     </button>
     </div>
@@ -82,9 +82,9 @@
       <input v-model="search_term" class="form-control "  :placeholder="custom_labels['search_customers']">
     </div>
     <br/>
-  <h2 :class="{ 'text-danger': ! show_active }">
-    <span v-if="show_active"> {{custom_labels['list']}} </span>
-    <span v-if="! show_active"> {{custom_labels['archive']}} </span>
+  <h2 :class="{ 'text-danger': ! flags.show_active }">
+    <span v-if="flags.show_active"> {{custom_labels['list']}} </span>
+    <span v-if="! flags.show_active"> {{custom_labels['archive']}} </span>
     {{custom_labels['customers']}}
   </h2>
       <div class="table-responsive">
@@ -93,9 +93,9 @@
             <tr>
               <th> كود </th>
               <th>اسم</th>
-              <th v-if="! zm_mode" >التليفون</th>
+              <th v-if="! flags.zm_mode" >التليفون</th>
               <th>مديونية</th>
-              <th v-if=" zm_mode" width="25%">تحصيل</th>
+              <th v-if=" flags.zm_mode" width="25%">تحصيل</th>
               <th v-if="false">ملاحظات</th>
               
               <th></th>
@@ -109,14 +109,14 @@
                 {{item.name}}
                 </router-link>
               </td>
-              <td v-if="! zm_mode"  >{{item.phone}}</td>
+              <td v-if="! flags.zm_mode"  >{{item.phone}}</td>
               <td>{{item.debt | toAR }}</td>
-              <td v-if=" zm_mode" >
+              <td v-if=" flags.zm_mode" >
                 <span class="collect-box "></span>
               </td>
               <td v-if="false">{{item.notes}}</td>
 
-              <td v-if="! zm_mode" class="d-print-none">
+              <td v-if="! flags.zm_mode" class="d-print-none">
                 <button class="btn text-danger" @click="archive(item.id)" v-if="! item.deleted_at">
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[item.id]"> أرشفة</template>
@@ -150,10 +150,8 @@ export default {
       customer_form: new CustomerDAO(CustomerDAO.INIT_DAO),
       customersCtrl: new CustomersCtrl(),
       customers_arr: [],
-      show_active: true,
+      flags: {show_active: true, zm_mode: false, form_collabsed: true,},
       confirm_step: [],
-      form_collabsed: true,
-      zm_mode: false,
       search_term: '',
       custom_labels: this.$store.state.custom_labels,
       now_day: moment().format('LL'),
@@ -163,7 +161,7 @@ export default {
 
   methods: {
     async refresh_all() {
-      let soft_delete = this.show_active ? true : false;
+      let soft_delete = this.flags.show_active
       this.customers_arr = await this.customersCtrl.findAll({},{softDelete: soft_delete})
     },
     fresh_form(){
@@ -188,7 +186,7 @@ export default {
       })
       this.customer_form = new CustomerDAO(filtered_arr[0])
       // Show form only if collabsed
-      if(this.form_collabsed) {
+      if(this.flags.form_collabsed) {
         this.$root.$emit('bv::toggle::collapse', 'collapse_form')
       }
     },
@@ -210,14 +208,14 @@ export default {
   async mounted() {
     // Listening to collapses state changes 
     this.$root.$on('bv::collapse::state', (collapseId, show) => {
-      if(collapseId == 'collapse_form') this.form_collabsed = ! show
+      if(collapseId == 'collapse_form') this.flags.form_collabsed = ! show
     })
     this.refresh_all()
   },
   computed: {
     comp_customers_arr: function () {
       return this.customers_arr.filter( item => {
-        return ((item.deleted_at == null) === this.show_active  && item.name.includes(this.search_term))
+        return ((item.deleted_at == null) === this.flags.show_active  && item.name.includes(this.search_term))
       })
     },
     valid_form: function() {

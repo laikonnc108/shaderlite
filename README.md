@@ -35,6 +35,7 @@ npm run postinstall
 - remove date_crated
 - update active NULL where = 1 / 1 where = 0 (Reverse)
 - rename active to deleted_at
+- create forign keys
 
 **Suppliers**
 - export sql
@@ -43,11 +44,23 @@ npm run postinstall
 - update active NULL where = 1 / 1 where = 0 (Reverse)
 - rename active to deleted_at
 
-** Supplier_trans**
+**Supplier_trans**
 - export sql
 - remove all bluff
 - edit cols and datatypes 
 - remove unwanted cols d_product, date_created
+- create forign keys
+
+**Incomings**
+- remove product_name & supplier_name
+- create forign keys
+
+**Views**
+```
+CREATE VIEW out_headers 
+AS
+SELECT income_day, supplier_id, product_id, sum(count) as 'all_sold' FROM outgoings group by income_day,supplier_id , product_id 
+```
 
 ### Lints and fixes files
 ```

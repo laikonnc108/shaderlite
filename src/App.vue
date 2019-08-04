@@ -27,7 +27,7 @@
             <ul class="nav flex-column">
 
               <li class="nav-item bg-incoming ">
-                <router-link class="nav-link active" to="/">
+                <router-link class="nav-link active" to="/incomings">
                   <span class="fa fa-sign-in-alt "></span>
                   {{ custom_labels['incomings'] }} <span class="sr-only">(current)</span>
                 </router-link>
@@ -110,7 +110,12 @@
                    معلومات النظام<span class="sr-only">(current)</span>
                 </router-link>
               </li>
-
+              <li class="nav-item">
+                <router-link class="nav-link active" to="/asasy">
+                  <span class="fa fa-code"></span>
+                    انت اساسي<span class="sr-only">(current)</span>
+                </router-link>
+              </li>
             </ul>
 
           </div>
@@ -128,7 +133,8 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import { Settings, DateTime } from 'luxon'
 import { ShaderConfigsCtrl } from './ctrls/ShaderConfigsCtrl'
-import { CustomersCtrl } from './ctrls/CustomersCtrl'
+import { ProductsCtrl } from './ctrls/ProductsCtrl'
+import { MyStoreMutations } from './main.js'
 
 Settings.defaultLocale = 'ar'
 Settings.defaultZoneName = 'UTC'
@@ -137,13 +143,17 @@ export default {
   data() {
     return {
       custom_labels: [],
-      shaderConfigsCtrl: new ShaderConfigsCtrl()
     }
   },
   async beforeMount () {
     console.log("beforeMount",this.$store.state)
-    this.custom_labels = await this.shaderConfigsCtrl.getAppLabels()
+
+    this.custom_labels = await new ShaderConfigsCtrl().getAppLabels()
     this.$store.commit('setCustomLabels', this.custom_labels)
+
+    let products_arr = await new ProductsCtrl().getProductsArr()
+    this.$store.commit(MyStoreMutations.setProductsArr, products_arr)
+
     const moment = require('moment')
     // to get current local time correctly
     moment.locale('en')

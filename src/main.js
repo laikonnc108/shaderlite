@@ -1,12 +1,15 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-import store from './store'
+import {store, MyStoreMutations} from './store'
 import BootstrapVue from 'bootstrap-vue'
 
-
-
 Vue.use(BootstrapVue)
+
+// Import vue-datetime with specific loader for CSS files
+import Datetime from 'vue-datetime'
+import 'vue-datetime/dist/vue-datetime.css'
+Vue.use(Datetime)
 
 Vue.config.productionTip = false
 
@@ -34,7 +37,7 @@ const knex = require('knex')(sqlite_config);
 const bookshelf = require('bookshelf')(knex)
 bookshelf.plugin(require('bookshelf-soft-delete'))
 
-export { knex, sqlite_config, bookshelf };
+export { knex, sqlite_config, bookshelf, MyStoreMutations };
 export * from './tools';
 import {moment} from './tools'
 

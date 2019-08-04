@@ -42,7 +42,7 @@ export class SuppliersCtrl {
 
   async findAll(filter = {}, options = {}) {
     let all = await this.model.where(filter).fetchAll(options)
-    console.log(all)
+    
     return all.map( _=> new SupplierDAO(_.attributes))
   }
 

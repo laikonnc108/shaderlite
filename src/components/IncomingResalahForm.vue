@@ -1,6 +1,8 @@
 <template>
   <section class="incoming-resalah-form">
     <h1>incoming-resalah-form Component IncomingResalahForm</h1>
+    <div v-for="(item, index) in $store.state.products_arr" :key="index">{{ index }} - {{item}}</div>
+    
   </section>
 </template>
 
@@ -15,6 +17,9 @@ export default {
     return {}
   },
   methods: {
+  },
+  async beforeMount () {
+    // console.log(this.$store.state.products_arr)
   },
   components: {
   }
