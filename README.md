@@ -29,6 +29,7 @@ npm run postinstall
 - SQLiteDatabaseBrowserPortable
 
 ## Manual migration
+
 **Customers**
 - export from phpmyadmin as csv with no "" or NULL
 - import 
@@ -52,8 +53,14 @@ npm run postinstall
 - create forign keys
 
 **Incomings**
-- remove product_name & supplier_name
+- remove product_name, supplier_name, notes, date_created, nolon, given 
+(before creating inout_head view)
 - create forign keys
+
+**Replaces**
+double DEFAULT NULL > REAL
+UNSIGNED > 
+DEFAULT NULL > 
 
 **Views**
 ```

@@ -4,20 +4,13 @@ export class IncomingDAO {
 
   id
   day
-  supplier_id 
-  supplier_name
+  supplier_id
   product_id 
   count
-  nolon
-  given
-  notes
 
   // Constant member
   static get INIT_DAO() {
-    return {
-      //date_created: Date.now() ,
-      //nolon: 0,given: 0,
-    }
+    return { }
   }
 
   constructor (data) {
@@ -26,8 +19,6 @@ export class IncomingDAO {
 
   parseTypes() {
     this.count = parseInt(this.count)
-    this.nolon = this.nolon? parseFloat(this.nolon): 0
-    this.given = this.given? parseFloat(this.given): 0
   }
 
   /*

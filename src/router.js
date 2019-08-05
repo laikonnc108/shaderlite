@@ -8,6 +8,7 @@ import Customers from './views/Customers.vue'
 import Suppliers from './views/Suppliers.vue'
 import Products from './views/Products.vue'
 import CustomerDetails from './views/CustomerDetails.vue'
+import Outgoing from './views/Outgoing.vue'
 
 Vue.use(Router)
 
@@ -29,6 +30,11 @@ export default new Router({
       path: '/incomings',
       name: 'incomings',
       component: Incomings
+    },
+    {
+      path: '/outgoing',
+      name: 'outgoing',
+      component: Outgoing
     },
     {
       path: '/customers',
