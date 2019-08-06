@@ -5,7 +5,9 @@ export class IncomingDAO {
   id
   day
   supplier_id
+  supplier_name
   product_id 
+  product_name
   count
 
   // Constant member
@@ -19,19 +21,31 @@ export class IncomingDAO {
 
   parseTypes() {
     this.count = parseInt(this.count)
+    this.product_id = parseInt(this.product_id)
+    delete this.supplier_name
+    delete this.product_name
+  }
+}
+
+export class IncomingsData {
+  day
+  supplier_id
+  products_arr = []
+  nolon
+  given
+
+  static get INIT_DAO() {
+    return { }
   }
 
-  /*
-  selectFromObjects() {
-    this.supplier_id = this.supplier_select.id
-    this.supplier_name = this.supplier_select.name
-    this.product_id = this.product_select.id
-    this.product_name = this.product_select.name
-    
-    delete this.supplier_select
-    delete this.product_select
+  constructor (data) {
+    Object.assign(this, data)
   }
-  */
+
+  parseTypes() {
+    this.nolon = this.nolon ? parseFloat(this.nolon): 0
+    this.given = this.given ? parseFloat(this.given): 0
+  }
 }
 
 export class IncomingsCtrl {
@@ -50,11 +64,36 @@ export class IncomingsCtrl {
     // TODO Add Customer Trans
   }
 
-  async findAll(filter = {}, options = {}) {
+  /**@param {IncomingsData} data */
+  async saveIncomingsData(data) {
     
-    let all = await this.model.where(filter).fetchAll(options)
-    console.log(filter, all)
-    return all.map( _=> new IncomingDAO(_.attributes))
+    data.parseTypes()
+    let saved_ids = []
+    data.products_arr.forEach( async product => {
+      console.log ("product", product)
+      console.log (data.day, data.supplier_id)
+      let incDAO = new IncomingDAO({day: data.day,
+        supplier_id: data.supplier_id,
+        product_id: product.id,
+        count: product.count
+      })
+      incDAO.parseTypes()
+      let record = await this.model.forge(incDAO).save()
+      saved_ids.push(record.id)
+    })
+    // then add nolon and given cashflows
+    
+    return saved_ids
+  }
+
+  async findAll(filter = {}) {
+    let all = await this.model.where(filter).fetchAll({withRelated: ['supplier','product']})
+    return all.map( _=> {
+      let incDAO = new IncomingDAO(_.attributes)
+      incDAO.supplier_name = _.related('supplier').get('name')
+      incDAO.product_name = _.related('product').get('name')
+      return incDAO
+    })
   }
 
   async deleteById(id){

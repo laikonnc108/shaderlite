@@ -19,16 +19,16 @@
 </ul>
 -->
 
-<div class="p-3" v-show="! selected_inc_hdr || ! selected_inc_hdr.product_id">
-<button v-for="(incom, idx) in incoming_headers" :key="idx" 
+<div class="p-3" v-show="! selected_inc || ! selected_inc.product_id">
+<button v-for="(incom, idx) in avilable_incomings" :key="idx" 
 v-b-toggle.collapse2 
-@click="selected_inc_hdr= incom"
+@click="selected_inc= incom"
 class="btn btn-lg  m-1 btn-block" 
 :class="{'btn-primary': incom.day === store_day.iso, 'btn-danger': incom.day !== store_day.iso}">
   <span class="fa fa-shopping-cart"></span> &nbsp; 
   {{incom.product_name}} - 
   زرع <b> {{incom.supplier_name}} </b> - 
-  متبقي ({{incom.current_count}}) {{incom.unit}} 
+  متبقي ({{incom.diff}}) 
   <span v-if="incom.day !== store_day.iso"><br/> 
 وارد {{incom.day | arDate }}
   </span>
@@ -37,15 +37,15 @@ class="btn btn-lg  m-1 btn-block"
 </div>
 
 
-<div class="p-4" v-if="selected_inc_hdr && selected_inc_hdr.product_id">
-  <h4 :class="{ 'text-danger':  outgoing_form.count > selected_inc_hdr.current_count}">
+<div class="p-4" v-if="selected_inc && selected_inc.product_id">
+  <h4 :class="{ 'text-danger':  outgoing_form.count > selected_inc.diff}">
     بيع {{outgoing_form.count}} من
-      {{selected_inc_hdr.product_name}} - 
-  زرع <b> {{selected_inc_hdr.supplier_name}} </b> - 
-  متبقي ({{selected_inc_hdr.current_count}}) {{selected_inc_hdr.unit}}
+      {{selected_inc.product_name}} - 
+  زرع <b> {{selected_inc.supplier_name}} </b> - 
+  متبقي ({{selected_inc.diff}}) 
 
   </h4>
-    <form  @submit="addNewOutgoing">
+    <form  @submit="saveOutgoing">
   <div class="form-group row">
     <label class="col-sm-2">التاريخ</label>
     <div class="col-sm-10">
@@ -54,7 +54,7 @@ class="btn btn-lg  m-1 btn-block"
   </div>
 
   <div class="form-group row">
-    <label :class="{ 'text-danger':  outgoing_form.count > selected_inc_hdr.current_count}" class="col-sm-2">عدد</label>
+    <label :class="{ 'text-danger':  outgoing_form.count > selected_inc.diff}" class="col-sm-2">عدد</label>
     <div class="col-sm-10">
       <input v-model="outgoing_form.count" class="form-control">
     </div>
@@ -77,7 +77,7 @@ class="btn btn-lg  m-1 btn-block"
   </div>
 
   <div class="form-group row">
-    <label :class="{ 'text-danger':  outgoing_form.kg_price > 150 }" class="col-sm-2">سعر الكيلو</label>
+    <label :class="{ 'text-danger':  outgoing_form.kg_price > 99 }" class="col-sm-2">سعر الكيلو</label>
     <div class="col-sm-10">
       <input v-model="outgoing_form.kg_price" class="form-control" placeholder="ادخل القيمة">
     </div>
@@ -197,7 +197,8 @@ class="btn btn-lg  m-1 btn-block"
 </template>
 
 <script>
-import {InoutHeadCtrl} from '../ctrls/InoutHeadCtrl'
+import { InoutHeadCtrl } from '../ctrls/InoutHeadCtrl'
+import { OutgoingDAO, OutgoingsCtrl } from '../ctrls/OutgoingsCtrl'
 
 export default {
   name: 'outgoings',
@@ -207,10 +208,11 @@ export default {
       outgoings_arr: [],
       active_customers: [],
       inoutHeadCtrl: new InoutHeadCtrl(),
+      outgoingsCtrl: new OutgoingsCtrl(),
       store_day: this.$store.state.day,
-      incoming_headers: [],
-      selected_inc_hdr: {},
-      outgoing_form: {},
+      avilable_incomings: [],
+      selected_inc: {},
+      outgoing_form: new OutgoingDAO({ day: this.$store.state.day.iso, ...OutgoingDAO.INIT_DAO}),
       detailed: false,
       confirm_step: [],
       discard_success: false
@@ -218,20 +220,46 @@ export default {
   },
   computed: {
     value_calc_text: function () {
-
+      if(this.outgoing_form.count && 
+      this.outgoing_form.sell_comm &&
+      this.outgoing_form.weight &&
+      this.outgoing_form.kg_price)
+      return `(${this.outgoing_form.count} * ${this.outgoing_form.sell_comm}) + (${this.outgoing_form.weight} * ${this.outgoing_form.kg_price})`
     },
     value_calc: function () {
-
+      if(this.outgoing_form.count && 
+      this.outgoing_form.sell_comm &&
+      this.outgoing_form.weight &&
+      this.outgoing_form.kg_price) {
+        // this.outgoing_form.parseTypes()
+        // only parse count
+        // this.outgoing_form.count = parseInt(this.outgoing_form.count)
+        let count = this.outgoing_form.count 
+        let sell_comm = this.outgoing_form.sell_comm
+        let weight = this.outgoing_form.weight 
+        let kg_price = this.outgoing_form.kg_price
+        return (count * sell_comm ) + ( weight * kg_price)
+      }
+      else return false
     },
     valid_form: function () {
-
+      return this.outgoing_form.count > 0 && this.outgoing_form.count <= this.selected_inc.diff &&
+      this.outgoing_form.sell_comm > 0 && this.outgoing_form.sell_comm <= 10 &&
+      this.outgoing_form.weight > 0 &&
+      this.outgoing_form.kg_price > 0
     }
   },
   methods: {
-    async addNewOutgoing(evt){
+    async saveOutgoing(evt){
       evt.preventDefault()
-
-
+      this.outgoing_form.value_calc = this.value_calc
+      this.outgoing_form.income_day = this.selected_inc.day
+      this.outgoing_form.supplier_id = this.selected_inc.supplier_id
+      this.outgoing_form.product_id = this.selected_inc.product_id
+      console.log(this.outgoing_form)
+      this.outgoing_form = new OutgoingDAO({ day: this.$store.state.day.iso, ...OutgoingDAO.INIT_DAO})
+      this.selected_inc = {}
+      this.refresh_all()
     },
     async discard(id) {
 
@@ -239,19 +267,12 @@ export default {
     show_details() {
       this.detailed = true
     },
-    reinit_form() {
-
-    },
-    async refresh_outgoings() {
-
-    },
-    async refresh_incoming_headers() {
-      //this.incoming_headers = await IncomingsHeaderDB.getAll({current_count: '> 0', day: this.store_day.iso})
+    async refresh_all() {
+      this.avilable_incomings = await this.inoutHeadCtrl.findAll({diff: '> 0', day: this.$store.state.day.iso})
     }
   },
   async mounted() {
-    let all = await this.inoutHeadCtrl.findAll({diff: '> 0'})
-    console.log(all)
+    this.refresh_all()
   }
 }
 </script>

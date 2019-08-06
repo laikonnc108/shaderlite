@@ -1,6 +1,9 @@
 <template>
 <div class="incomings home row">
-  <IncomingResalahForm class="col-6 bg-incoming minh90 d-print-none" v-if="! flags.detailed"></IncomingResalahForm>
+  <IncomingResalahForm class="col-6 bg-incoming minh90 d-print-none"
+  @saved="refresh_all"
+  v-if="! flags.detailed">
+  </IncomingResalahForm>
   <div class="col-6 p-4 col-print-10 pr-me" >
   <br/>
   <b-alert :show="discard_success === false">
@@ -17,8 +20,6 @@
               <th>العميل</th>
               <th>الصنف</th>
               <th>عدد الطرود</th>
-              <th>النولون</th>
-              <th>ملاحظات</th>
               <th v-if="flags.detailed"></th>
             </tr>
           </thead>
@@ -26,10 +27,8 @@
             <tr v-for="(incom, idx) in incomings_arr" :key='idx'>
               <td>{{incom.id}}</td>
               <td>{{incom.supplier_name}}</td>
-              <td>{{$store.state.products_arr[incom.product_id]}}</td>
+              <td>{{incom.product_name}}</td>
               <td>{{incom.count}}</td>
-              <td>{{incom.nolon}}</td>
-              <td>{{incom.notes}}</td>
               <td v-if="flags.detailed" class="d-print-none">
                 <button class="btn text-danger" @click="discard(incom.id)" >
                   <span class="fa fa-archive "></span> 
@@ -44,7 +43,6 @@
               <td></td>
               
               <th>{{inc_sums.c_total_count}}</th>
-              <th>{{inc_sums.c_total_nolons}}</th>
             </tr>
           </tbody>
         </table>
@@ -84,22 +82,8 @@ export default {
     },
   },
   async mounted() {
-
     this.incoming_form.day = this.store_day.iso
     this.refresh_all()
-    /*
-    this.active_suppliers = await SuppliersDB.getAll({active:1})
-    this.active_products = await ProductsDB.getAll({active:1})
-    /*
-    this.$store.subscribe( (mutation, state) => {
-      console.log(mutation)
-      if(mutation.type =='setDay') {
-        this.store_day = state.day
-        this.incoming_form.day = this.store_day.iso
-        this.refresh_inc_arr()
-      }
-    })
-    */
   },
   computed: {
     valid_form: function() {
@@ -111,7 +95,6 @@ export default {
       let inc_sums ={c_total_count:0 , c_total_nolons: 0}
       this.incomings_arr.forEach( item => {
         inc_sums.c_total_count += item.count
-        inc_sums.c_total_nolons += item.nolon
       })
       return inc_sums
     }

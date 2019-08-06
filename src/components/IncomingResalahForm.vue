@@ -23,6 +23,9 @@
     <div class="form-group row">
       <label class="col-sm-2">الاصناف</label>
       <div class="col-sm-10">
+        <div class="product-row p-1" v-for="(product, index) in incomings_data.products_arr" :key='index' >
+           عدد {{product.count}} - {{all_products[product.id]}} 
+        </div>
       </div>
     </div>
 
@@ -32,14 +35,17 @@
         <div class="row product_area p-3">
           <label class="col-sm-2">الصنف</label>
           <div class="col-sm-5">
-            <select v-model="incomings_data.product_select" class="form-control" placeholder="اختار الصنف">
-            <option v-for="(product, index) in $store.state.products_arr" :key='index' :value='index'>
+            <select v-model="product_data.id" class="form-control" placeholder="اختار الصنف">
+            <option v-for="(product, index) in all_products" :key='index' :value='index'>
               {{product}}
             </option>
           </select>
           </div>
           <div class="col-sm-5">
-            <input v-model="incomings_data.count" class="form-control" placeholder=" العدد">
+            <input v-model="product_data.count" class="form-control" placeholder=" العدد">
+          </div>
+          <div class="p-4">
+            <button type="button" class="btn btn-primary" @click="add_product" >اضافة الصنف</button>
           </div>
         </div>
       </div>
@@ -60,6 +66,8 @@
     </div>
 
     <button type="submit" class="btn btn-success" :disabled="! valid_form">حفظ</button>
+    &nbsp;
+    <button type="button" @click="fresh_form" class="btn btn-danger"> الغاء </button>
     
   </form>
   </section>
@@ -67,41 +75,45 @@
 
 <script >
 import { SuppliersCtrl } from '../ctrls/SuppliersCtrl';
-
+import { IncomingsCtrl,IncomingsData } from '../ctrls/IncomingsCtrl'
 export default {
   name: 'IncomingResalahForm',
   data () {
     return {
-      incomings_data: {day: '', supplier_id: 0, products_arr: [], nolon: 0, given: 0 },
+      incomings_data: new IncomingsData({day: this.$store.state.day.iso }),
       active_suppliers: [],
+      incomingsCtrl: new IncomingsCtrl(),
+      all_products: this.$store.state.products_arr,
+      product_data: {id: 0 , count: null}
     }
   },
   methods: {
     async saveIncomings(evt){
       evt.preventDefault()
-      this.refresh_all()
+      let ids = await this.incomingsCtrl.saveIncomingsData(this.incomings_data)
+      this.fresh_form()
+      this.$emit('saved')
     },
-    async refresh_all(){
-      this.refresh_incomings_data()
+    add_product() {
+      if(this.product_data.id && this.product_data.count)
+        this.incomings_data.products_arr.push(this.product_data)
+      this.product_data = {id: 0 , count: null}
     },
-    refresh_incomings_data() {
-      this.incomings_data.day = this.$store.state.day.iso
+    fresh_form() {
+      this.incomings_data = new IncomingsData({day: this.$store.state.day.iso })
     }
   },
   async mounted () {
     // console.log(this.$store.state.products_arr)
     let suppliersCtrl = new SuppliersCtrl()
     this.active_suppliers = await suppliersCtrl.findAll({},{softDelete: true})
-    this.refresh_all()
+    this.fresh_form()
   },
   computed: {
     valid_form: function() {
-      return this.incomings_data.supplier_select && this.incomings_data.supplier_select.id &&
-        this.incomings_data.product_select && this.incomings_data.product_select.id &&
-        this.incomings_data.count
+      return this.incomings_data.supplier_id && this.incomings_data.products_arr.length > 0
     },
-  },
-  components: {  }
+  }
 }
 </script>
 
@@ -109,5 +121,13 @@ export default {
 .product_area {
   border: 3px dashed cadetblue;
   border-radius: 15px;
+}
+.product-row {
+  font-weight: bold;
+  font-size: 1.2em;
+  border-bottom: 2px dashed cadetblue;
+}
+.product-row:last-child {
+  border-bottom: none;
 }
 </style>

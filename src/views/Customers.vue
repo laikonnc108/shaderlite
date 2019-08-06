@@ -60,7 +60,7 @@
         <template v-if="customer_form.id"> حفظ </template>
       </button>
       &nbsp;
-      <button type="button" @click="fresh_form" class="btn btn-danger"> اغلاق </button>
+      <button type="button" @click="fresh_form" class="btn btn-danger"> الغاء </button>
     </form>
     </div>
   </b-collapse>
