@@ -1,4 +1,6 @@
 import { bookshelf } from '../main'
+import { CashflowDAO , CashflowCtrl} from './CashflowCtrl';
+import { TransTypesCtrl } from './TransTypesCtrl';
 
 export class IncomingDAO {
 
@@ -51,9 +53,15 @@ export class IncomingsData {
 export class IncomingsCtrl {
   /**@type {import('bookshelf').Model} */
   model
+  /**@type {TransTypesCtrl} */
+  transTypesCtrl
+  /**@type {CashflowCtrl} */
+  cashflowCtrl
 
   constructor() {
     this.model = require('../models/IncomingsModel')(bookshelf)
+    this.transTypesCtrl = new TransTypesCtrl()
+    this.cashflowCtrl = new CashflowCtrl()
   }
 
   /**@param {IncomingDAO} data */
@@ -68,10 +76,9 @@ export class IncomingsCtrl {
   async saveIncomingsData(data) {
     
     data.parseTypes()
-    let saved_ids = []
+    let saved_ids = [] , products_ids = []
     data.products_arr.forEach( async product => {
-      console.log ("product", product)
-      console.log (data.day, data.supplier_id)
+      products_ids.push(product.id)
       let incDAO = new IncomingDAO({day: data.day,
         supplier_id: data.supplier_id,
         product_id: product.id,
@@ -82,7 +89,17 @@ export class IncomingsCtrl {
       saved_ids.push(record.id)
     })
     // then add nolon and given cashflows
-    
+    if(data.nolon) {
+      let nolonTrans = await this.transTypesCtrl.findOne({name: 'nolon', category: 'cashflow'})
+      let cashDAO = new CashflowDAO({
+        amount: data.nolon,
+        supplier_id: data.supplier_id,
+        day: data.day,
+        d_product: products_ids.join()
+      })
+      cashDAO.transType = nolonTrans
+      this.cashflowCtrl.save(cashDAO)
+    }
     return saved_ids
   }
 

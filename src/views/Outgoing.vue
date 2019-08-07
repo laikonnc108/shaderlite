@@ -1,6 +1,6 @@
 <template>
   <div class="out row ">
-    <div class="col-6 bg-outgoing minh90 d-print-none" v-if="detailed === false">
+    <div class="col-5 bg-outgoing minh90 d-print-none" v-if="detailed === false">
     <br/>
     <!-- <img alt="Vue logo" src="../assets/logo.png"> 
     <HelloWorld msg="Welcome to Your Vue.js App"/>
@@ -19,7 +19,7 @@
 </ul>
 -->
 
-<div class="p-3" v-show="! selected_inc || ! selected_inc.product_id">
+<div class="p-2" v-show="! selected_inc || ! selected_inc.product_id">
 <button v-for="(incom, idx) in avilable_incomings" :key="idx" 
 v-b-toggle.collapse2 
 @click="selected_inc= incom"
@@ -27,9 +27,10 @@ class="btn btn-lg  m-1 btn-block"
 :class="{'btn-primary': incom.day === store_day.iso, 'btn-danger': incom.day !== store_day.iso}">
   <span class="fa fa-shopping-cart"></span> &nbsp; 
   {{incom.product_name}} - 
-  زرع <b> {{incom.supplier_name}} </b> - 
+  زرع <b> {{incom.supplier_name}} </b> 
+  <br/>
   متبقي ({{incom.diff}}) 
-  <span v-if="incom.day !== store_day.iso"><br/> 
+  <span v-if="incom.day !== store_day.iso"> -
 وارد {{incom.day | arDate }}
   </span>
   
@@ -131,7 +132,7 @@ class="btn btn-lg  m-1 btn-block"
 
 </div>
 <!-- conditional class col-6 -->
-<div class="p-3 col-print-12 pr-me" :class="{ 'col-6': ! detailed , 'col-10':  detailed }">
+<div class="p-3 col-print-12 pr-me" :class="{ 'col-7': ! detailed , 'col-10':  detailed }">
 
   <div class="m-3  ">
   <h2>بيع اليوم {{store_day.arab}}</h2>
@@ -234,11 +235,11 @@ export default {
         // this.outgoing_form.parseTypes()
         // only parse count
         // this.outgoing_form.count = parseInt(this.outgoing_form.count)
-        let count = this.outgoing_form.count 
-        let sell_comm = this.outgoing_form.sell_comm
+        let sell_comm_value = this.outgoing_form.count * this.outgoing_form.sell_comm
         let weight = this.outgoing_form.weight 
         let kg_price = this.outgoing_form.kg_price
-        return (count * sell_comm ) + ( weight * kg_price)
+
+        return sell_comm_value + ( weight * kg_price)
       }
       else return false
     },
@@ -256,7 +257,8 @@ export default {
       this.outgoing_form.income_day = this.selected_inc.day
       this.outgoing_form.supplier_id = this.selected_inc.supplier_id
       this.outgoing_form.product_id = this.selected_inc.product_id
-      console.log(this.outgoing_form)
+      this.outgoing_form.sell_comm_value = this.outgoing_form.count * this.outgoing_form.sell_comm
+      await this.outgoingsCtrl.save(this.outgoing_form)
       this.outgoing_form = new OutgoingDAO({ day: this.$store.state.day.iso, ...OutgoingDAO.INIT_DAO})
       this.selected_inc = {}
       this.refresh_all()
@@ -269,6 +271,7 @@ export default {
     },
     async refresh_all() {
       this.avilable_incomings = await this.inoutHeadCtrl.findAll({diff: '> 0', day: this.$store.state.day.iso})
+      this.outgoings_arr = await this.outgoingsCtrl.findAll({day: this.store_day.iso})
     }
   },
   async mounted() {

@@ -9,6 +9,8 @@ import Suppliers from './views/Suppliers.vue'
 import Products from './views/Products.vue'
 import CustomerDetails from './views/CustomerDetails.vue'
 import Outgoing from './views/Outgoing.vue'
+import SuppliersReceipts from './views/SuppliersReceipts.vue'
+import CustomersAccounts from './views/CustomersAccounts.vue'
 
 Vue.use(Router)
 
@@ -30,6 +32,16 @@ export default new Router({
       path: '/incomings',
       name: 'incomings',
       component: Incomings
+    },
+    {
+      path: '/suppliers_receipts',
+      name: 'suppliers_receipts',
+      component: SuppliersReceipts
+    },
+    {
+      path: '/customers_accounts',
+      name: 'customers_accounts',
+      component: CustomersAccounts
     },
     {
       path: '/outgoing',

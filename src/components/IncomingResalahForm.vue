@@ -45,7 +45,10 @@
             <input v-model="product_data.count" class="form-control" placeholder=" العدد">
           </div>
           <div class="p-4">
-            <button type="button" class="btn btn-primary" @click="add_product" >اضافة الصنف</button>
+            <button type="button" class="btn btn-primary" 
+            :disabled="! valid_product" @click="add_product" >اضافة الصنف</button>
+            &nbsp;
+            <button type="button" @click="product_data= {}" class="btn btn-danger"> الغاء </button>
           </div>
         </div>
       </div>
@@ -95,12 +98,13 @@ export default {
       this.$emit('saved')
     },
     add_product() {
-      if(this.product_data.id && this.product_data.count)
+      if(this.product_data.id && parseInt(this.product_data.count) > 0 )
         this.incomings_data.products_arr.push(this.product_data)
       this.product_data = {id: 0 , count: null}
     },
     fresh_form() {
       this.incomings_data = new IncomingsData({day: this.$store.state.day.iso })
+      this.product_data = {id: 0 , count: null}
     }
   },
   async mounted () {
@@ -111,8 +115,12 @@ export default {
   },
   computed: {
     valid_form: function() {
-      return this.incomings_data.supplier_id && this.incomings_data.products_arr.length > 0
+      return this.incomings_data.supplier_id && this.incomings_data.products_arr.length > 0 && 
+      ( ! this.product_data.id && ! this.product_data.count)
     },
+    valid_product: function() {
+      return this.product_data.id && this.product_data.count
+    }
   }
 }
 </script>

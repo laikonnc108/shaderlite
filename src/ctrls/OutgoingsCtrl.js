@@ -6,8 +6,11 @@ export class OutgoingDAO {
   day
   income_day    
   supplier_id
+  supplier_name
   product_id
+  product_name
   customer_id  
+  customer_name
   sell_comm
   sell_comm_value
   kg_price
@@ -22,7 +25,11 @@ export class OutgoingDAO {
     this.sell_comm = this.sell_comm ? parseFloat(this.sell_comm) : 0
     this.kg_price = this.kg_price ? parseFloat(this.kg_price) : 0
     this.weight = this.weight ? parseFloat(this.weight) : 0
-    this.value_calc = this.value_calc ? parseFloat(this.value_calc) : 0
+    this.sell_comm_value = this.sell_comm_value ? parseFloat(this.sell_comm_value) : 0
+    this.value_calc = this.value_calc ? parseFloat(this.value_calc).toFixed(2) : 0
+    delete this.supplier_name
+    delete this.product_name
+    delete this.customer_name
   }
 
   // Constant member
@@ -41,7 +48,7 @@ export class OutgoingsCtrl {
   model
 
   constructor() {
-    this.model = require('../models/IncomingsModel')(bookshelf)
+    this.model = require('../models/OutgoingsModel')(bookshelf)
   }
 
   /**@param {OutgoingDAO} data */
@@ -51,17 +58,28 @@ export class OutgoingsCtrl {
     return record.id
   }
 
-
   async findAll(filter = {}) {
-    /*
-    let all = await this.model.where(filter).fetchAll({withRelated: ['supplier','product']})
+    let all = await this.model.where(filter).fetchAll({withRelated: ['supplier','product','customer']})
     return all.map( _=> {
-      let incDAO = new OutgoingDAO(_.attributes)
-      incDAO.supplier_name = _.related('supplier').get('name')
-      incDAO.product_name = _.related('product').get('name')
-      return incDAO
+      let outDAO = new OutgoingDAO(_.attributes)
+      outDAO.supplier_name = _.related('supplier').get('name')
+      outDAO.product_name = _.related('product').get('name')
+      outDAO.customer_name = _.related('customer').get('name')
+      return outDAO
     })
-    */
+  }
+
+  async findDailyCustomers(filter = {day:'',}) {
+    let all = await this.model.query(q => {
+      q.distinct('customer_id')
+      q.whereNotNull('customer_id')
+    }).where(filter).orderBy('customer_id','ASC').fetchAll({withRelated: ['customer']})
+
+    return all.map( _=> {
+      let outDAO = new OutgoingDAO(_.attributes)
+      outDAO.customer_name = _.related('customer').get('name')
+      return outDAO
+    })
   }
 
   async deleteById(id){

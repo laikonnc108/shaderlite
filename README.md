@@ -57,6 +57,17 @@ npm run postinstall
 (before creating inout_head view)
 - create forign keys
 
+**Cashflow**
+- move actor_id to supplier_id / customer_id
+```
+update cashflow set supplier_id = actor_id , actor_id = null , state_data = null where state = 'nolon' or state = 'given'
+
+update cashflow set supplier_id = actor_id , actor_id = null , state_data = null where state = 'recp_paid' or state = 'supp_payment' or state = 'out_receipt' or state = 'supp_collect' 
+
+update cashflow set customer_id = actor_id , actor_id = null , state_data = null where state = 'paid' or state = 'collecting' or state = 'acc_rest' or state = 'acc_rest'
+```
+- delete cols : state_data, actor_id, actor_name , date_created
+
 **Replaces**
 double DEFAULT NULL > REAL
 UNSIGNED > 

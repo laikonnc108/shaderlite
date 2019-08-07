@@ -86,11 +86,6 @@ export default {
     this.refresh_all()
   },
   computed: {
-    valid_form: function() {
-      return this.incoming_form.supplier_select && this.incoming_form.supplier_select.id &&
-        this.incoming_form.product_select && this.incoming_form.product_select.id &&
-        this.incoming_form.count
-    },
     inc_sums: function() {
       let inc_sums ={c_total_count:0 , c_total_nolons: 0}
       this.incomings_arr.forEach( item => {
