@@ -11,6 +11,8 @@ import CustomerDetails from './views/CustomerDetails.vue'
 import Outgoing from './views/Outgoing.vue'
 import SuppliersReceipts from './views/SuppliersReceipts.vue'
 import CustomersAccounts from './views/CustomersAccounts.vue'
+import Cashflow from './views/Cashflow.vue'
+import Users from './views/Users.vue'
 
 Vue.use(Router)
 
@@ -64,9 +66,24 @@ export default new Router({
       component: Products
     },
     {
+      path: '/users',
+      name: 'users',
+      component: Users
+    },
+    {
       path: '/customer_details/:id',
       name: 'customer_details',
       component: CustomerDetails
+    },
+    {
+      path: '/out_cashflow',
+      name: 'out_cashflow',
+      component: Cashflow
+    },
+    {
+      path: '/in_cashflow',
+      name: 'in_cashflow',
+      component: Cashflow
     },
   ]
 })

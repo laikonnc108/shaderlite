@@ -58,13 +58,13 @@
               </li>
 
               <li class="nav-item">
-                <router-link class="nav-link active" to="/expenses">
+                <router-link class="nav-link active" to="/out_cashflow">
                   <span class="fa fa-money-bill-wave"></span>
                   {{ custom_labels['expenses'] }} 
                 </router-link>
               </li>
               <li class="nav-item">
-                <router-link class="nav-link active" to="/collecting">
+                <router-link class="nav-link active" to="/in_cashflow">
                   <span class="fa fa-credit-card"></span>
                   {{ custom_labels['collecting'] }} 
                 </router-link>
@@ -98,7 +98,7 @@
                 </router-link>
               </li>
               <li class="nav-item">
-                <router-link class="nav-link active" to="/developer">
+                <router-link class="nav-link active" to="/users">
                   <span class="fa fa-code"></span>
                    {{ custom_labels['manage_users'] }} 
                 </router-link>

@@ -59,6 +59,8 @@ export class CustomerTransDAO {
     this.amount = this.amount? parseFloat(this.amount): 0
     this.debt_after = this.debt_after? parseFloat(this.debt_after) : 0
     this.actual_sale = this.actual_sale? parseFloat(this.actual_sale) : 0
+    delete this.weight
+    delete this.kg_price
   }
 }
 
@@ -66,8 +68,12 @@ export class CustomersCtrl {
   /**@type {import('bookshelf').Model} */
   model
 
+  /**@type {import('bookshelf').Model} */
+  customerTransModel
+
   constructor() {
     this.model = require('../models/CustomersModel')(bookshelf)
+    this.customerTransModel = require('../models/CustomerTransModel')(bookshelf)
   }
 
   /**@param {CustomerDAO} data */
@@ -79,7 +85,6 @@ export class CustomersCtrl {
   }
 
   async findAll(filter = {}, options = {}) {
-
     let all = await this.model.where(filter).fetchAll(options)
     return all.map( _=> new CustomerDAO(_.attributes))
   }
@@ -88,6 +93,41 @@ export class CustomersCtrl {
     let one = await this.model.forge('id',id).fetch({withRelated:['trans']})
     let trans = one.related('trans').map( _=> new CustomerTransDAO(_.attributes))
     return {dao: new CustomerDAO(one.toJSON()), trans: trans}
+  }
+
+  async findOne(id) {
+    let one = await this.model.forge('id',id).fetch()
+    return new CustomerDAO(one.toJSON())
+  }
+
+  async getCustomerTrans(id) {
+    let all_trans = await this.customerTransModel.where({customer_id: id}).fetchAll({withRelated:['outgoing']})
+    return all_trans.map( _=> {
+      let transDAO = new CustomerTransDAO(_.attributes)
+      if(_.related('outgoing')){
+        transDAO.kg_price = _.related('outgoing').get('kg_price')
+        transDAO.weight = _.related('outgoing').get('weight')
+        transDAO.count = _.related('outgoing').get('count')
+      }
+      return transDAO
+    })
+  }
+
+  /**@param {CustomerTransDAO} transDAO */
+  async removeLastTrans(transDAO) {
+
+    /**@type {import('bookshelf').ModelBase} */
+    let customerInstance = await this.model.forge('id',transDAO.customer_id).fetch()
+    let debt = customerInstance.get('debt')
+    let amount = parseFloat(transDAO.amount)
+    if(transDAO.sum == '+') {
+      debt = parseFloat(debt) - amount
+    } else {
+      debt = parseFloat(debt) + amount
+    }
+    await customerInstance.save({debt: debt})
+    console.log(customerInstance)
+    return true //!
   }
 
   async deleteById(id){

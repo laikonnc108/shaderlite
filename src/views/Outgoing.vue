@@ -100,9 +100,9 @@ class="btn btn-lg  m-1 btn-block"
   <div class="form-group row">
     <label for="notes1" class="col-sm-2">اسم البياع</label>
     <div class="col-sm-10">
-      <select v-model="outgoing_form.customer_select" class="form-control"  >
+      <select v-model="outgoing_form.customer_id" class="form-control"  >
         <option value="">كاش</option>
-      <option v-for="(customer, idx) in active_customers" :key='idx' :value="{ id: customer.id, name: customer.name}">
+      <option v-for="(customer, idx) in active_customers" :key='idx' :value="customer.id">
         {{customer.name}}
       </option>
     </select>
@@ -200,6 +200,7 @@ class="btn btn-lg  m-1 btn-block"
 <script>
 import { InoutHeadCtrl } from '../ctrls/InoutHeadCtrl'
 import { OutgoingDAO, OutgoingsCtrl } from '../ctrls/OutgoingsCtrl'
+import { CustomersCtrl } from '../ctrls/CustomersCtrl';
 
 export default {
   name: 'outgoings',
@@ -210,6 +211,7 @@ export default {
       active_customers: [],
       inoutHeadCtrl: new InoutHeadCtrl(),
       outgoingsCtrl: new OutgoingsCtrl(),
+      customersCtrl: new CustomersCtrl(),
       store_day: this.$store.state.day,
       avilable_incomings: [],
       selected_inc: {},
@@ -271,6 +273,7 @@ export default {
     },
     async refresh_all() {
       this.avilable_incomings = await this.inoutHeadCtrl.findAll({diff: '> 0', day: this.$store.state.day.iso})
+      this.active_customers = await this.customersCtrl.findAll({},{softDelete: true})
       this.outgoings_arr = await this.outgoingsCtrl.findAll({day: this.store_day.iso})
     }
   },

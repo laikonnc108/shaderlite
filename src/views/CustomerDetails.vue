@@ -169,12 +169,21 @@ export default {
   },
   methods: {
     async getCustomerDetails() {
-        let {dao, trans} = await this.customersCtrl.getCustomerDetails(this.customer_id)
-        this.customer_trans = trans
-        this.customer = dao
+        //let {dao, trans} = await this.customersCtrl.getCustomerDetails(this.customer_id)
+
+        this.customer = await this.customersCtrl.findOne(this.customer_id)
+        this.customer_trans = await this.customersCtrl.getCustomerTrans(this.customer_id)
     },
     async removeLastTrans(trans) {
-
+      if( this.confirm_step[trans.id] ) {
+        this.discard_success = await this.customersCtrl.removeLastTrans(trans)
+        this.confirm_step = []
+        this.getCustomerDetails()
+      }
+      else {
+        this.confirm_step = []
+        this.confirm_step[trans.id] = true
+      }
     },
     async sellRest(evt) {
       evt.preventDefault()
