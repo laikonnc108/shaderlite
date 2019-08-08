@@ -31,7 +31,6 @@ export class ProductsCtrl {
     data.parseTypes()
     let record = await this.model.forge(data).save()
     return record.id
-    // TODO Add Supplier Trans
   }
 
   async findAll(filter = {}, options = {}) {

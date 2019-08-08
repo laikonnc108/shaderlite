@@ -125,7 +125,7 @@ class="btn btn-lg  m-1 btn-block"
   
   <button type="submit" class="btn btn-success" :disabled="! valid_form">اضافة</button> 
   &nbsp;&nbsp;
-  <button class="btn btn-danger" type="button" @click="reinit_form()"> اغلاق </button>
+  <button class="btn btn-danger" type="button" @click="refresh_all"> الغاء </button>
 </form>
 
 </div>
@@ -145,6 +145,7 @@ class="btn btn-lg  m-1 btn-block"
               <th>زرع العميل</th>
               <th>عدد</th>
               <th>الصنف</th>
+              <th v-if="detailed ">وارد يوم</th>
               <th>اسم البياع</th>
               
               <th v-if="detailed ">بياعة </th>
@@ -162,8 +163,9 @@ class="btn btn-lg  m-1 btn-block"
               <td>{{item.id}}</td>
 
               <td>{{item.supplier_name}}</td>
-              <td>{{item.count}}</td>
+              <td>{{item.count }}</td>
               <td>{{item.product_name}}</td>
+              <td v-if="detailed ">{{item.income_day | arDate}}</td>
               <td>{{item.customer_name}}</td>
               
               <td v-if="detailed ">{{item.sell_comm}}</td>
@@ -260,13 +262,21 @@ export default {
       this.outgoing_form.supplier_id = this.selected_inc.supplier_id
       this.outgoing_form.product_id = this.selected_inc.product_id
       this.outgoing_form.sell_comm_value = this.outgoing_form.count * this.outgoing_form.sell_comm
-      await this.outgoingsCtrl.save(this.outgoing_form)
-      this.outgoing_form = new OutgoingDAO({ day: this.$store.state.day.iso, ...OutgoingDAO.INIT_DAO})
-      this.selected_inc = {}
+      await this.outgoingsCtrl.saveOutgoingData(this.outgoing_form)
+
       this.refresh_all()
     },
     async discard(id) {
+      if( this.confirm_step[id] ) {
+        this.discard_success = await this.outgoingsCtrl.deleteById(id)
+        this.confirm_step = []
 
+        this.refresh_all()
+      }
+      else {
+        this.confirm_step = []
+        this.confirm_step[id] = true
+      }
     },
     show_details() {
       this.detailed = true
@@ -275,6 +285,8 @@ export default {
       this.avilable_incomings = await this.inoutHeadCtrl.findAll({diff: '> 0', day: this.$store.state.day.iso})
       this.active_customers = await this.customersCtrl.findAll({},{softDelete: true})
       this.outgoings_arr = await this.outgoingsCtrl.findAll({day: this.store_day.iso})
+      this.outgoing_form = new OutgoingDAO({ day: this.$store.state.day.iso, ...OutgoingDAO.INIT_DAO})
+      this.selected_inc = {}
     }
   },
   async mounted() {

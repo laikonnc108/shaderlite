@@ -13,6 +13,15 @@ export class InoutHeadCtrl {
     return results
   }
 
+  async findOne(options = { day: '' , supplier_id : 0, product_id: 0}) {
+    let results = {}
+    results = await knex('inout_head').where('day', options.day)
+    .andWhere('supplier_id', options.supplier_id)
+    .andWhere('product_id',  options.product_id)
+    .first()
+    return results
+  }
+
   async findDailySuppliers(options = { day: ''}) {
     console.log(options)
     let query = `

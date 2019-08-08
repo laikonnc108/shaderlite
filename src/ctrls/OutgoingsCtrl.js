@@ -1,4 +1,6 @@
 import { bookshelf } from '../main'
+import { CustomersCtrl, CustomerTransDAO } from './CustomersCtrl'
+import { TransTypesCtrl } from './TransTypesCtrl';
 
 export class OutgoingDAO {
 
@@ -46,9 +48,12 @@ export class OutgoingDAO {
 export class OutgoingsCtrl {
   /**@type {import('bookshelf').Model} */
   model
+  /**@type {TransTypesCtrl} */
+  transTypesCtrl
 
   constructor() {
     this.model = require('../models/OutgoingsModel')(bookshelf)
+    this.transTypesCtrl = new TransTypesCtrl()
   }
 
   /**@param {OutgoingDAO} data */
@@ -57,6 +62,26 @@ export class OutgoingsCtrl {
     let record = await this.model.forge(data).save()
     return record.id
   }
+
+    /**@param {OutgoingDAO} data */
+    async saveOutgoingData(data) {
+      let out_id = await this.save(data)
+      if(data.customer_id){
+        let outgoingTrans = await this.transTypesCtrl.findOne({name: 'outgoing', category: 'customer_trans'})
+        
+        let customerTrans = new CustomerTransDAO()
+        customerTrans.transType = outgoingTrans
+        customerTrans.day = data.day
+        customerTrans.amount = parseFloat(data.value_calc)
+        customerTrans.customer_id = data.customer_id
+        customerTrans.outgoing_id = out_id
+        customerTrans.product_id = data.product_id
+
+        let customersCtrl = new CustomersCtrl()
+        await customersCtrl.updateDebtByTrans(customerTrans)
+      }
+      return out_id
+    }
 
   async findAll(filter = {}) {
     let all = await this.model.where(filter).fetchAll({withRelated: ['supplier','product','customer']})

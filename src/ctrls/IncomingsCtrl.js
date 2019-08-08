@@ -1,6 +1,7 @@
 import { bookshelf } from '../main'
 import { CashflowDAO , CashflowCtrl} from './CashflowCtrl';
 import { TransTypesCtrl } from './TransTypesCtrl';
+import { InoutHeadCtrl } from './InoutHeadCtrl';
 
 export class IncomingDAO {
 
@@ -57,11 +58,14 @@ export class IncomingsCtrl {
   transTypesCtrl
   /**@type {CashflowCtrl} */
   cashflowCtrl
+  /**@type {InoutHeadCtrl} */
+  inoutHeadCtrl
 
   constructor() {
     this.model = require('../models/IncomingsModel')(bookshelf)
     this.transTypesCtrl = new TransTypesCtrl()
     this.cashflowCtrl = new CashflowCtrl()
+    this.inoutHeadCtrl = new InoutHeadCtrl()
   }
 
   /**@param {IncomingDAO} data */
@@ -89,18 +93,48 @@ export class IncomingsCtrl {
       saved_ids.push(record.id)
     })
     // then add nolon and given cashflows
-    if(data.nolon) {
-      let nolonTrans = await this.transTypesCtrl.findOne({name: 'nolon', category: 'cashflow'})
+    if(data.nolon || data.given ) {
+
+      // default cashflow
       let cashDAO = new CashflowDAO({
-        amount: data.nolon,
         supplier_id: data.supplier_id,
         day: data.day,
         d_product: products_ids.join()
       })
-      cashDAO.transType = nolonTrans
-      this.cashflowCtrl.save(cashDAO)
+
+      if(data.nolon) {
+        let transType = await this.transTypesCtrl.findOne({name: 'nolon', category: 'cashflow'})
+        cashDAO.transType = transType
+        cashDAO.amount = data.nolon
+        this.cashflowCtrl.save(cashDAO)
+      }
+      
+      if(data.given) {
+        let transType = await this.transTypesCtrl.findOne({name: 'given', category: 'cashflow'})
+        cashDAO.transType = transType
+        cashDAO.amount = data.given
+        this.cashflowCtrl.save(cashDAO)
+      }
+      
     }
     return saved_ids
+  }
+
+  async removeIncoming(id) {
+    let instance = await this.model.forge('id',id).fetch()
+    let inoutHeadRecord = await this.inoutHeadCtrl.findOne({
+      day: instance.get('day'),
+      product_id: instance.get('product_id'),
+      supplier_id: instance.get('supplier_id')
+    })
+    if(parseInt(instance.get('count')) <= inoutHeadRecord.diff) {
+      // Save to remove
+      await instance.destroy()
+      return true
+    }
+    else {
+      return false
+    }
   }
 
   async findAll(filter = {}) {

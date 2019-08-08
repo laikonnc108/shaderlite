@@ -52,6 +52,9 @@ npm run postinstall
 - remove unwanted cols d_product, date_created
 - create forign keys
 
+**Customer_trans**
+- remove product_name , count
+
 **Incomings**
 - remove product_name, supplier_name, notes, date_created, nolon, given 
 (before creating inout_head view)

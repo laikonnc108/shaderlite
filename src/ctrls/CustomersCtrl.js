@@ -52,7 +52,13 @@ export class CustomerTransDAO {
   }
 
   static get INIT_DAO() {
-    return { sum: '+' }
+    return { }
+  }
+
+  /**@param {import('./TransTypesCtrl').TransTypeDAO} transDAO */
+  set transType(transDAO) {
+    this.trans_type = transDAO.name
+    this.sum = transDAO.sum
   }
 
   parseTypes () {
@@ -81,7 +87,7 @@ export class CustomersCtrl {
     data.parseTypes()
     let record = await this.model.forge(data).save()
     return record.id
-    // TODO Add Customer Trans
+    // TODO Add Customer Trans with debt
   }
 
   async findAll(filter = {}, options = {}) {
@@ -101,16 +107,39 @@ export class CustomersCtrl {
   }
 
   async getCustomerTrans(id) {
-    let all_trans = await this.customerTransModel.where({customer_id: id}).fetchAll({withRelated:['outgoing']})
+    let all_trans = await this.customerTransModel
+    .where({customer_id: id}).fetchAll({withRelated:['outgoing','product']})
+
     return all_trans.map( _=> {
       let transDAO = new CustomerTransDAO(_.attributes)
       if(_.related('outgoing')){
         transDAO.kg_price = _.related('outgoing').get('kg_price')
         transDAO.weight = _.related('outgoing').get('weight')
         transDAO.count = _.related('outgoing').get('count')
+        transDAO.product_name = _.related('product').get('name')
       }
       return transDAO
     })
+  }
+
+  /**@param {CustomerTransDAO} transDAO */
+  async updateDebtByTrans(transDAO) {
+    /**@type {import('bookshelf').ModelBase} */
+    let instance = await this.model.forge('id',transDAO.customer_id).fetch()
+    let debt = parseFloat(instance.get('debt'))
+    if(transDAO.sum === '+') {
+      debt += parseFloat(transDAO.amount)
+    }
+    await instance.save({debt: debt})
+    transDAO.debt_after = debt
+    return await this.createCustomerTrans(transDAO)
+  }
+
+  /**@param {CustomerTransDAO} transDAO */
+  async createCustomerTrans(transDAO) {
+    transDAO.parseTypes()
+    let trans_record = await this.customerTransModel.forge(transDAO).save()
+    return trans_record.id
   }
 
   /**@param {CustomerTransDAO} transDAO */
@@ -120,14 +149,16 @@ export class CustomersCtrl {
     let customerInstance = await this.model.forge('id',transDAO.customer_id).fetch()
     let debt = customerInstance.get('debt')
     let amount = parseFloat(transDAO.amount)
+    // TODO more organized !
     if(transDAO.sum == '+') {
       debt = parseFloat(debt) - amount
     } else {
       debt = parseFloat(debt) + amount
     }
     await customerInstance.save({debt: debt})
-    console.log(customerInstance)
-    return true //!
+    let transInstance = await this.customerTransModel.where('id', transDAO.id).fetch()
+    await transInstance.destroy()
+    return true 
   }
 
   async deleteById(id){

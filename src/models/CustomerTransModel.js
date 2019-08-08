@@ -7,10 +7,14 @@ module.exports = (bookshelf) => {
         tableName: 'customer_trans',
         outgoing() {
             return this.belongsTo(RelOutgoingModel,'outgoing_id')
+        },
+        product() {
+            return this.belongsTo(RelProductModel,'product_id')
         }
     });
 
     let RelOutgoingModel = bookshelf.Model.extend({ tableName: 'outgoings' })
+    let RelProductModel = bookshelf.Model.extend({ tableName: 'products' })
     
     return CustomerTransModel;
 };

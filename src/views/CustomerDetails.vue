@@ -149,7 +149,7 @@
 </template>
 
 <script >
-import { CustomerDAO, CustomersCtrl } from '../ctrls/CustomersCtrl'
+import { CustomersCtrl } from '../ctrls/CustomersCtrl'
 
 export default {
   name: 'customer-details',

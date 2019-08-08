@@ -78,11 +78,23 @@ export default {
   },
   methods: {
     async refresh_all() {
+      this.incoming_form.day = this.store_day.iso
       this.incomings_arr = await this.incomingsCtrl.findAll({day: this.store_day.iso})
     },
+    async discard(id) {
+      if( this.confirm_step[id] ) {
+        // Discard Incoming
+        this.discard_success = await this.incomingsCtrl.removeIncoming(id)
+        this.confirm_step = []
+        this.refresh_all()
+      }
+      else {
+        this.confirm_step = []
+        this.confirm_step[id] = true
+      }
+    }
   },
   async mounted() {
-    this.incoming_form.day = this.store_day.iso
     this.refresh_all()
   },
   computed: {
