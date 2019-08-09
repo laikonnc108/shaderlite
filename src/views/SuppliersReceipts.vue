@@ -16,7 +16,7 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
     <thead>
       <tr>
         <th>اسم العميل</th>
-        <th>الاصناف</th>
+        <th>الاصناف الواردة</th>
         <th>طرود متبقية</th>
         <th>الفاتورة</th>
       </tr>
@@ -33,7 +33,7 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
           <span class="text-danger" v-if="item.total_current_rest">{{item.total_current_rest}}</span>
         </td>
         -->
-        <td></td>
+        <td>{{row.products_concat}}</td>
         <td>{{row.sum_diff}}</td>
         <td>{{row.recp_paid}}</td>
       </tr>

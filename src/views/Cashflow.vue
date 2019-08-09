@@ -8,8 +8,8 @@
               <th>التاريخ</th>
               <th>المبلغ</th>
               <th>
-                <span v-if="$route.name == 'expenses'">الي </span>
-                <span v-if="$route.name != 'expenses'">من </span>
+                <span v-if="$route.name == 'out_cashflow'">الي </span>
+                <span v-if="$route.name == 'in_cashflow'">من </span>
               </th>
               <th>نوع</th>
               <th>ملاحظات</th>
@@ -98,15 +98,15 @@
 import {  CashflowCtrl, CashflowDAO } from '../ctrls/CashflowCtrl'
 // import { DailyDB } from '../db/DailyDB.js'
 
-import { APP_LABELS } from '../main.js'
+// import { APP_LABELS } from '../main.js'
 export default {
   name: 'cashflow',
   data () {
     return {
       cashflow_arr: [],
       store_day: this.$store.state.day,
-      cashflow_form: {state:this.$route.name , amount: null},
-      app_labels : APP_LABELS,
+      cashflow_form: new CashflowDAO(),
+      app_labels : [],
       day_count : 0,
       men_rate : 1.5,
       confirm_step:[]
@@ -120,26 +120,28 @@ export default {
       this.cashflow_form = {}
       this.cashflow_form.state = this.$route.name 
       let states = null
-      if(this.$route.name == 'expenses') {
+      if(this.$route.name == 'out_cashflow') {
         states = ['given','expenses','nolon','payment','act_pymnt' ,'recp_paid','paid','acc_rest','repay_cust_trust','men_account','repay_cust_rahn','supp_payment','out_receipt']
       }
-      else if(this.$route.name == 'collecting') {
+      else if(this.$route.name == 'in_cashflow') {
         states = ['collecting','outgoing_cash','supp_collect','cust_trust','cust_rahn','inc_collect'] 
       }
       // else if (this.$route.name == 'payments') { states = []   }
       
       // console.log( this.$route.name ,state)
+      /*
       this.cashflow_arr = await CashflowDB.getAll({
         // state:this.$route.name
         day: this.$store.state.day.iso,
         states: states
       })
-      
       this.day_count = await DailyDB.getTodayCount(this.store_day.iso)
+      */
+      
     },
     async removeCashflow(cashflow_id) {
       if( this.confirm_step[cashflow_id] ) {
-        await CashflowDB.deleteItem(cashflow_id)
+        // await CashflowDB.deleteItem(cashflow_id)
         this.refresh_cashflow_arr()
       }
       else {
@@ -150,6 +152,7 @@ export default {
     async addCashflow(evt) {
       evt.preventDefault()
       let cashDAO = new CashflowDAO(this.cashflow_form)
+      /*
       cashDAO.state = (this.cashflow_form.state) ? this.cashflow_form.state : this.$route.name
       if(cashDAO.state === 'collecting')
         cashDAO.state = 'inc_collect'
@@ -161,6 +164,7 @@ export default {
       this.$root.$emit('bv::toggle::collapse', 'collapse_cash')
       this.cashflow_form = {}
       this.refresh_cashflow_arr()
+      */
     }
   },
   components: {
@@ -206,7 +210,3 @@ export default {
   }
 }
 </script>
-
-<style scoped lang="scss">
-
-</style>

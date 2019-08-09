@@ -11,7 +11,7 @@ export class ProductDAO {
     return { }
   }
 
-  constructor( data ={} ){
+  constructor( data = {} ){
     Object.assign(this, data)
   }
   

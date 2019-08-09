@@ -60,6 +60,9 @@ npm run postinstall
 (before creating inout_head view)
 - create forign keys
 
+**outgoingd**
+- remove income_header_id , sell type
+
 **Cashflow**
 - move actor_id to supplier_id / customer_id
 ```

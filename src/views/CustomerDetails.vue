@@ -64,7 +64,6 @@
             <tr v-for="(trans, idx) in customer_trans" :key='idx'>
               <td>{{trans.day | arDate }}</td>
               <td>
-                {{/*custom_labels.trans[trans.trans_type]*/}}
                 {{trans.trans_type | tr_label}}
                 <span v-if="trans.trans_type === 'outgoing'"> 
                   - عدد {{trans.count | toAR }} 
