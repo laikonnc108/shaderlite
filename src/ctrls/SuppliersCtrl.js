@@ -45,6 +45,12 @@ export class SuppliersCtrl {
     return all.map( _=> new SupplierDAO(_.attributes))
   }
 
+  
+  async findById(id) {
+    let instance = await this.model.where('id',id).fetch()
+    return new SupplierDAO(instance.attributes)
+  }
+
   async deleteById(id){
     
     let instance = await this.model.where('id',id).fetch()

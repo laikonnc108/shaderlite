@@ -1,6 +1,7 @@
-import { bookshelf } from '../main'
+import { bookshelf, knex } from '../main'
 import { CustomersCtrl, CustomerTransDAO } from './CustomersCtrl'
 import { TransTypesCtrl } from './TransTypesCtrl';
+import { CashflowCtrl, CashflowDAO} from './CashflowCtrl'
 
 export class OutgoingDAO {
 
@@ -21,6 +22,8 @@ export class OutgoingDAO {
   value_calc
   collecting
   notes
+  sum_count
+  sum_weight
 
   parseTypes () {
     this.count = parseInt(this.count)
@@ -32,6 +35,8 @@ export class OutgoingDAO {
     delete this.supplier_name
     delete this.product_name
     delete this.customer_name
+    delete this.sum_count
+    delete this.sum_weight
   }
 
   // Constant member
@@ -43,7 +48,6 @@ export class OutgoingDAO {
     Object.assign(this, data)
   }
 }
-
 
 export class OutgoingsCtrl {
   /**@type {import('bookshelf').Model} */
@@ -66,6 +70,7 @@ export class OutgoingsCtrl {
     /**@param {OutgoingDAO} data */
     async saveOutgoingData(data) {
       let out_id = await this.save(data)
+      console.log(data)
       if(data.customer_id){
         let outgoingTrans = await this.transTypesCtrl.findOne({name: 'outgoing', category: 'customer_trans'})
         
@@ -79,7 +84,21 @@ export class OutgoingsCtrl {
 
         let customersCtrl = new CustomersCtrl()
         await customersCtrl.updateDebtByTrans(customerTrans)
+      } else {
+        // Create cashflow with outgoing
+        let cashflowTrans =  await this.transTypesCtrl.findOne({name: 'outgoing_cash', category: 'cashflow'})
+        let cashDAO = new CashflowDAO({
+          day: data.day,
+          d_product: data.product_id
+        })
+        cashDAO.transType = cashflowTrans
+        cashDAO.outgoing_id = out_id
+        cashDAO.amount = parseFloat(data.value_calc)
+
+        let cashflowCtrl = new CashflowCtrl()
+        await cashflowCtrl.save(cashDAO)
       }
+
       return out_id
     }
 
@@ -105,6 +124,14 @@ export class OutgoingsCtrl {
       outDAO.customer_name = _.related('customer').get('name')
       return outDAO
     })
+  }
+
+  async findSuppDaySums(filter = {supplier_id: null, day: null}){
+    console.log(filter)
+    let results = await knex('v_out_sums').where('income_day', filter.day)
+    .andWhere('supplier_id', filter.supplier_id)
+
+    return results.map(item => new OutgoingDAO(item))
   }
 
   async deleteById(id){

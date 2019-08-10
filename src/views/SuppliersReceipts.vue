@@ -17,8 +17,9 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
       <tr>
         <th>اسم العميل</th>
         <th>الاصناف الواردة</th>
+        <th>اجمالي النوالين </th>
         <th>طرود متبقية</th>
-        <th>الفاتورة</th>
+        <th>الفواتير</th>
       </tr>
     </thead>
     <tbody>
@@ -34,8 +35,14 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
         </td>
         -->
         <td>{{row.products_concat}}</td>
+        <td>{{row.total_nolon}}</td>
         <td>{{row.sum_diff}}</td>
-        <td>{{row.recp_paid}}</td>
+        <td>
+          {{row.recp_paid}}
+          <router-link class="nav-link " :to="{name:'supp_recp_details', params: {supplier_id: row.supplier_id}}">
+          تعديل 
+          </router-link>
+        </td>
       </tr>
 
     </tbody>

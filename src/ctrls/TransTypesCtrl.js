@@ -44,8 +44,13 @@ export class TransTypesCtrl {
 
   /**@returns {TransTypeDAO} */
   async findOne(filter = {}) {
-    let transTypeInst = await this.model.where(filter).fetch()
-    return new TransTypeDAO(transTypeInst.attributes)
+    try {
+      let transTypeInst = await this.model.where(filter).fetch()
+      return new TransTypeDAO(transTypeInst.attributes)
+    } catch (error) {
+      console.error(error)
+      return 
+    }
   }
 
   async deleteById(id){
