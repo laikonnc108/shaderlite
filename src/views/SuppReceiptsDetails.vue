@@ -19,7 +19,7 @@
               <td></td>
               <td>{{incom.product_name}}</td>
               <td>{{incom.inc_count}}</td>
-              <td>{{incom.diff}} - {{incom.recp_in_count}}</td>
+              <td>{{incom.diff}} </td>
             </tr>
           </tbody>
         </table>
@@ -59,7 +59,7 @@
             </tr>
           </draggable>
         </table>
-    <button  class="btn btn-primary" @click="addReceipt(1)" v-if="receipts_count == 0">
+    <button  class="btn btn-primary" @click="addReceipt()" v-if="receipts_count == 0">
       انشاء فاتورة   &nbsp; <span class="fa fa-external-link-square-alt"></span>
     </button>
       </div>
@@ -80,6 +80,8 @@
             :key="idx"
           >
             {{ element.product_name }} {{ element.count }} {{ element.kg_price }} {{ element.weight }}
+            <span class="fa fa-minus-circle" @click="remove_from_list(recp_one.recp_details, idx)"
+            style="color:red;float: left;"></span>
           </div>
         </draggable>
       </div>
@@ -88,21 +90,50 @@
         <h3>فاتورة 2</h3>
         <draggable
           class="dragArea list-group"
-          :list="recp2_details"
+          :list="recp_two.recp_details"
           group="outsums"
         >
           <div
             class="list-group-item"
-            v-for="(element, idx) in recp2_details"
+            v-for="(element, idx) in recp_two.recp_details"
             :key="idx"
           >
           
             {{ element.product_name }} {{ element.count }}
-            <input v-model="element.count" class="form-control"  >
+            
 
+            <span class="fa fa-minus-circle" @click="remove_from_list(recp_two.recp_details, idx)"
+            style="color:red;float: left;"></span>
+            <div>
+              <input v-model="element.count" class="form-control"  >
+            </div>
           </div>
         </draggable>
       </div>
+      <div class="col-4"  v-if="receipts_count > 2">
+        <h3>فاتورة 3</h3>
+        <draggable
+          class="dragArea list-group"
+          :list="recp_three.recp_details"
+          group="outsums"
+          @change="recp_changed"
+        >
+          <div
+            class="list-group-item"
+            v-for="(element, idx) in recp_three.recp_details"
+            :key="idx"
+          >
+            {{ element.product_name }} {{ element.count }} {{ element.kg_price }} {{ element.weight }}
+            <span class="fa fa-minus-circle" @click="remove_from_list(recp_three.recp_details, idx)"
+            style="color:red;float: left;"></span>
+          </div>
+        </draggable>
+      </div>
+    <button  class="btn btn-primary" @click="addReceipt()" v-if="receipts_count > 0 && receipts_count < 3">
+     اضافة فاتورة   &nbsp; <span class="fa fa-external-link-square-alt"></span>
+     <br/>
+     {{receipts_count + 1}} 
+    </button>
     </section>
 
     <hr>
@@ -139,8 +170,8 @@ export default {
       inc_headers: [],
       recp_in_sums: {},
       recp_one: {recp_details: []},
-      recp2_details: [],
-      recp3_details: [],
+      recp_two: {recp_details: []},
+      recp_three: {recp_details: []},
     }
   },
   methods: {
@@ -152,10 +183,43 @@ export default {
     async recp_changed(){
 
     },
-    async addReceipt(num){
+    async addReceipt(){
       this.receipts_count += 1
-      let all = this.outgoings_sums.map( dao => this.clone(dao))
-      this.recp_one.recp_details = all
+      if(this.receipts_count == 1) {
+        let all = this.outgoings_sums.map( dao => this.clone(dao))
+        this.recp_one.recp_details = all
+      }
+    },
+    async watchit(){
+      this.inc_headers = await this.inoutHeadCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
+
+      this.recp_one.recp_details.forEach( item => {        
+        let index = this.inc_headers.findIndex( _ => _.product_id === item.product_id )
+        if(index >= 0){
+          this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count ? parseInt(this.inc_headers[index].recp_in_count) : 0
+          this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count + item.count
+        }
+      })
+
+      this.recp_two.recp_details.forEach( item => {        
+        let index = this.inc_headers.findIndex( _ => _.product_id === item.product_id )
+        if(index >= 0){
+          this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count ? parseInt(this.inc_headers[index].recp_in_count) : 0
+          this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count + parseInt(item.count)
+        }
+      })
+
+      this.recp_three.recp_details.forEach( item => {        
+        let index = this.inc_headers.findIndex( _ => _.product_id === item.product_id )
+        if(index >= 0){
+          this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count ? parseInt(this.inc_headers[index].recp_in_count) : 0
+          this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count + parseInt(item.count)
+        }
+      })
+    },
+    /**@param {Array} list */
+    remove_from_list(list, id) {
+      list.splice(id, 1)
     },
     /**@param {OutgoingDAO} dao*/
     clone(dao){
@@ -173,23 +237,22 @@ export default {
     this.refresh_all()
     let suppliersCtrl = new SuppliersCtrl()
     this.supplier = await suppliersCtrl.findById(this.supplier_id)
-    this.recp2_details.push({product_name: 'صنف عالي'})
+    this.recp_two.recp_details.push({product_name: 'صنف عالي'})
   },
   watch: {
-    /**@param {Array} arr */
 
-    'recp_one.recp_details': async function(arr){
-
-      this.inc_headers = await this.inoutHeadCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
-
-      arr.forEach( item => {        
-        let index = this.inc_headers.findIndex( _ => _.product_id === item.product_id )
-        if(index >= 0){
-          this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count ? parseInt(this.inc_headers[index].recp_in_count) : 0
-          this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count + item.count
-        }
-      })
-    }
+    'recp_one.recp_details':{
+      handler: async function(){ this.watchit() },
+      deep: true
+    },
+    'recp_two.recp_details':{
+      handler: async function(){ this.watchit() },
+      deep: true
+    },
+    'recp_three.recp_details':{
+      handler: async function(){ this.watchit() },
+      deep: true
+    },
   },
   components: {
     draggable

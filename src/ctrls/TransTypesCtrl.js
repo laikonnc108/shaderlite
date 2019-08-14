@@ -42,6 +42,14 @@ export class TransTypesCtrl {
     return all.map( _=> new TransTypeDAO(_.attributes))
   }
 
+  async getTranstypesArr(){
+    let all = await this.model.where({}).fetchAll()
+    return all.reduce( (arr, _) => {
+      arr[_.attributes.name] = _.attributes.ar_name
+      return arr
+    },{})
+  }
+
   /**@returns {TransTypeDAO} */
   async findOne(filter = {}) {
     try {

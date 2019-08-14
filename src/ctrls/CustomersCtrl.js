@@ -126,9 +126,11 @@ export class CustomersCtrl {
   async updateDebtByTrans(transDAO) {
     /**@type {import('bookshelf').ModelBase} */
     let instance = await this.model.forge('id',transDAO.customer_id).fetch()
-    let debt = parseFloat(instance.get('debt'))
+    let debt = parseFloat(instance.get('debt')) ? parseFloat(instance.get('debt')) : 0
     if(transDAO.sum === '+') {
       debt += parseFloat(transDAO.amount)
+    } else if(transDAO.sum === '-'){
+      debt -= parseFloat(transDAO.amount)
     }
     await instance.save({debt: debt})
     transDAO.debt_after = debt

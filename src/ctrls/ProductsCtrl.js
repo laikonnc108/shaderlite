@@ -39,7 +39,8 @@ export class ProductsCtrl {
   }
 
   async getProductsArr(){
-    let all = await this.model.where({}).fetchAll()
+    // get all products
+    let all = await this.model.where({}).fetchAll({softDelete: false})
     return all.reduce( (arr, _) => {
       arr[_.id] = _.attributes.name
       return arr

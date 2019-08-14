@@ -162,11 +162,17 @@ class="btn btn-lg  m-1 btn-block"
             <tr v-for="(item, idx) in outgoings_arr" :key='idx'>
               <td>{{item.id}}</td>
 
-              <td>{{item.supplier_name}}</td>
+              <td>
+                {{item.supplier_name}}
+              </td>
               <td>{{item.count }}</td>
               <td>{{item.product_name}}</td>
               <td v-if="detailed ">{{item.income_day | arDate}}</td>
-              <td>{{item.customer_name}}</td>
+              <td>
+                <router-link  :to="{name:'customer_details', params: {id: item.customer_id}}">
+                  {{item.customer_name}}
+                </router-link>
+              </td>
               
               <td v-if="detailed ">{{item.sell_comm}}</td>
               <td v-if="detailed ">{{item.sell_comm * item.count}}</td>

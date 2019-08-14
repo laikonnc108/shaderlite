@@ -9,6 +9,7 @@ const store = new Vuex.Store({
     shader_configs: [],
     custom_labels: [],
     products_arr: [],
+    transtypes_arr: [],
     electron_data: {}
   },
   mutations: {
@@ -26,7 +27,10 @@ const store = new Vuex.Store({
     },
     setProductsArr (state, payload) {
       state.products_arr = payload
-    }
+    },
+    setTranstypesArr(state, payload) {
+      state.transtypes_arr = payload
+    },
   },
   actions: {
 
@@ -38,5 +42,6 @@ class MyStoreMutations {
   static setElectronData = 'setElectronData'
   static setCustomLabels = 'setCustomLabels'
   static setProductsArr = 'setProductsArr'
+  static setTranstypesArr = 'setTranstypesArr'
 }
 export {store, MyStoreMutations}

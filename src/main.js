@@ -45,8 +45,12 @@ Vue.filter('arDate' , function(date) {
   return moment(date).format('LL')
 })
 
-Vue.filter('tr_label' , function(string) {
-  return (store.state.custom_labels[string])? store.state.custom_labels[string] : string
+Vue.filter('tr_label' , function(string, collection) {
+  console.log(collection, store.state.transtypes_arr)
+  if(! collection)
+    return (store.state.custom_labels[string])? store.state.custom_labels[string] : string
+  else if (collection == 'trans_types')
+    return (store.state.transtypes_arr[string])? store.state.transtypes_arr[string] : string
 })
 
 String.prototype.toAR= function() {
@@ -56,6 +60,45 @@ String.prototype.toAR= function() {
 Vue.filter('toAR' , function(number) {
   let num = ( number || number === 0 ) ? parseFloat(number) : '--'
   return num.toLocaleString('ar-EG')
+})
+
+function testJSON(text){
+  if (typeof text!=="string" || parseInt(text) >= 0){
+      return false;
+  }
+  try{
+      JSON.parse(text);
+      return true;
+  }
+  catch (error){
+      return false;
+  }
+}
+
+Vue.filter('productsFilter' , function(products, separator = ' , ') {
+
+  let only_prod_names = []
+
+  if(testJSON(products)) {
+    let all_products = JSON.parse(products)
+    all_products.forEach(prod => {
+      only_prod_names.push(prod.product)
+    });
+    return only_prod_names.join(separator)
+  } 
+  else if(products.indexOf(',') > -1) {
+    let products_ids = products.split(',')
+    products_ids.forEach(id => {
+      only_prod_names.push(store.state.products_arr[id])
+    })
+    return only_prod_names.join(separator)
+  }
+  else if (parseInt(products) > 0) {
+    return store.state.products_arr[parseInt(products)]
+  }
+  else {
+    return products
+  }
 })
 
 new Vue({

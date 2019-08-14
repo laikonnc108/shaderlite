@@ -64,7 +64,7 @@
             <tr v-for="(trans, idx) in customer_trans" :key='idx'>
               <td>{{trans.day | arDate }}</td>
               <td>
-                {{trans.trans_type | tr_label}}
+                {{trans.trans_type | tr_label('trans_types')}}
                 <span v-if="trans.trans_type === 'outgoing'"> 
                   - عدد {{trans.count | toAR }} 
                   - وزن {{trans.weight | toAR }}
@@ -109,15 +109,16 @@
   <!-- Element to collapse -->
   <b-collapse id="collapse_collect" class="d-print-none p-1">
     <div class="entry-form">
-    <form  @submit="addCollecting" class="m-2">
+    <form  @submit="createCustomerTrans" class="m-2">
+      <!-- todo get dynamic -->
       <b-form-group label="نوع الحركة">
-        <b-form-radio-group  v-model="collect_form.sum">
-          <b-form-radio value="+">تحصيل</b-form-radio>
-          <b-form-radio value="-">سلفة</b-form-radio>
-          <b-form-radio value="r">باقي حساب</b-form-radio>
+        <b-form-radio-group  v-model="customer_trans_form.trans_type">
+          <b-form-radio value="cust_collecting">تحصيل</b-form-radio>
+          <b-form-radio value="cust_advance_pay">سلفة</b-form-radio>
+          <b-form-radio value="cust_acc_rest">باقي حساب</b-form-radio>
           |
-          <b-form-radio value="$">امانة</b-form-radio>
-          <b-form-radio value="#">رد امانة</b-form-radio>
+          <b-form-radio value="cust_trust">امانة</b-form-radio>
+          <b-form-radio value="repay_cust_trust">رد امانة</b-form-radio>
           |
           <b-form-radio value="rhn">رهن</b-form-radio>
           <b-form-radio value="p_rhn">رد رهن</b-form-radio>
@@ -127,19 +128,19 @@
       <div class="form-group row">
         <label  class="col-sm-2">المبلغ</label>
         <div class="col-sm-10">
-          <input v-model="collect_form.amount" class="form-control "  placeholder="ادخل المبلغ ">
+          <input v-model="customer_trans_form.amount" class="form-control "  placeholder="ادخل المبلغ ">
         </div>
       </div>
       <div class="form-group row">
         <label  class="col-sm-2">ملاحظات</label>
         <div class="col-sm-10">
-          <input v-model="collect_form.notes" class="form-control " placeholder="ادخال الملاحظات">
+          <input v-model="customer_trans_form.notes" class="form-control " placeholder="ادخال الملاحظات">
         </div>
       </div>
 
-      <button  v-if="collect_form.sum" type="submit" class="btn btn-success" :disabled="! valid_form">
-        <span v-if=" collect_form.sum =='-' || collect_form.sum =='r' || collect_form.sum =='#' || collect_form.sum == 'p_rhn'  ">دفع</span>
-        <span v-if=" collect_form.sum =='+' || collect_form.sum =='$' || collect_form.sum == 'rhn' ">تحصيل</span>
+      <button  v-if="customer_trans_form.trans_type" type="submit" class="btn btn-success" :disabled="! valid_form">
+        <span v-if=" customer_trans_form.trans_type =='cst_advance_pay' || customer_trans_form.trans_type =='r' || customer_trans_form.trans_type =='#' || customer_trans_form.trans_type == 'p_rhn'  ">دفع</span>
+        <span v-if=" customer_trans_form.trans_type =='+' || customer_trans_form.trans_type =='$' || customer_trans_form.trans_type == 'rhn' ">تحصيل</span>
       </button>
     </form>
     </div>
@@ -148,7 +149,9 @@
 </template>
 
 <script >
-import { CustomersCtrl } from '../ctrls/CustomersCtrl'
+import { CustomersCtrl, CustomerTransDAO } from '../ctrls/CustomersCtrl'
+import { TransTypesCtrl } from '../ctrls/TransTypesCtrl'
+import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl';
 
 export default {
   name: 'customer-details',
@@ -156,11 +159,13 @@ export default {
     return {
       customer: {},
       customersCtrl: new CustomersCtrl(),
-      collect_form: {sum:'+', amount: null},
+      transTypesCtrl: new TransTypesCtrl(),
+      customer_trans_form: {trans_type:'+', amount: null , notes: null},
       customer_trans: [],
       self_rest_products: [],
       customer_id: this.$route.params.id,
       custom_labels: this.$store.state.custom_labels,
+      transtypes_labels: this.$store.state.transtypes_arr,
       confirm_step: [],
       discard_success: false,
       sell_rest: {actual_sale: 0 , notes: ''}
@@ -168,10 +173,10 @@ export default {
   },
   methods: {
     async getCustomerDetails() {
-        //let {dao, trans} = await this.customersCtrl.getCustomerDetails(this.customer_id)
-
-        this.customer = await this.customersCtrl.findOne(this.customer_id)
-        this.customer_trans = await this.customersCtrl.getCustomerTrans(this.customer_id)
+      //let {dao, trans} = await this.customersCtrl.getCustomerDetails(this.customer_id)
+      // TODO get trans dynamicly
+      this.customer = await this.customersCtrl.findOne(this.customer_id)
+      this.customer_trans = await this.customersCtrl.getCustomerTrans(this.customer_id)
     },
     async removeLastTrans(trans) {
       if( this.confirm_step[trans.id] ) {
@@ -186,22 +191,50 @@ export default {
     },
     async sellRest(evt) {
       evt.preventDefault()
-
       this.$root.$emit('bv::toggle::collapse', 'collapse_sell')
     },
-    async addCollecting(evt ) {
+    async createCustomerTrans(evt ) {
       evt.preventDefault()
       
+      let selectedTrans = await this.transTypesCtrl.findOne({name: this.customer_trans_form.trans_type , category: 'customer_trans'})
+      // create customer trans
+      if(selectedTrans) {
+        let cashflow_id = null
+        if(selectedTrans.map_cashflow){
+          // Create cashflow with trans
+          let cashflowTrans = await this.transTypesCtrl.findOne({name: selectedTrans.map_cashflow , category: 'cashflow'})
+          
+          let newCashflow = new CashflowDAO({
+            amount: this.customer_trans_form.amount,
+            day: this.$store.state.day.iso,
+            customer_id: this.customer_id,
+          })
+
+          newCashflow.transType = cashflowTrans
+          let cashflowCtrl = new CashflowCtrl()
+          cashflow_id = await cashflowCtrl.save(newCashflow)
+        }
+
+        let custtransDAO = new CustomerTransDAO(this.customer_trans_form)
+        custtransDAO.day = this.$store.state.day.iso
+        custtransDAO.customer_id = this.customer_id
+        custtransDAO.cashflow_id = cashflow_id
+        custtransDAO.transType = selectedTrans
+        await this.customersCtrl.updateDebtByTrans(custtransDAO)
+      }
+      
+      this.getCustomerDetails()
+      this.customer_trans_form = {trans_type:'+', amount: null , notes: null}
+      this.$root.$emit('bv::toggle::collapse', 'collapse_collect')
     }
   },
-  components: {
-  },
+  components: { },
   mounted() {
     this.getCustomerDetails()
   },
   computed: {
     valid_form: function() {
-      if(this.collect_form.amount && parseFloat(this.collect_form.amount) && this.collect_form.sum){
+      if(this.customer_trans_form.amount && parseFloat(this.customer_trans_form.amount) && this.customer_trans_form.trans_type){
         return true
       }
     }

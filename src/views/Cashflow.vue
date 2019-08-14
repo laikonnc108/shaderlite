@@ -20,10 +20,13 @@
             <tr v-for="(item, idx) in cashflow_arr" :key='idx'>
               <td>{{item.day}}</td>
               <td>{{item.amount}}</td>
-              <td>{{item.actor_name}}</td>
-              <td>{{app_labels[item.state]}}
+              <td>
+                {{item.customer_name}}
+                {{item.supplier_name}}
+              </td>
+              <td>{{$store.state.transtypes_arr[item.state]}}
                 <span v-if="item.d_product"> - {{ item.d_product | productsFilter }}</span>
-                <span v-if="item.outgoing_id"> - عدد {{ item.count }} - وزن {{ item.weight }}
+                <span v-if="item.outgoing_id"> - عدد {{ item.count }} - وزن {{ item.weight }} - سعر {{ item.kg_price }}
                   <span v-if="item.income_day !== store_day.iso " class="text-danger"> 
                     <br>
                       <span class="fa fa-star text-primary"></span> الزرع وارد يوم {{item.income_day | arDate }}
@@ -95,7 +98,7 @@
 </template>
 
 <script>
-import {  CashflowCtrl, CashflowDAO } from '../ctrls/CashflowCtrl'
+import { CashflowCtrl , CashflowDAO } from '../ctrls/CashflowCtrl'
 // import { DailyDB } from '../db/DailyDB.js'
 
 // import { APP_LABELS } from '../main.js'
@@ -106,6 +109,7 @@ export default {
       cashflow_arr: [],
       store_day: this.$store.state.day,
       cashflow_form: new CashflowDAO(),
+      cashflowCtrl: new CashflowCtrl(),
       app_labels : [],
       day_count : 0,
       men_rate : 1.5,
@@ -119,16 +123,18 @@ export default {
     async refresh_cashflow_arr() {
       this.cashflow_form = {}
       this.cashflow_form.state = this.$route.name 
-      let states = null
+      let states = null, sum = null
+      // TODO get states manually
       if(this.$route.name == 'out_cashflow') {
         states = ['given','expenses','nolon','payment','act_pymnt' ,'recp_paid','paid','acc_rest','repay_cust_trust','men_account','repay_cust_rahn','supp_payment','out_receipt']
+        sum = '-'
       }
       else if(this.$route.name == 'in_cashflow') {
         states = ['collecting','outgoing_cash','supp_collect','cust_trust','cust_rahn','inc_collect'] 
+        sum = '+'
       }
-      // else if (this.$route.name == 'payments') { states = []   }
-      
-      // console.log( this.$route.name ,state)
+      this.cashflow_arr = await this.cashflowCtrl.findAll({sum: sum, day: this.$store.state.day.iso})
+
       /*
       this.cashflow_arr = await CashflowDB.getAll({
         // state:this.$route.name

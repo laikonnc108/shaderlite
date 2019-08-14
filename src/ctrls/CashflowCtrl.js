@@ -15,7 +15,11 @@ export class CashflowDAO {
   supplier_name
   customer_id
   customer_name
-    
+  income_day
+  kg_price
+  count
+  weight
+
   static get INIT_DAO() {
     return { }
   }
@@ -30,6 +34,10 @@ export class CashflowDAO {
     this.amount = this.amount? Math.abs(parseFloat(this.amount).toFixed(2)) : 0
     delete this.customer_name
     delete this.supplier_name
+    delete this.income_day
+    delete this.count
+    delete this.kg_price
+    delete this.weight
   }
 
   constructor( data ){
@@ -55,11 +63,16 @@ export class CashflowCtrl {
 
   async findAll(filter = {}) {
       // {withRelated: ['supplier','product','customer']}
-    let all = await this.model.where(filter).fetchAll()
+    let all = await this.model.where(filter).fetchAll({withRelated: ['outgoing','customer','supplier']})
     return all.map( _=> {
-      let outDAO = new CashflowDAO(_.attributes)
-
-      return outDAO
+      let cashDAO = new CashflowDAO(_.attributes)
+      cashDAO.income_day = _.related('outgoing').get('income_day')
+      cashDAO.count = _.related('outgoing').get('count')
+      cashDAO.kg_price = _.related('outgoing').get('kg_price')
+      cashDAO.weight = _.related('outgoing').get('weight')
+      cashDAO.customer_name = _.related('customer').get('name')
+      cashDAO.supplier_name = _.related('supplier').get('name')
+      return cashDAO
     })
   }
 

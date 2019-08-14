@@ -134,6 +134,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import { Settings, DateTime } from 'luxon'
 import { ShaderConfigsCtrl } from './ctrls/ShaderConfigsCtrl'
 import { ProductsCtrl } from './ctrls/ProductsCtrl'
+import { TransTypesCtrl } from './ctrls/TransTypesCtrl'
 import { MyStoreMutations } from './main.js'
 
 Settings.defaultLocale = 'ar'
@@ -153,6 +154,9 @@ export default {
 
     let products_arr = await new ProductsCtrl().getProductsArr()
     this.$store.commit(MyStoreMutations.setProductsArr, products_arr)
+
+    let transNames = await new TransTypesCtrl().getTranstypesArr()
+    this.$store.commit(MyStoreMutations.setTranstypesArr, transNames)
 
     const moment = require('moment')
     // to get current local time correctly

@@ -54,7 +54,7 @@ npm run postinstall
 
 **Customer_trans**
 - remove product_name , count
-
+- rename states
 **Incomings**
 - remove product_name, supplier_name, notes, date_created, nolon, given 
 (before creating inout_head view)
@@ -66,12 +66,11 @@ npm run postinstall
 **Cashflow**
 - move actor_id to supplier_id / customer_id
 ```
-update cashflow set supplier_id = actor_id , actor_id = null , state_data = null where state = 'nolon' or state = 'given'
+update cashflow set supplier_id = actor_id where state = 'nolon' or state = 'given' or state = 'recp_paid' or state = 'supp_payment' or state = 'out_receipt' or state = 'supp_collect' 
 
-update cashflow set supplier_id = actor_id , actor_id = null , state_data = null where state = 'recp_paid' or state = 'supp_payment' or state = 'out_receipt' or state = 'supp_collect' 
-
-update cashflow set customer_id = actor_id , actor_id = null , state_data = null where state = 'paid' or state = 'collecting' or state = 'acc_rest' or state = 'acc_rest'
+update cashflow set customer_id = actor_id where state = 'paid' or state = 'collecting' or state = 'acc_rest' or state = 'acc_rest'
 ```
+- rename states !
 - delete cols : state_data, actor_id, actor_name , date_created
 
 **Replaces**
