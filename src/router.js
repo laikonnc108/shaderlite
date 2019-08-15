@@ -10,9 +10,11 @@ import Products from './views/Products.vue'
 import CustomerDetails from './views/CustomerDetails.vue'
 import Outgoing from './views/Outgoing.vue'
 import SuppliersReceipts from './views/SuppliersReceipts.vue'
+import SupplierDetails from './views/SupplierDetails.vue'
 import SuppReceiptsDetails from './views/SuppReceiptsDetails.vue'
 import CustomersAccounts from './views/CustomersAccounts.vue'
 import Cashflow from './views/Cashflow.vue'
+import DailyMoves from './views/DailyMoves.vue'
 import Users from './views/Users.vue'
 
 Vue.use(Router)
@@ -40,6 +42,16 @@ export default new Router({
       path: '/suppliers_receipts',
       name: 'suppliers_receipts',
       component: SuppliersReceipts
+    },
+    {
+      path: '/supplier_details',
+      name: 'supplier_details',
+      component: SupplierDetails
+    },
+    {
+      path: '/daily_moves',
+      name: 'daily_moves',
+      component: DailyMoves
     },
     {
       path: '/supp_recp_details',

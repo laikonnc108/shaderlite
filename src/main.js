@@ -46,7 +46,7 @@ Vue.filter('arDate' , function(date) {
 })
 
 Vue.filter('tr_label' , function(string, collection) {
-  console.log(collection, store.state.transtypes_arr)
+  console.log(collection, string)
   if(! collection)
     return (store.state.custom_labels[string])? store.state.custom_labels[string] : string
   else if (collection == 'trans_types')
@@ -60,6 +60,20 @@ String.prototype.toAR= function() {
 Vue.filter('toAR' , function(number) {
   let num = ( number || number === 0 ) ? parseFloat(number) : '--'
   return num.toLocaleString('ar-EG')
+})
+
+function roundOf(n, p) {
+  const n1 = n * Math.pow(10, p + 1);
+  const n2 = Math.floor(n1 / 10);
+  if (n1 >= (n2 * 10 + 5)) {
+      return (n2 + 1) / Math.pow(10, p);
+  }
+  return n2 / Math.pow(10, p);
+}
+
+Vue.filter('round2' , function(number) {
+  let rounded = number? parseFloat(number) : 0
+  return roundOf(rounded,2)
 })
 
 function testJSON(text){

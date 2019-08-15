@@ -45,8 +45,8 @@ export class ReceiptsCtrl {
     return record.id
   }
 
-  async findAll(filter = {}, options = {}) {
-    let all = await this.model.where(filter).fetchAll(options)
+  async findAll(filter = {}) {
+    let all = await this.model.where(filter).fetchAll({})
     return all.map( _=> new ReceiptDAO(_.attributes))
   }
 
