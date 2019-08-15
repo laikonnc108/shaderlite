@@ -18,7 +18,7 @@
           </thead>
           <tbody>
             <tr v-for="(item, idx) in cashflow_arr" :key='idx'>
-              <td>{{item.day}}</td>
+              <td>{{item.day | arDate }}</td>
               <td>{{item.amount}}</td>
               <td>
                 {{item.customer_name}}
@@ -57,8 +57,7 @@
   <b-collapse id="collapse_cash" class="m-5">
     <div class="entry-form">
     <form  @submit="addCashflow">
-      {{cashflow_form.state}}
-      <div class="form-group row" v-if="$route.name == 'expenses'"> 
+      <div class="form-group row" v-if="$route.name == 'out_cashflow'"> 
         <label class="col-sm-2" >نوع المصروف</label>
         <div class="col-sm-10">
         <select class="form-control " v-model="cashflow_form.state">
@@ -71,7 +70,7 @@
 
 
       <div class="form-group row">
-        <label  class="col-sm-2">مبلغ ال{{app_labels[$route.name]}}</label>
+        <label  class="col-sm-2">مبلغ ال{{ $route.name | tr_label }}</label>
         <div class="col-sm-10">
           <div v-if="cashflow_form.state === 'men_account'" class="m-1">
             عدد الطرود المباعة اليوم {{day_count}} X 
@@ -99,6 +98,7 @@
 
 <script>
 import { CashflowCtrl , CashflowDAO } from '../ctrls/CashflowCtrl'
+import { TransTypesCtrl } from '../ctrls/TransTypesCtrl';
 // import { DailyDB } from '../db/DailyDB.js'
 
 // import { APP_LABELS } from '../main.js'
@@ -108,9 +108,8 @@ export default {
     return {
       cashflow_arr: [],
       store_day: this.$store.state.day,
-      cashflow_form: new CashflowDAO(),
+      cashflow_form: new CashflowDAO(CashflowDAO.INIT_DAO),
       cashflowCtrl: new CashflowCtrl(),
-      app_labels : [],
       day_count : 0,
       men_rate : 1.5,
       confirm_step:[]
@@ -121,8 +120,7 @@ export default {
   },
   methods: {
     async refresh_cashflow_arr() {
-      this.cashflow_form = {}
-      this.cashflow_form.state = this.$route.name 
+      this.cashflow_form = new CashflowDAO(CashflowDAO.INIT_DAO)
       let states = null, sum = null
       // TODO get states manually
       if(this.$route.name == 'out_cashflow') {
@@ -130,11 +128,11 @@ export default {
         sum = '-'
       }
       else if(this.$route.name == 'in_cashflow') {
+        this.cashflow_form.state = 'inc_collect'
         states = ['collecting','outgoing_cash','supp_collect','cust_trust','cust_rahn','inc_collect'] 
         sum = '+'
       }
       this.cashflow_arr = await this.cashflowCtrl.findAll({sum: sum, day: this.$store.state.day.iso})
-
       /*
       this.cashflow_arr = await CashflowDB.getAll({
         // state:this.$route.name
@@ -158,11 +156,19 @@ export default {
     async addCashflow(evt) {
       evt.preventDefault()
       let cashDAO = new CashflowDAO(this.cashflow_form)
+      cashDAO.day = this.store_day.iso
+      let transTypesCtrl = new TransTypesCtrl()
+      let cashTrans = await transTypesCtrl.findOne({name: cashDAO.state , category: 'cashflow' })
+      cashDAO.sum = cashTrans.sum
+      await this.cashflowCtrl.save(cashDAO)
+      this.$root.$emit('bv::toggle::collapse', 'collapse_cash')
+      this.cashflow_form = new CashflowDAO(CashflowDAO.INIT_DAO)
+      this.refresh_cashflow_arr()
       /*
       cashDAO.state = (this.cashflow_form.state) ? this.cashflow_form.state : this.$route.name
       if(cashDAO.state === 'collecting')
         cashDAO.state = 'inc_collect'
-      cashDAO.day = this.store_day.iso
+      
       if(this.$route.name == 'expenses')
       cashDAO.sum = '-'
 
