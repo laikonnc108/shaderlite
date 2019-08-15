@@ -99,9 +99,7 @@
 <script>
 import { CashflowCtrl , CashflowDAO } from '../ctrls/CashflowCtrl'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl';
-// import { DailyDB } from '../db/DailyDB.js'
 
-// import { APP_LABELS } from '../main.js'
 export default {
   name: 'cashflow',
   data () {
@@ -115,11 +113,8 @@ export default {
       confirm_step:[]
     }
   },
-  firestore () {
-    return {}
-  },
   methods: {
-    async refresh_cashflow_arr() {
+    async refresh_all() {
       this.cashflow_form = new CashflowDAO(CashflowDAO.INIT_DAO)
       let states = null, sum = null
       // TODO get states manually
@@ -146,7 +141,7 @@ export default {
     async removeCashflow(cashflow_id) {
       if( this.confirm_step[cashflow_id] ) {
         // await CashflowDB.deleteItem(cashflow_id)
-        this.refresh_cashflow_arr()
+        this.refresh_all()
       }
       else {
         this.confirm_step = []
@@ -163,7 +158,7 @@ export default {
       await this.cashflowCtrl.save(cashDAO)
       this.$root.$emit('bv::toggle::collapse', 'collapse_cash')
       this.cashflow_form = new CashflowDAO(CashflowDAO.INIT_DAO)
-      this.refresh_cashflow_arr()
+      this.refresh_all()
       /*
       cashDAO.state = (this.cashflow_form.state) ? this.cashflow_form.state : this.$route.name
       if(cashDAO.state === 'collecting')
@@ -175,17 +170,17 @@ export default {
       await CashflowDB.addNew(cashDAO)
       this.$root.$emit('bv::toggle::collapse', 'collapse_cash')
       this.cashflow_form = {}
-      this.refresh_cashflow_arr()
+      this.refresh_all()
       */
     }
   },
   components: {
   },
   mounted() {
-    this.refresh_cashflow_arr()
+    this.refresh_all()
   },
   updated() {
-    // this.refresh_cashflow_arr()
+    // this.refresh_all()
   },
   computed: {
     /*
@@ -209,7 +204,7 @@ export default {
   },
   watch : {
     "$route": function() {
-      this.refresh_cashflow_arr()
+      this.refresh_all()
     },
     "cashflow_form.state": function(val) {
       if(val === 'men_account') {
