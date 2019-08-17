@@ -29,4 +29,9 @@ export class UsersCtrl {
   constructor() {
     this.model = require('../models/UsersModel')(bookshelf)
   }
+
+  async findAll(filter = {}) {
+    let all = await this.model.where(filter).fetchAll({})
+    return all.map( _=> new UserDAO(_.attributes))
+  }
 }

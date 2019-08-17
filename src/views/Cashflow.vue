@@ -1,56 +1,15 @@
 <template>
   <section class="cashflow m-3">
+    <h1 v-if="this.$route.name == 'in_cashflow'"> 
+      تحصيلات اليوم
+    </h1>
+    <h1 v-if="this.$route.name == 'out_cashflow'"> 
+      مصروفات اليوم
+    </h1>
     <br/>
-      <div class="table-responsive">
-        <table class="table table-striped table-sm">
-          <thead>
-            <tr>
-              <th>التاريخ</th>
-              <th>المبلغ</th>
-              <th>
-                <span v-if="$route.name == 'out_cashflow'">الي </span>
-                <span v-if="$route.name == 'in_cashflow'">من </span>
-              </th>
-              <th>نوع</th>
-              <th>ملاحظات</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(item, idx) in cashflow_arr" :key='idx'>
-              <td>{{item.day | arDate }}</td>
-              <td>{{item.amount}}</td>
-              <td>
-                {{item.customer_name}}
-                {{item.supplier_name}}
-              </td>
-              <td>{{$store.state.transtypes_arr[item.state]}}
-                <span v-if="item.d_product"> - {{ item.d_product | productsFilter }}</span>
-                <span v-if="item.outgoing_id"> - عدد {{ item.count }} - وزن {{ item.weight }} - سعر {{ item.kg_price }}
-                  <span v-if="item.income_day !== store_day.iso " class="text-danger"> 
-                    <br>
-                      <span class="fa fa-star text-primary"></span> الزرع وارد يوم {{item.income_day | arDate }}
-                  </span>
-                </span>
-              </td>
-              <td>{{item.notes}}</td>
-              <td>
-                <button class="btn text-danger" @click="removeCashflow(item.id)" >
-                  <span class="fa fa-archive "></span> 
-                  <template v-if="! confirm_step[item.id]"> حذف الحركة</template>
-                  <template v-if="confirm_step[item.id]"> تأكيد </template>
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td></td>
-              <th>{{total_cash}}</th>
-              <th>مجموع</th>
-              
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <CashflowTable :cashflow_arr="cashflow_arr" 
+    :flags="{can_remove: true,type: $route.name}"
+    @refresh="refresh_all"></CashflowTable>
     <button class="btn btn-success" v-b-toggle.collapse_cash >اضافة جديد </button>
 
       <!-- Element to collapse  <div class="m-2"></div>-->
@@ -99,6 +58,7 @@
 <script>
 import { CashflowCtrl , CashflowDAO } from '../ctrls/CashflowCtrl'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl';
+import CashflowTable from '@/components/CashflowTable.vue'
 
 export default {
   name: 'cashflow',
@@ -110,21 +70,21 @@ export default {
       cashflowCtrl: new CashflowCtrl(),
       day_count : 0,
       men_rate : 1.5,
-      confirm_step:[]
     }
   },
   methods: {
     async refresh_all() {
       this.cashflow_form = new CashflowDAO(CashflowDAO.INIT_DAO)
-      let states = null, sum = null
+      // let states = null
+      let sum = null
       // TODO get states manually
       if(this.$route.name == 'out_cashflow') {
-        states = ['given','expenses','nolon','payment','act_pymnt' ,'recp_paid','paid','acc_rest','repay_cust_trust','men_account','repay_cust_rahn','supp_payment','out_receipt']
+        // states = ['given','expenses','nolon','payment','act_pymnt' ,'recp_paid','paid','acc_rest','repay_cust_trust','men_account','repay_cust_rahn','supp_payment','out_receipt']
         sum = '-'
       }
       else if(this.$route.name == 'in_cashflow') {
         this.cashflow_form.state = 'inc_collect'
-        states = ['collecting','outgoing_cash','supp_collect','cust_trust','cust_rahn','inc_collect'] 
+        // states = ['collecting','outgoing_cash','supp_collect','cust_trust','cust_rahn','inc_collect'] 
         sum = '+'
       }
       this.cashflow_arr = await this.cashflowCtrl.findAll({sum: sum, day: this.$store.state.day.iso})
@@ -137,16 +97,6 @@ export default {
       this.day_count = await DailyDB.getTodayCount(this.store_day.iso)
       */
       
-    },
-    async removeCashflow(cashflow_id) {
-      if( this.confirm_step[cashflow_id] ) {
-        // await CashflowDB.deleteItem(cashflow_id)
-        this.refresh_all()
-      }
-      else {
-        this.confirm_step = []
-        this.confirm_step[cashflow_id] = true
-      }
     },
     async addCashflow(evt) {
       evt.preventDefault()
@@ -175,6 +125,7 @@ export default {
     }
   },
   components: {
+    CashflowTable
   },
   mounted() {
     this.refresh_all()
@@ -188,13 +139,6 @@ export default {
       return await CashflowDB.getAll({state:'collecting'})
     }
     */
-    total_cash : function() {
-      let sum = 0
-      this.cashflow_arr.forEach(item => {
-        sum += parseFloat(item.amount)
-      })
-      return sum
-    },
     valid_form: function() {
       if(this.cashflow_form.amount && parseFloat(this.cashflow_form.amount) ){
         console.log(parseFloat(this.cashflow_form.amount))

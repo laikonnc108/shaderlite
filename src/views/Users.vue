@@ -77,21 +77,17 @@
             <tr>
               <th> الكود </th>
               <th>الاسم</th>
-              <th>رقم التليفون </th>
-              <th>الرصيد الحالي</th>
+              <th> اسم المستخدم </th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, idx) in comp_users_arr" :key='idx' >
+            <tr v-for="(item, idx) in users_arr" :key='idx' >
               <td>{{item.id}}</td>
               <td>
-                <router-link class="nav-link " :to="{name:'user_details', params: {id: item.id}}">
-                  {{item.name}}
-                </router-link>
+                {{item.name}}
                </td>
-              <td>{{item.phone}}</td>
-              <td>{{item.balance | toAR}}</td>
+              <td>{{item.username}}</td>
               <td class="d-print-none">
                 <button class="btn text-danger" @click="archive(item.id)"  v-if="! item.deleted_at">
                   <span class="fa fa-archive "></span> 
@@ -184,11 +180,13 @@ export default {
     this.refresh_all()
   },
   computed: {
+    /*
     comp_users_arr: function () {
       return this.users_arr.filter( item => {
         return ((item.deleted_at == null) === this.show_active  && item.name.includes(this.search_term))
       })
     }
+    */
   },
   components: {
   }

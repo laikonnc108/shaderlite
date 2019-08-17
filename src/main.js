@@ -46,7 +46,6 @@ Vue.filter('arDate' , function(date) {
 })
 
 Vue.filter('tr_label' , function(string, collection) {
-  console.log(collection, string)
   if(! collection)
     return (store.state.custom_labels[string])? store.state.custom_labels[string] : string
   else if (collection == 'trans_types')
