@@ -70,9 +70,25 @@ function roundOf(n, p) {
   return n2 / Math.pow(10, p);
 }
 
+Vue.filter('round', function(value, decimals) {
+  if(!value) 
+    value = 0;
+
+  if(!decimals) 
+    decimals = 0;
+
+  value = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+  return value;
+});
+
 Vue.filter('round2' , function(number) {
   let rounded = number? parseFloat(number) : 0
   return roundOf(rounded,2)
+})
+
+Vue.filter('default0' , function(number) {
+  
+  return parseInt(number)? parseInt(number) : 0
 })
 
 function testJSON(text){

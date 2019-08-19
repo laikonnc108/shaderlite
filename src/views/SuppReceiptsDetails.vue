@@ -1,6 +1,6 @@
 <template>
   <section class="supp-receipts-details m-3">
-    <h1>شاشة فواتير {{supplier.name}}</h1>
+    <h1>شاشة فواتير {{supplier.name}} لليوم</h1>
     <hr>
     <section class="row ">
       <div class=" col-6 " >
@@ -66,7 +66,7 @@
     </section>
     <hr>
     <section class="row ">
-      <div class="col-4"  v-if="receipts_count > 0">
+      <div class=" receipt col-4 p-2 pb-3"  v-if="receipts_count > 0">
         <h3>فاتورة 1</h3>
         <draggable
           class="dragArea list-group"
@@ -79,14 +79,23 @@
             v-for="(element, idx) in recp_one.recp_details"
             :key="idx"
           >
-            {{ element.product_name }} {{ element.count }} {{ element.kg_price }} {{ element.weight }}
+            {{ element.product_name }} عدد {{ element.count }} 
+            وزن {{ element.weight }}
+            بسعر {{ element.kg_price }} 
             <span class="fa fa-minus-circle" @click="remove_from_list(recp_one.recp_details, idx)"
             style="color:red;float: left;"></span>
           </div>
         </draggable>
+        <hr>
+      <button  class="btn btn-primary"> <span class="fa fa-money-check"></span>
+     رصد    &nbsp; 
+      </button>&nbsp;
+      <button  class="btn btn-primary"> <span class="fa fa-money-bill"></span>
+     صرف   &nbsp; 
+      </button>
       </div>
 
-      <div class="col-4" v-if="receipts_count > 1">
+      <div class="receipt col-4 p-1 p-b-3" v-if="receipts_count > 1">
         <h3>فاتورة 2</h3>
         <draggable
           class="dragArea list-group"
@@ -110,7 +119,7 @@
           </div>
         </draggable>
       </div>
-      <div class="col-4"  v-if="receipts_count > 2">
+      <div class="receipt col-4 p-1 pb-3"  v-if="receipts_count > 2">
         <h3>فاتورة 3</h3>
         <draggable
           class="dragArea list-group"
@@ -141,8 +150,14 @@
     <!-- Check Rest Items -->
     <div>
       <div v-for="(incom, idx) in inc_headers" :key='idx'>
-        {{incom.product_name}} تم بيع {{incom.sold_count}} - تم انشاء فواتير بعدد {{incom.recp_in_count}}
+        {{incom.product_name}} تم بيع {{incom.sold_count | default0 }} طرد  - تم انشاء فواتير بعدد {{incom.recp_in_count | default0}} طرد
       </div>
+    </div>
+
+    <div class="mt-3">
+    <button  class="btn btn-primary" @click="saveAll()"> <span class="fa fa-save"></span> &nbsp;
+     حفظ الفواتير   
+    </button>
     </div>
 
   </section>
@@ -179,9 +194,24 @@ export default {
       //this.outgoings_sums = await 
       this.outgoings_sums = await this.outgoingsCtrl.findSuppDaySums({supplier_id: this.supplier_id, day: this.store_day.iso})
       this.inc_headers = await this.inoutHeadCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
+      let receipts = await this.receiptsCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
+      receipts.forEach(receipt => {
+        this.recp_one.recp_details = JSON.parse(receipt.details)
+      })
+      
     },
     async recp_changed(){
 
+    },
+    async saveAll(){
+      console.log(this.recp_one)
+      if(this.recp_one.recp_details.length > 0){
+        let receipt1 = new ReceiptDAO({})
+        receipt1.day = this.store_day.iso
+        receipt1.supplier_id = this.supplier_id
+        receipt1.details = JSON.stringify(this.recp_one.recp_details)
+        this.receiptsCtrl.save(receipt1)
+      }
     },
     async addReceipt(){
       this.receipts_count += 1
@@ -261,5 +291,8 @@ export default {
 </script>
 
 <style scoped >
-
+.receipt {
+  background-color: #cee;
+  border-radius: 10px;
+}
 </style>

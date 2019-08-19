@@ -169,7 +169,7 @@ class="btn btn-lg  m-1 btn-block"
               <td>{{item.product_name}}</td>
               <td v-if="detailed ">{{item.income_day | arDate}}</td>
               <td>
-                <router-link  :to="{name:'customer_details', params: {id: item.customer_id}}">
+                <router-link v-if="item.customer_id" :to="{name:'customer_details', params: {id: item.customer_id}}" >
                   {{item.customer_name}}
                 </router-link>
               </td>

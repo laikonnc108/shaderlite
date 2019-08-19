@@ -63,7 +63,7 @@
     </div>
     <div class="pr-hideme" >
       <br>
-      <input v-model="search_term" class="form-control "  :placeholder="custom_labels['search_customers']">
+      <input v-model="search_term" class="form-control "  :placeholder="custom_labels['search_suppliers']">
     </div>
     <br/>
   <h2 :class="{ 'text-danger': ! show_active }">

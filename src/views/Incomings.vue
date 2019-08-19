@@ -26,7 +26,11 @@
           <tbody>
             <tr v-for="(incom, idx) in incomings_arr" :key='idx'>
               <td>{{incom.id}}</td>
-              <td>{{incom.supplier_name}}</td>
+              <td>
+                <router-link v-if="incom.supplier_name" :to="{name:'supplier_details', params: {id: incom.supplier_id}}" >
+                  {{incom.supplier_name}}
+                </router-link>
+              </td>
               <td>{{incom.product_name}}</td>
               <td>{{incom.count}}</td>
               <td v-if="flags.detailed" class="d-print-none">

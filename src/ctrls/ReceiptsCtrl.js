@@ -18,6 +18,7 @@ export class ReceiptDAO {
   recp_comm
   out_sale_value
   recp_expenses
+  details
 
   static get INIT_DAO() {
     return { }
@@ -45,9 +46,14 @@ export class ReceiptsCtrl {
     return record.id
   }
 
+  /**@returns {Array} */
   async findAll(filter = {}) {
-    let all = await this.model.where(filter).fetchAll({})
-    return all.map( _=> new ReceiptDAO(_.attributes))
+    let all = await this.model.where(filter).fetchAll({withRelated: ['supplier']})
+    return all.map( _=> {
+      let dao = new ReceiptDAO(_.attributes)
+      dao.supplier_name = _.related('supplier').get('name')
+      return dao
+    })
   }
 
   async deleteById(id){

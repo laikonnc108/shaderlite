@@ -24,6 +24,12 @@ npm run postinstall
 ```
 ---
 
+### Business Constrains
+
+- Fixed sell_comm per product / or flexi receipts
+- Products can't be edited
+
+
 ## Tools And Resources
 
 - SQLiteDatabaseBrowserPortable
