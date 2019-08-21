@@ -61,6 +61,10 @@ npm run postinstall
 **Customer_trans**
 - remove product_name , count
 - rename states
+
+**Receipts**
+- replace "\" to be valid json string
+
 **Incomings**
 - remove product_name, supplier_name, notes, date_created, nolon, given 
 (before creating inout_head view)

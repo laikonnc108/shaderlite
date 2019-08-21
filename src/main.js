@@ -91,31 +91,45 @@ Vue.filter('default0' , function(number) {
   return parseInt(number)? parseInt(number) : 0
 })
 
+Vue.filter('concat_recp_paid' , function(concat_recp_paid) {
+  
+  return concat_recp_paid
+})
+
+
 function testJSON(text){
-  if (typeof text!=="string" || parseInt(text) >= 0){
-      return false;
+
+  if (typeof text!=="string" || parseInt(text) > 0 || parseInt(text) === 0){
+    return false;
   }
   try{
-      JSON.parse(text);
-      return true;
+    JSON.parse(text);
+    return true;
   }
   catch (error){
-      return false;
+    console.error(error)
+    return false;
   }
 }
 
-Vue.filter('productsFilter' , function(products, separator = ' , ') {
+Vue.filter('productsFilter' , function(products , separator = ' , ') {
 
   let only_prod_names = []
-
+  products = products ? products : ''
+  //console.log('productsFilter', products , separator)
   if(testJSON(products)) {
     let all_products = JSON.parse(products)
     all_products.forEach(prod => {
-      only_prod_names.push(prod.product)
+      //console.log("prod",prod)
+      if(prod.product)
+        only_prod_names.push(prod.product)
+      else if (prod.product_name)
+        only_prod_names.push(prod.product_name)
     });
-    return only_prod_names.join(separator)
+    let uniqueItems = [...new Set(only_prod_names)]
+    return uniqueItems.join(separator)
   } 
-  else if(products.indexOf(',') > -1) {
+  else if(products.includes(',') && products.indexOf(',') > -1) {
     let products_ids = products.split(',')
     products_ids.forEach(id => {
       only_prod_names.push(store.state.products_arr[id])

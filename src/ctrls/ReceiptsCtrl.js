@@ -18,17 +18,22 @@ export class ReceiptDAO {
   recp_comm
   out_sale_value
   recp_expenses
-  details
+  details = []
+  serial
 
   static get INIT_DAO() {
-    return { }
+    return { 
+      recp_paid: 0
+    }
   }
 
   constructor( data= {} ){
     Object.assign(this, data)
   }
   
-  parseTypes() {  }
+  parseTypes() { 
+    this.details= this.details? JSON.stringify(this.details) : null
+  }
 }
 
 export class ReceiptsCtrl {

@@ -32,15 +32,16 @@ SELECT
   inoutv.supplier_id as supplier_id,
   inoutv.supplier_name as supplier_name,
   inoutv.sum_diff as sum_diff,
-  inoutv.sum_inc as sum_inc,
+  inoutv.sum_inc_count as sum_inc_count,
+  inoutv.sum_sold_count as sum_sold_count,
   inoutv.products_concat as products_concat,
-  receipts.total_count as recp_total_count,
-  receipts.recp_paid as recp_paid,
+  receipts_g.concat_recp_paid as concat_recp_paid,
   cashflow_v.total_nolon as total_nolon
 From
-  (SELECT v_inout_heads.day, v_inout_heads.supplier_id, v_inout_heads.supplier_name, sum(inc_count) as sum_inc, sum(v_inout_heads.diff) as sum_diff, group_concat(v_inout_heads.product_name) as products_concat from v_inout_heads GROUP BY day,supplier_id) inoutv
+  (SELECT v_inout_heads.day, v_inout_heads.supplier_id, v_inout_heads.supplier_name, sum(inc_count) as sum_inc_count,sum(sold_count) as sum_sold_count, sum(v_inout_heads.diff) as sum_diff, group_concat(v_inout_heads.product_name) as products_concat from v_inout_heads GROUP BY day,supplier_id) inoutv
 LEFT JOIN 
-  receipts on inoutv.day = receipts.day and inoutv.supplier_id = receipts.supplier_id
+  (select supplier_id, day ,group_concat(recp_paid) as concat_recp_paid from receipts GROUP by supplier_id, day) receipts_g
+  ON inoutv.day = receipts_g.day and inoutv.supplier_id = receipts_g.supplier_id
 LEFT JOIN 
   (SELECT supplier_id, day, sum(amount) as total_nolon from cashflow where state= 'nolon' group by supplier_id, day ) cashflow_v
   on inoutv.day = cashflow_v.day and inoutv.supplier_id = cashflow_v.supplier_id

@@ -127,7 +127,6 @@ export class OutgoingsCtrl {
   }
 
   async findSuppDaySums(filter = {supplier_id: null, day: null}){
-    console.log(filter)
     let results = await knex('v_out_sums').where('income_day', filter.day)
     .andWhere('supplier_id', filter.supplier_id)
 

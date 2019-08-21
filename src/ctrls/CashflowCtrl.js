@@ -1,4 +1,4 @@
-import { bookshelf } from '../main'
+import { bookshelf, knex } from '../main'
 
 export class CashflowDAO {
 
@@ -74,6 +74,17 @@ export class CashflowCtrl {
       cashDAO.supplier_name = _.related('supplier').get('name')
       return cashDAO
     })
+  }
+
+  async getSupplierNolons(filter = {day: '' , supplier_id : 0 }){
+    let query = `
+SELECT supplier_id, day, sum(amount) as total_nolon from cashflow 
+WHERE 
+  state= 'nolon' and supplier_id = '${filter.supplier_id}' and day = '${filter.day}'
+`
+    let results = await knex.raw(query)
+    if(results && results.length > 0)
+    return results[0]
   }
 
   async deleteById(id){

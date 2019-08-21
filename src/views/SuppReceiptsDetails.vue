@@ -23,6 +23,11 @@
             </tr>
           </tbody>
         </table>
+        <hr>
+        <div class="row detailed">
+          <div class="col-6">اجمالي نوالين اليوم</div>
+          <div class="col-6">{{ total_nolon| round2 }}</div>
+        </div>
       </div>
       <div class=" col-6" >
         <h3>اجماليات البيع من وارد اليوم </h3>
@@ -59,59 +64,79 @@
             </tr>
           </draggable>
         </table>
-    <button  class="btn btn-primary" @click="addReceipt()" v-if="receipts_count == 0">
+    <button  class="btn btn-primary" @click="addReceipt(1)" v-if="! show_receipts[1]">
       انشاء فاتورة   &nbsp; <span class="fa fa-external-link-square-alt"></span>
     </button>
       </div>
     </section>
     <hr>
     <section class="row ">
-      <div class=" receipt col-4 p-2 pb-3"  v-if="receipts_count > 0">
+      <div class=" receipt col-4 p-3 "  v-if="show_receipts[1]">
         <h3>فاتورة 1</h3>
         <draggable
-          class="dragArea list-group"
-          :list="recp_one.recp_details"
+          class="drag-area list-group"
+          :list="recp_1.details"
           group="outsums"
           @change="recp_changed"
         >
           <div
             class="list-group-item"
-            v-for="(element, idx) in recp_one.recp_details"
+            v-for="(element, idx) in recp_1.details"
             :key="idx"
           >
             {{ element.product_name }} عدد {{ element.count }} 
             وزن {{ element.weight }}
             بسعر {{ element.kg_price }} 
-            <span class="fa fa-minus-circle" @click="remove_from_list(recp_one.recp_details, idx)"
+            بياعة {{ element.sell_comm }} 
+            <span class="fa fa-minus-circle" @click="remove_from_list(recp_1.details, idx)"
             style="color:red;float: left;"></span>
           </div>
         </draggable>
         <hr>
+        <div>
+          <span> النولون</span>
+          <span> {{recp_1.total_nolon | default0}} </span>
+        </div>
+        <div>
+          <span> مصاريف الفاتورة</span>
+          <span> {{recp_1.recp_expenses | default0}} </span>
+        </div>
+        <div>
+          <span> عمولة الفاتورة</span>
+          <span> {{recp_1.recp_comm | default0}} </span>
+        </div>
+        <hr>
+      <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_1"> <span class="fa fa-edit"></span>
+         تعديل   
+      </button>&nbsp;
       <button  class="btn btn-primary"> <span class="fa fa-money-check"></span>
-     رصد    &nbsp; 
+     رصد    
       </button>&nbsp;
       <button  class="btn btn-primary"> <span class="fa fa-money-bill"></span>
-     صرف   &nbsp; 
+     صرف   
+      </button> &nbsp;
+      <button  class="btn btn-success"> <span class="fa fa-print"></span>
+       طباعة    
       </button>
       </div>
 
-      <div class="receipt col-4 p-1 p-b-3" v-if="receipts_count > 1">
+      <div class="receipt col-4 p-3" v-if="show_receipts[2]">
         <h3>فاتورة 2</h3>
         <draggable
-          class="dragArea list-group"
-          :list="recp_two.recp_details"
+          class="drag-area list-group " 
+          :list="recp_2.details"
           group="outsums"
         >
           <div
             class="list-group-item"
-            v-for="(element, idx) in recp_two.recp_details"
+            v-for="(element, idx) in recp_2.details"
             :key="idx"
           >
           
             {{ element.product_name }} {{ element.count }}
             
 
-            <span class="fa fa-minus-circle" @click="remove_from_list(recp_two.recp_details, idx)"
+            <span class="fa fa-minus-circle" @click="remove_from_list(recp_2.details, idx)"
             style="color:red;float: left;"></span>
             <div>
               <input v-model="element.count" class="form-control"  >
@@ -119,29 +144,29 @@
           </div>
         </draggable>
       </div>
-      <div class="receipt col-4 p-1 pb-3"  v-if="receipts_count > 2">
+      <div class="receipt col-4 p-1 pb-3"  v-if="show_receipts[3]">
         <h3>فاتورة 3</h3>
         <draggable
-          class="dragArea list-group"
-          :list="recp_three.recp_details"
+          class="drag-area list-group"
+          :list="recp_3.details"
           group="outsums"
           @change="recp_changed"
         >
           <div
             class="list-group-item"
-            v-for="(element, idx) in recp_three.recp_details"
+            v-for="(element, idx) in recp_3.details"
             :key="idx"
           >
             {{ element.product_name }} {{ element.count }} {{ element.kg_price }} {{ element.weight }}
-            <span class="fa fa-minus-circle" @click="remove_from_list(recp_three.recp_details, idx)"
+            <span class="fa fa-minus-circle" @click="remove_from_list(recp_3.details, idx)"
             style="color:red;float: left;"></span>
           </div>
         </draggable>
       </div>
-    <button  class="btn btn-primary" @click="addReceipt()" v-if="receipts_count > 0 && receipts_count < 3">
+    <button  class="btn btn-primary" @click="addReceipt(2)" v-if="show_receipts[1] ">
      اضافة فاتورة   &nbsp; <span class="fa fa-external-link-square-alt"></span>
      <br/>
-     {{receipts_count + 1}} 
+      2
     </button>
     </section>
 
@@ -155,18 +180,67 @@
     </div>
 
     <div class="mt-3">
-    <button  class="btn btn-primary" @click="saveAll()"> <span class="fa fa-save"></span> &nbsp;
-     حفظ الفواتير   
-    </button>
+      <button  class="btn btn-primary" @click="saveAll()"> <span class="fa fa-save"></span> &nbsp;
+      حفظ الفواتير   
+      </button> &nbsp;
+      <button  class="btn btn-danger" @click="removeAll()"> <span class="fa fa-trash-alt"></span> &nbsp;
+      حذف الفواتير   
+      </button>
     </div>
+
+    <!-- Modal -->
+<b-modal id="modal-recp" size="xl" :title="' فاتورة' + modal_recp.serial" hide-footer>
+  <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
+      <table class="table table-bordered table-sm pr-me" >
+        <thead>
+          <tr>
+            <th>الاجمالي</th>
+            <th>عدد المباع</th>
+            <th> الوزن</th>
+            <th> </th>
+            <th>سعر الكيلو
+            </th>
+            <th>الصنف</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, idx) in modal_recp.details" :key='idx'>
+            <td>
+              {{item.kg_price *  item.weight | round2 | toAR }}
+            </td>
+            <td >
+              <input v-model="item.count" class="form-control"  v-if="! print_mode && ! modal_recp.recp_paid">
+              <span v-if=" print_mode || modal_recp.recp_paid">{{item.count | toAR }}</span>
+            </td>
+            <td >
+              <input v-model="item.weight" class="form-control"  v-if="! print_mode && ! modal_recp.recp_paid">
+              <span v-if=" print_mode || modal_recp.recp_paid">{{item.weight | toAR }}</span>
+            </td>
+            <td>X</td>
+            <td >
+              <input v-model="item.kg_price" class="form-control"  v-if="! print_mode && ! modal_recp.recp_paid">
+              <span v-if=" print_mode || modal_recp.recp_paid">{{item.kg_price | toAR }}</span>
+            </td>
+            <td >{{item.product_name}} 
+              <button v-if=" ! print_mode && ! modal_recp.recp_paid" class="btn text-success" @click="removeRecpDetail(item.id)" >
+                <span class="fa fa-remove "></span> 
+                حذف
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  </div>
+</b-modal>
 
   </section>
 </template>
 
 <script >
 import { InoutHeadCtrl } from '../ctrls/InoutHeadCtrl'
+import { CashflowCtrl } from '../ctrls/CashflowCtrl'
 import { ReceiptDAO, ReceiptsCtrl } from '../ctrls/ReceiptsCtrl'
-import { OutgoingDAO, OutgoingsCtrl } from '../ctrls/OutgoingsCtrl'
+import { OutgoingsCtrl } from '../ctrls/OutgoingsCtrl'
 import { SupplierDAO, SuppliersCtrl } from '../ctrls/SuppliersCtrl'
 import draggable  from 'vuedraggable'
 
@@ -175,76 +249,128 @@ export default {
   data () {
     return {
       store_day: this.$store.state.day,
-      receipts_count: 0,
+      show_receipts: {1: false, 2: false, 3: false},
       supplier_id: this.$route.params.supplier_id,
       supplier: new SupplierDAO(),
       inoutHeadCtrl: new InoutHeadCtrl(),
       outgoingsCtrl: new OutgoingsCtrl(),
       receiptsCtrl: new ReceiptsCtrl(),
+      cashflowCtrl: new CashflowCtrl(),
       outgoings_sums:[],
+      total_nolon: 0,
       inc_headers: [],
       recp_in_sums: {},
-      recp_one: {recp_details: []},
-      recp_two: {recp_details: []},
-      recp_three: {recp_details: []},
+      recp_1: new ReceiptDAO({serial: 1, ...ReceiptDAO.INIT_DAO}),
+      recp_2: new ReceiptDAO({serial: 2, ...ReceiptDAO.INIT_DAO}),
+      recp_3: new ReceiptDAO({serial: 3, ...ReceiptDAO.INIT_DAO}),
+      modal_recp: {},
+      print_mode: false
     }
   },
   methods: {
     async refresh_all(){
-      //this.outgoings_sums = await 
+      this.recp_1 = new ReceiptDAO({serial: 1, ...ReceiptDAO.INIT_DAO})
+      this.recp_2 = new ReceiptDAO({serial: 2, ...ReceiptDAO.INIT_DAO})
+      this.recp_3 = new ReceiptDAO({serial: 3, ...ReceiptDAO.INIT_DAO})
+
+      this.show_receipts= {1: false, 2: false, 3: false}
+      let {total_nolon} = await this.cashflowCtrl.getSupplierNolons({supplier_id: this.supplier_id, day: this.store_day.iso})
+      this.total_nolon = total_nolon
       this.outgoings_sums = await this.outgoingsCtrl.findSuppDaySums({supplier_id: this.supplier_id, day: this.store_day.iso})
       this.inc_headers = await this.inoutHeadCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
       let receipts = await this.receiptsCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
       receipts.forEach(receipt => {
-        this.recp_one.recp_details = JSON.parse(receipt.details)
+        this['recp_'+ receipt.serial] = receipt
+        this['recp_'+ receipt.serial].details = JSON.parse(receipt.details)
+        this.show_receipts[receipt.serial] = true        
       })
       
     },
     async recp_changed(){
 
     },
-    async saveAll(){
-      console.log(this.recp_one)
-      if(this.recp_one.recp_details.length > 0){
-        let receipt1 = new ReceiptDAO({})
-        receipt1.day = this.store_day.iso
-        receipt1.supplier_id = this.supplier_id
-        receipt1.details = JSON.stringify(this.recp_one.recp_details)
-        this.receiptsCtrl.save(receipt1)
-      }
+    async removeAll(){
+      if(this.recp_1.id)
+        await this.receiptsCtrl.deleteById(this.recp_1.id)
+
+      if(this.recp_2.id)
+        await this.receiptsCtrl.deleteById(this.recp_2.id)
+
+      if(this.recp_3.id)
+        await this.receiptsCtrl.deleteById(this.recp_3.id)
+
+      this.refresh_all()
     },
-    async addReceipt(){
-      this.receipts_count += 1
-      if(this.receipts_count == 1) {
+    async saveAll(){
+
+      if(this.recp_1.details.length > 0){
+        let receipt = new ReceiptDAO({
+          ...this.recp_1,
+          day: this.store_day.iso,
+          supplier_id: this.supplier_id,
+        })
+        await this.receiptsCtrl.save(receipt)
+      }
+
+      if(this.recp_2.details.length > 0){
+        let receipt = new ReceiptDAO({
+          ...this.recp_2,
+          day: this.store_day.iso,
+          supplier_id: this.supplier_id,
+        })
+        await this.receiptsCtrl.save(receipt)
+      }
+
+      if(this.recp_3.details.length > 0){
+        let receipt = new ReceiptDAO({
+          ...this.recp_3,
+          day: this.store_day.iso,
+          supplier_id: this.supplier_id,
+        })
+        await this.receiptsCtrl.save(receipt)
+      }
+
+      this.refresh_all()
+    },
+    async addReceipt(num){
+      this.show_receipts[num] = true
+      if(num == 1) {
         let all = this.outgoings_sums.map( dao => this.clone(dao))
-        this.recp_one.recp_details = all
+        this.recp_1.details = all
+        this.recp_1.total_nolon = this.total_nolon
       }
     },
     async watchit(){
       this.inc_headers = await this.inoutHeadCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
 
-      this.recp_one.recp_details.forEach( item => {        
+      this.recp_1.total_count = 0
+      this.recp_1.details.forEach( item => {        
         let index = this.inc_headers.findIndex( _ => _.product_id === item.product_id )
         if(index >= 0){
           this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count ? parseInt(this.inc_headers[index].recp_in_count) : 0
           this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count + item.count
         }
+        this.recp_1.total_count += parseInt(item.count)
       })
 
-      this.recp_two.recp_details.forEach( item => {        
+      this.recp_2.total_count = 0
+      this.recp_2.details.forEach( item => {        
         let index = this.inc_headers.findIndex( _ => _.product_id === item.product_id )
         if(index >= 0){
           this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count ? parseInt(this.inc_headers[index].recp_in_count) : 0
           this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count + parseInt(item.count)
         }
+        this.recp_2.total_count += parseInt(item.count)
       })
-
-      this.recp_three.recp_details.forEach( item => {        
+      
+      this.recp_3.total_count = 0
+      this.recp_3.details.forEach( item => {        
         let index = this.inc_headers.findIndex( _ => _.product_id === item.product_id )
         if(index >= 0){
           this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count ? parseInt(this.inc_headers[index].recp_in_count) : 0
           this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count + parseInt(item.count)
         }
+        this.recp_3.total_count += parseInt(item.count)
       })
     },
     /**@param {Array} list */
@@ -259,7 +385,8 @@ export default {
           product_name: dao.product_name,
           product_id:  dao.product_id,
           kg_price: dao.kg_price,
-          weight: dao.sum_weight
+          weight: dao.sum_weight,
+          sell_comm: dao.sell_comm
       }
     },
   },
@@ -267,19 +394,18 @@ export default {
     this.refresh_all()
     let suppliersCtrl = new SuppliersCtrl()
     this.supplier = await suppliersCtrl.findById(this.supplier_id)
-    this.recp_two.recp_details.push({product_name: 'صنف عالي'})
   },
   watch: {
 
-    'recp_one.recp_details':{
+    'recp_1.details':{
       handler: async function(){ this.watchit() },
       deep: true
     },
-    'recp_two.recp_details':{
+    'recp_2.details':{
       handler: async function(){ this.watchit() },
       deep: true
     },
-    'recp_three.recp_details':{
+    'recp_3.details':{
       handler: async function(){ this.watchit() },
       deep: true
     },
@@ -294,5 +420,11 @@ export default {
 .receipt {
   background-color: #cee;
   border-radius: 10px;
+}
+.drag-area{
+  min-height: 4em;
+  border: #2f92d8 1px dashed;
+  border-radius: 10px;
+  padding: 12px;
 }
 </style>

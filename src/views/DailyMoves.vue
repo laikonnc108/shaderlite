@@ -8,7 +8,7 @@
             <tr>
               <th>اسم العميل</th>
               <th>الاصناف</th>
-              <th>طرود مباعة</th>
+              <th>عدد الطرود</th>
               <th>البياعة</th>
               <th>العمولة</th>
               <th>بياعة + عمولة</th>
@@ -26,15 +26,9 @@
                 <br/>
                 <b>فاتورة {{item.recp_paid}}</b>
               </td>
-               <!--
-              <td>{{item.total_count}}</td>
-              -->
-              <td v-if="item.products_arr">
-                <template v-html="$options.filters.productsFilter(item.products_arr,'<br/> , ')">
-                </template>
-              </td>
+              <td v-html="$options.filters.productsFilter(item.details,'<br/> ')"></td>
               
-              <td>{{ ( item.total_count - item.total_current_rest ) | round}}</td>
+              <td>{{ item.total_count }}</td>
               <!--
               <td> 
                 <span class="text-danger" v-if="item.total_current_rest">{{item.total_current_rest}}</span>
