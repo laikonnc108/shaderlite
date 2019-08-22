@@ -295,7 +295,8 @@ export default {
       let receipts = await this.receiptsCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
       receipts.forEach(receipt => {
         this['recp_'+ receipt.serial] = receipt
-        this['recp_'+ receipt.serial].details = JSON.parse(receipt.details)
+        console.log(receipt)
+        //this['recp_'+ receipt.serial].details = JSON.parse(receipt.details)
         this.show_receipts[receipt.serial] = true        
       })
       

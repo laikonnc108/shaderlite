@@ -32,7 +32,27 @@ export class ReceiptDAO {
   }
   
   parseTypes() { 
-    this.details= this.details? JSON.stringify(this.details) : null
+    // this.details= this.details? JSON.stringify(this.details) : null
+    delete this.details
+  }
+}
+
+export class ReceiptDetailDAO {
+
+  id
+  receipt_id
+  day
+  supplier_id
+  kg_price
+  product_id
+  weight
+  count
+
+  constructor( data= {} ){
+    Object.assign(this, data)
+  }
+  
+  parseTypes() { 
   }
 }
 
@@ -53,10 +73,15 @@ export class ReceiptsCtrl {
 
   /**@returns {Array} */
   async findAll(filter = {}) {
-    let all = await this.model.where(filter).fetchAll({withRelated: ['supplier']})
+    let all = await this.model.where(filter).fetchAll({withRelated: ['supplier','details']})
     return all.map( _=> {
       let dao = new ReceiptDAO(_.attributes)
       dao.supplier_name = _.related('supplier').get('name')
+      /**@type {Array} */
+      let details = _.related('details').toJSON()
+      details.forEach(record => {
+        dao.details.push(new ReceiptDetailDAO(record))
+      })
       return dao
     })
   }

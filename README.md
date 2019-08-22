@@ -64,6 +64,7 @@ npm run postinstall
 
 **Receipts**
 - replace "\" to be valid json string
+- update receipts set serial = 1
 
 **Incomings**
 - remove product_name, supplier_name, notes, date_created, nolon, given 
