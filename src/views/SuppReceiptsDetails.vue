@@ -111,15 +111,16 @@
       <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_1"> <span class="fa fa-edit"></span>
          تعديل   
       </button>&nbsp;
-      <button  class="btn btn-primary"> <span class="fa fa-money-check"></span>
+      <button  class="btn btn-primary" @click="setRecpPaid(recp_1, 1)"> <span class="fa fa-money-check"></span>
      رصد    
       </button>&nbsp;
-      <button  class="btn btn-primary"> <span class="fa fa-money-bill"></span>
+      <button  class="btn btn-primary" @click="setRecpPaid(recp_1, 2)"> <span class="fa fa-money-bill"></span>
      صرف   
       </button> &nbsp;
       <button  class="btn btn-success"> <span class="fa fa-print"></span>
        طباعة    
       </button>
+
       </div>
 
       <div class="receipt col-4 p-3" v-if="show_receipts[2]">
@@ -143,7 +144,23 @@
             style="color:red;float: left;"></span>
           </div>
         </draggable>
+
+        <hr>
+        <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_2"> <span class="fa fa-edit"></span>
+          تعديل   
+        </button>&nbsp;
+        <button  class="btn btn-primary"> <span class="fa fa-money-check"></span>
+      رصد    
+        </button>&nbsp;
+        <button  class="btn btn-primary"> <span class="fa fa-money-bill"></span>
+      صرف   
+        </button> &nbsp;
+        <button  class="btn btn-success"> <span class="fa fa-print"></span>
+        طباعة    
+        </button>
+
       </div>
+
       <div class="receipt col-4 p-1 pb-3"  v-if="show_receipts[3]">
         <h3>فاتورة 3 {{'recp_status_'+ recp_3.recp_paid | tr_label }}</h3>
         <draggable
@@ -240,7 +257,7 @@
 
       <div class="m-2">
           <button class="btn btn-primary" @click="$bvModal.hide('modal-recp')" >
-            <span class="fa fa-save "></span> 
+            <span class="fa fa-check "></span> &nbsp;
             موافق
           </button>
       </div>
@@ -315,6 +332,10 @@ export default {
         await this.receiptsCtrl.deleteById(this.recp_3.id)
 
       this.refresh_all()
+    },
+    setRecpPaid( receipt, recp_paid ) {
+      receipt.recp_paid = recp_paid
+      this.saveAll()
     },
     async saveAll(){
 

@@ -22,11 +22,13 @@
           <tbody>
             <tr v-for="(item, idx) in daily_receipts" :key='idx'>
               <td>
+                <router-link class=" " :to="{name:'supp_recp_details', params: {supplier_id: item.supplier_id}}">
                 {{item.supplier_name}}
+                </router-link>
                 <br/>
-                <b>فاتورة {{item.recp_paid}}</b>
+                <b style="color:#456">فاتورة {{'recp_status_'+ item.recp_paid | tr_label }}</b>
               </td>
-              <td v-html="$options.filters.productsFilter(item.details,'<br/> ')"></td>
+              <td v-html="$options.filters.productsFilter(item.products_arr,'<br/> ')"></td>
               
               <td>{{ item.total_count }}</td>
               <!--

@@ -21,7 +21,7 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
         <th>عدد الطرود</th>
         <th>تم بيع</th>
         <th>طرود متبقية</th>
-        <th>الفواتير</th>
+        <th>تم انشاء فواتير</th>
         <th></th>
       </tr>
     </thead>
@@ -45,7 +45,11 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
           <b>{{row.sum_diff}}</b>
         </td>
         <td>
-          {{row.concat_recp_paid}}
+          <span v-for="(recp_paid, index) in receiptsSepStatus(row.concat_recp_paid)" :key="index">
+            فاتورة {{'recp_status_'+ recp_paid | tr_label }} 
+            <span v-if="index+1 != receiptsSepStatus(row.concat_recp_paid).length">, </span>
+          </span> 
+          
         </td>
         <td>
           
@@ -79,9 +83,18 @@ export default {
       this.suppliers_arr = await SuppliersDB.getAll(ids)
       */
       this.today_suppliers_arr = await this.inoutHeadCtrl.findDailySuppliers({day: this.$store.state.day.iso})
+    },
+    receiptsSepStatus(concat_recp_paid) {
+      if(concat_recp_paid)
+        return concat_recp_paid.split(',')
+      else
+        return []
     }
   },
   components: {
+  },
+  computed: {
+    
   },
   mounted() {
     this.refresh_all()

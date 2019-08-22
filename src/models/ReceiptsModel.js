@@ -14,6 +14,9 @@ module.exports = (bookshelf) => {
     });
     let RelSupplier = bookshelf.Model.extend({ tableName: 'suppliers' })
     let RelReceiptDetails = bookshelf.Model.extend({ tableName: 'receipt_details' })
-
-    return ReceiptsModel;
+    let detailsColl = bookshelf.Collection.extend({
+        model: RelReceiptDetails
+    })
+    
+    return {model: ReceiptsModel, detailsColl: detailsColl}
 };
