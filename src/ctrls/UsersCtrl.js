@@ -34,4 +34,12 @@ export class UsersCtrl {
     let all = await this.model.where(filter).fetchAll({})
     return all.map( _=> new UserDAO(_.attributes))
   }
+
+  async login(user = {username: null, password:null}){
+    let logged_in = await this.model.where(user).fetch()
+    if(logged_in)
+      return new UserDAO(logged_in.toJSON())
+    else
+      return
+  }
 }

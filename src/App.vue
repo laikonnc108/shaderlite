@@ -5,10 +5,10 @@
          Shader
       </b>
     </nav>
-<div class="container-fluid ">
+    <div class="container-fluid " >
       <div class="row" style="max-width: 100%;">
         <nav class="col-md-2 d-none d-md-block bg-light sidebar d-print-none" >
-          <div class="sidebar-sticky mt-3">
+          <div class="sidebar-sticky mt-3" v-if="! require_login">
             <b class=" text-muted">
               {{ $store.state.day.d_week }}
             </b>
@@ -121,9 +121,26 @@
           </div>
         </nav>
 
+        <b-modal id="login-modal" hide-footer  class="p-4">
+          <form @submit="loginSubmit">
+            <p class="h4 text-center mb-4">تسجيل الدخول</p>
+            <label for="defaultFormLoginEmailEx" class="grey-text">اسم المستخدم</label>
+            <input v-model="user.username" class="form-control"/>
+            <br/>
+            <label for="defaultFormLoginPasswordEx" class="grey-text">كلمة المرور</label>
+            <input type="password" v-model="user.password" class="form-control"/>
+            <div class="text-center mt-4">
+              <button class="btn btn-success" type="submit">دخـول</button>
+            </div>
+          </form>
+        </b-modal>
+
         <main role="main" class="col-md-9 mr-sm-auto col-lg-10 px-0 col-print-12" >
+          
           <router-view/>
         </main>
+        
+
       </div>
     </div>
   </div>
@@ -136,6 +153,7 @@ import { ShaderConfigsCtrl } from './ctrls/ShaderConfigsCtrl'
 import { ProductsCtrl } from './ctrls/ProductsCtrl'
 import { TransTypesCtrl } from './ctrls/TransTypesCtrl'
 import { MyStoreMutations } from './main.js'
+import { UsersCtrl } from './ctrls/UsersCtrl';
 
 Settings.defaultLocale = 'ar'
 Settings.defaultZoneName = 'UTC'
@@ -144,12 +162,37 @@ export default {
   data() {
     return {
       custom_labels: [],
+      require_login: true,
+      shaderConfigsCtrl: new ShaderConfigsCtrl(),
+      usersCtrl: new UsersCtrl(),
+      user: {username: null, password: null}
+    }
+  },
+  methods: {
+    async loginSubmit(evt) {
+      evt.preventDefault()
+      console.log(this.user)
+      let logged_in = await this.usersCtrl.login(this.user)
+      if(logged_in){
+        // Store logged in user
+        this.require_login = false
+        this.$bvModal.hide('login-modal')
+      } else {
+        console.log('logged_in else ')
+      }
+    },
+  },
+  async mounted(){
+    let app_configs = await this.shaderConfigsCtrl.getAppCongifs()
+    this.require_login = app_configs['require_login'] ? app_configs['require_login'] == 'true' : false
+    if(this.require_login) {
+      this.$bvModal.show('login-modal')
     }
   },
   async beforeMount () {
     console.log("beforeMount",this.$store.state)
 
-    this.custom_labels = await new ShaderConfigsCtrl().getAppLabels()
+    this.custom_labels = await this.shaderConfigsCtrl.getAppLabels()
     this.$store.commit('setCustomLabels', this.custom_labels)
 
     let products_arr = await new ProductsCtrl().getProductsArr()

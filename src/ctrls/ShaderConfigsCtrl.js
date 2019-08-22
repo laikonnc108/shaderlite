@@ -30,6 +30,23 @@ export class ShaderConfigsCtrl {
     return this.model.where(filter).fetchAll()
   }
 
+  async getAppCongifs(){
+    let all_configs = await this.findAll({shader_name: 'default',category:'config'})
+    let configs_arr = []
+    // Can do map 
+    all_configs.forEach( element => {
+      element.get('config_name')
+      configs_arr[element.get('config_name')] = element.get('config_value')
+    });
+    // Override with custom labels
+    let custom_labels = await this.findAll({shader_name: 'magdy',category:'config'})
+    custom_labels.forEach( element => {
+      element.get('config_name')
+      configs_arr[element.get('config_name')] = element.get('config_value')
+    });
+    return configs_arr
+  }
+
   async getAppLabels(){
 
     let all_labels = await this.findAll({shader_name: 'default',category:'label'})

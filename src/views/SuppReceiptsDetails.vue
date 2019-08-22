@@ -72,7 +72,10 @@
     <hr>
     <section class="row ">
       <div class=" receipt col-4 p-3 "  v-if="show_receipts[1]">
-        <h3>فاتورة 1</h3>
+        <h3>فاتورة 1 
+
+            {{'recp_status_'+ recp_1.recp_paid | tr_label }}
+        </h3>
         <draggable
           class="drag-area list-group"
           :list="recp_1.details"
@@ -87,7 +90,6 @@
             {{ element.product_name }} عدد {{ element.count }} 
             وزن {{ element.weight }}
             بسعر {{ element.kg_price }} 
-            بياعة {{ element.sell_comm }} 
             <span class="fa fa-minus-circle" @click="remove_from_list(recp_1.details, idx)"
             style="color:red;float: left;"></span>
           </div>
@@ -121,7 +123,7 @@
       </div>
 
       <div class="receipt col-4 p-3" v-if="show_receipts[2]">
-        <h3>فاتورة 2</h3>
+        <h3>فاتورة 2 {{'recp_status_'+ recp_2.recp_paid | tr_label }}</h3>
         <draggable
           class="drag-area list-group " 
           :list="recp_2.details"
@@ -133,19 +135,17 @@
             :key="idx"
           >
           
-            {{ element.product_name }} {{ element.count }}
+            {{ element.product_name }} عدد {{ element.count }} 
+            وزن {{ element.weight }}
+            بسعر {{ element.kg_price }} 
             
-
             <span class="fa fa-minus-circle" @click="remove_from_list(recp_2.details, idx)"
             style="color:red;float: left;"></span>
-            <div>
-              <input v-model="element.count" class="form-control"  >
-            </div>
           </div>
         </draggable>
       </div>
       <div class="receipt col-4 p-1 pb-3"  v-if="show_receipts[3]">
-        <h3>فاتورة 3</h3>
+        <h3>فاتورة 3 {{'recp_status_'+ recp_3.recp_paid | tr_label }}</h3>
         <draggable
           class="drag-area list-group"
           :list="recp_3.details"
@@ -163,19 +163,26 @@
           </div>
         </draggable>
       </div>
-    <button  class="btn btn-primary" @click="addReceipt(2)" v-if="show_receipts[1] ">
-     اضافة فاتورة   &nbsp; <span class="fa fa-external-link-square-alt"></span>
-     <br/>
-      2
-    </button>
+      <button  class="btn btn-primary" @click="addReceipt(2)" v-if="show_receipts[1] && ! show_receipts[2]">
+      اضافة فاتورة   &nbsp; <span class="fa fa-external-link-square-alt"></span>
+      <br/>
+        2
+      </button>
+      <button  class="btn btn-primary" @click="addReceipt(3)" v-if="show_receipts[2] && ! show_receipts[3]">
+      اضافة فاتورة   &nbsp; <span class="fa fa-external-link-square-alt"></span>
+      <br/>
+        3
+      </button> 
     </section>
 
     <hr>
 
     <!-- Check Rest Items -->
     <div>
-      <div v-for="(incom, idx) in inc_headers" :key='idx'>
-        {{incom.product_name}} تم بيع {{incom.sold_count | default0 }} طرد  - تم انشاء فواتير بعدد {{incom.recp_in_count | default0}} طرد
+      <div v-for="(incom, idx) in inc_headers" :key='idx' class="text-danger" >
+        <span v-if="incom.sold_count != incom.recp_in_count "> <span class="fa fa-error"></span> &nbsp;
+        صنف {{incom.product_name}} تم بيع {{incom.sold_count | default0 }} طرد  - تم انشاء فواتير بعدد {{incom.recp_in_count | default0}} طرد
+        </span>
       </div>
     </div>
 
@@ -189,7 +196,7 @@
     </div>
 
     <!-- Modal -->
-<b-modal id="modal-recp" size="xl" :title="' فاتورة' + modal_recp.serial" hide-footer>
+<b-modal id="modal-recp" size="xl" :title="' فاتورة' + modal_recp.serial" hide-footer hide-header-close>
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me" >
         <thead>
@@ -230,6 +237,13 @@
           </tr>
         </tbody>
       </table>
+
+      <div class="m-2">
+          <button class="btn btn-primary" @click="$bvModal.hide('modal-recp')" >
+            <span class="fa fa-save "></span> 
+            موافق
+          </button>
+      </div>
   </div>
 </b-modal>
 
@@ -310,6 +324,8 @@ export default {
           supplier_id: this.supplier_id,
         })
         await this.receiptsCtrl.save(receipt)
+      } else if (this.recp_1.id) {
+        await this.receiptsCtrl.deleteById(this.recp_1.id)
       }
 
       if(this.recp_2.details.length > 0){
@@ -319,6 +335,8 @@ export default {
           supplier_id: this.supplier_id,
         })
         await this.receiptsCtrl.save(receipt)
+      } else if (this.recp_2.id) {
+        await this.receiptsCtrl.deleteById(this.recp_2.id)
       }
 
       if(this.recp_3.details.length > 0){
@@ -328,6 +346,8 @@ export default {
           supplier_id: this.supplier_id,
         })
         await this.receiptsCtrl.save(receipt)
+      } else if (this.recp_3.id) {
+        await this.receiptsCtrl.deleteById(this.recp_3.id)
       }
 
       this.refresh_all()
