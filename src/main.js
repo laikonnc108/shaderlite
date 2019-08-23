@@ -15,8 +15,13 @@ Vue.config.productionTip = false
 
 const {app} = require('electron').remote
 const path = require('path')
+const log = require('electron-log')
+
+log.info('app.getAppPath())'+ app.getAppPath())
 
 const dbFile = path.resolve(path.dirname(app.getAppPath()), './db/shaderlite.db')
+
+log.info('dbFile',dbFile)
 
 store.commit('setElectronData',{
   app_path: app.getAppPath(),
@@ -33,8 +38,10 @@ let sqlite_config = {
   useNullAsDefault: true
 }
 
-const knex = require('knex')(sqlite_config);
-const bookshelf = require('bookshelf')(knex)
+const knex = require('knex')(sqlite_config)
+Object.defineProperty(knex, "name", { value: "knex" })
+
+let bookshelf= require('bookshelf')(knex)
 bookshelf.plugin(require('bookshelf-soft-delete'))
 
 export { knex, sqlite_config, bookshelf, MyStoreMutations };
@@ -46,6 +53,7 @@ Vue.filter('arDate' , function(date) {
 })
 
 Vue.filter('tr_label' , function(string, collection) {
+
   if(! collection)
     return (store.state.custom_labels[string])? store.state.custom_labels[string] : string
   else if (collection == 'trans_types')
@@ -96,9 +104,7 @@ Vue.filter('concat_recp_paid' , function(concat_recp_paid) {
   return concat_recp_paid
 })
 
-
 function testJSON(text){
-
   if (typeof text!=="string" || parseInt(text) > 0 || parseInt(text) === 0){
     return false;
   }
@@ -112,7 +118,6 @@ function testJSON(text){
 }
 
 Vue.filter('productsFilter' , function(products , separator = ' , ') {
-
   let only_prod_names = []
   products = products ? products : ''
   //console.log('productsFilter', products , separator)
@@ -148,3 +153,6 @@ new Vue({
   store,
   render: h => h(App)
 }).$mount('#app')
+
+Vue.prototype.vue_window = window
+Vue.prototype.vue_document = document

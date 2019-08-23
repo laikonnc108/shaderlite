@@ -12,11 +12,11 @@
               <th>البياعة</th>
               <th>العمولة</th>
               <th>بياعة + عمولة</th>
-              <th>فرق الفاتورة</th>
-              <th>النوالين</th>
-              <th>مصاريف </th>
-              <th>وهبة </th>
-              <th>صافي </th>
+              <th>فرق فواتير</th>
+              <th>نوالين</th>
+              <th>مصاريف فواتير</th>
+              <th>وهبة الكاتب</th>
+              <th>صافي فواتير</th>
             </tr>
           </thead>
           <tbody>
@@ -26,28 +26,31 @@
                 {{item.supplier_name}}
                 </router-link>
                 <br/>
-                <b style="color:#456">فاتورة {{'recp_status_'+ item.recp_paid | tr_label }}</b>
+                <span style="color:#456" v-for="(recp_paid, index) in receiptsSepStatus(item.concat_recp_paid)" :key="index">
+                فاتورة {{'recp_status_'+ recp_paid | tr_label }} 
+                  <span v-if="index+1 != receiptsSepStatus(item.concat_recp_paid).length"><br/></span>
+                </span>
               </td>
-              <td v-html="$options.filters.productsFilter(item.products_arr,'<br/> ')"></td>
+              <td v-html="$options.filters.productsFilter(item.products_concat,'<br/> ')"></td>
               
-              <td>{{ item.total_count }}</td>
+              <td>{{ item.sum_total_count }}</td>
               <!--
               <td> 
                 <span class="text-danger" v-if="item.total_current_rest">{{item.total_current_rest}}</span>
               </td>
               -->
-              <td>{{item.total_sell_comm | round }}</td>
-              <td>{{item.recp_comm | round2}}</td>
-              <td>{{ ( item.total_sell_comm + item.recp_comm ) | round2}}</td>
+              <td>{{item.sum_sell_comm | round2 }}</td>
+              <td>{{item.sum_recp_comm | round2}}</td>
+              <td>{{ ( item.sum_sell_comm + item.sum_recp_comm ) | round2}}</td>
               <td >
-                <span v-if="(item.out_sale_value - item.sale_value) > 0">+</span>
-                {{ (item.out_sale_value - item.sale_value) | round2}}
+                <span v-if="(item.sum_out_value - item.sum_sale_value) > 0">+</span>
+                {{ (item.sum_out_value - item.sum_sale_value) | round2}}
               </td>
               
-              <td>{{item.total_nolon | round}}</td>
-              <td>{{item.recp_expenses | round}}</td>
-              <td>{{item.recp_given }}</td>
-              <td>{{item.net_value | round}}</td>
+              <td>{{item.sum_total_nolon | round2}}</td>
+              <td>{{item.sum_recp_expenses | round2}}</td>
+              <td>{{item.sum_recp_given | round2 }}</td>
+              <td>{{item.sum_net_value | round2}}</td>
             </tr>
           </tbody>
         </table>
@@ -92,7 +95,13 @@ export default {
     async refresh_all(){
       this.cashflow_arr_in = await this.cashflowCtrl.findAll({sum: '+', day: this.$store.state.day.iso})
       this.cashflow_arr_out = await this.cashflowCtrl.findAll({sum: '-', day: this.$store.state.day.iso})
-      this.daily_receipts = await this.receiptsCtrl.findAll({day: this.$store.state.day.iso })
+      this.daily_receipts = await this.receiptsCtrl.findDailyReceipts({day: this.$store.state.day.iso })
+    },
+    receiptsSepStatus(concat_recp_paid) {
+      if(concat_recp_paid)
+        return concat_recp_paid.split(',')
+      else
+        return []
     }
   },
   mounted() {

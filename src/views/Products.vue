@@ -45,7 +45,10 @@
         اغلاق الارشيف   &nbsp; <span class="fa fa-external-link-square-alt"></span>
       </button>
     </div>
-
+    <div class="pr-hideme" >
+      <br>
+      <input v-model="search_term" class="form-control "  :placeholder="custom_labels['search_products']">
+    </div>
     <br/>
     <h2 :class="{ 'text-danger': ! show_active }">
       <span v-if="show_active"> ادارة </span>
@@ -59,6 +62,7 @@
             <tr>
               <th> كود الصنف </th>
               <th>اسم الصنف</th>
+              <th>بياعة الصنف</th>
               <th>ملاحظات</th>
               <th></th>
             </tr>
@@ -67,6 +71,7 @@
             <tr v-for="(item, idx) in comp_products_arr" :key='idx' >
               <td>{{item.id}}</td>
               <td>{{item.name}}</td>
+              <td>{{item.sell_comm}}</td>
               <td>{{item.notes}}</td>
               <td class="d-print-none">
                 <button class="btn text-danger" @click="archive(item.id)" v-if="! item.deleted_at">
@@ -104,6 +109,7 @@ export default {
       show_active: true,
       search_term: '',
       product_form: new ProductDAO(ProductDAO.INIT_DAO),
+      custom_labels: this.$store.state.custom_labels,
       //isBoth: getShaderConfigValue(this.$store.state , 'work_in') === 'both'
     }
   },

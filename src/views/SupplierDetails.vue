@@ -35,7 +35,7 @@
               <th>{{idx +1 | toAR }} </th>
               <td>{{payment.day | arDate }}</td>
               <td>
-                {{payment.trans_type}}
+                {{payment.trans_type | tr_label('trans_types')}}
                 <span v-if="payment.notes">- {{payment.notes}} </span>
               </td>
               <td>{{payment.amount | toAR}}</td>

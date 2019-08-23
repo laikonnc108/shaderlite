@@ -50,10 +50,10 @@
             </tr>
           </tbody>
         </table>
+        <!--
         <button class="btn btn-primary pr-hideme" v-if="flags.detailed === false" @click="flags.detailed = true"> عرض التفاصيل </button>
-        
-        <button class="btn btn-printo pr-hideme"  v-if="flags.detailed" 
-        @click="clipboard.writeText('وارد اليوم '+ store_day.iso);vue_window.print()">
+        -->
+        <button class="btn btn-printo pr-hideme"  @click=";vue_window.print()">
           <span class="fa fa-print"></span> طباعة
         </button>
       </div> 

@@ -11,6 +11,11 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 ```
 
+### Get knex and bookshelf working
+
+- npm i mssql -s
+- add Object.defineProperty(knex, "name", { value: "knex" }) to avoid knex name problem
+
 ### changes to background.js
 
 - Add window.maximize()
@@ -28,7 +33,6 @@ npm run postinstall
 
 - Fixed sell_comm per product / or flexi receipts
 - Products can't be edited
-
 
 ## Tools And Resources
 

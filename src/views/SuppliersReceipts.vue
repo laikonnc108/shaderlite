@@ -48,8 +48,7 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
           <span v-for="(recp_paid, index) in receiptsSepStatus(row.concat_recp_paid)" :key="index">
             فاتورة {{'recp_status_'+ recp_paid | tr_label }} 
             <span v-if="index+1 != receiptsSepStatus(row.concat_recp_paid).length">, </span>
-          </span> 
-          
+          </span>
         </td>
         <td>
           
