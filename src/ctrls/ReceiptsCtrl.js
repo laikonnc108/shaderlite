@@ -106,6 +106,30 @@ export class ReceiptsCtrl {
     })
   }
 
+  /**@returns {Array} */
+  async findDailyReceipts(day) {
+    return [day]
+/*
+select * from (SELECT 
+day as day,
+supplier_id as supplier_id,
+sum(recp_comm) as sum_recp_comm,
+sum(sale_value) as sum_sale_value,
+sum(net_value) as sum_net_value,
+sum(total_nolon) as sum_total_nolon ,
+sum(total_count) as sum_total_count ,
+sum(recp_given) as sum_recp_given ,
+group_concat(recp_paid) as concat_recp_paid
+from receipts 
+GROUP by supplier_id, day) recp_gsums
+ JOIN (SELECT income_day,	supplier_id, sum(kg_price *weight) as sum_out_value , sum(sell_comm * count) as sum_sell_comm
+FROM outgoings
+GROUP BY income_day, supplier_id, sell_comm ) out_gsums
+on recp_gsums.day = out_gsums.income_day and recp_gsums.supplier_id = out_gsums.supplier_id
+order by day desc
+*/
+  }
+
   async deleteById(id){
     let instance = await this.model.where('id',id).fetch({withRelated:['details']})
     if(instance) {

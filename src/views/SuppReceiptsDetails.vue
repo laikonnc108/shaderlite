@@ -112,18 +112,23 @@
           <span> {{recp_1.recp_given | round2}} </span>
         </div>
         <hr>
-      <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_1"> <span class="fa fa-edit"></span>
-         تعديل   
-      </button>&nbsp;
-      <button  class="btn btn-primary" @click="setRecpPaid(recp_1, 1)"> <span class="fa fa-money-check"></span>
-     رصد    
-      </button>&nbsp;
-      <button  class="btn btn-primary" @click="setRecpPaid(recp_1, 2)"> <span class="fa fa-money-bill"></span>
-     صرف   
-      </button> &nbsp;
-      <button  class="btn btn-success"> <span class="fa fa-print"></span>
-       طباعة    
-      </button>
+        <div class="row-detail">
+          <label> صافي الفاتورة</label>
+          <span> {{recp_1.net_value | round2}} </span>
+        </div>
+        <hr>
+        <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_1"> <span class="fa fa-edit"></span>
+        تعديل   
+        </button>&nbsp;
+        <button  class="btn btn-primary" @click="setRecpPaid(recp_1, 1)"> <span class="fa fa-money-check"></span>
+        رصد    
+        </button>&nbsp;
+        <button  class="btn btn-primary" @click="setRecpPaid(recp_1, 2)"> <span class="fa fa-money-bill"></span>
+        صرف    
+        </button> &nbsp;
+        <button  class="btn btn-success"> <span class="fa fa-print"></span>
+        طباعة    
+        </button>
 
       </div>
 
@@ -148,16 +153,37 @@
             style="color:red;float: left;"></span>
           </div>
         </draggable>
-
+        <hr>
+        <div class="row-detail" v-if="recp_2.total_nolon">
+          <label> النولون</label>
+          <span> {{recp_2.total_nolon | default0}} </span>
+        </div>
+        <div class="row-detail" v-if="recp_2.recp_expenses">
+          <label> مصاريف الفاتورة</label>
+          <span> {{recp_2.recp_expenses | default0}} </span>
+        </div>
+        <div class="row-detail">
+          <label> عمولة الفاتورة</label>
+          <span> {{recp_2.recp_comm | default0}} -<label> نسبة العمولة </label> ({{recp_2.comm_rate | default0}} % )</span>
+        </div>
+        <div class="row-detail">
+          <label> وهبة الفاتورة</label>
+          <span> {{recp_2.recp_given | round2}} </span>
+        </div>
+        <hr>
+        <div class="row-detail">
+          <label> صافي الفاتورة</label>
+          <span> {{recp_2.net_value | round2}} </span>
+        </div>
         <hr>
         <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_2"> <span class="fa fa-edit"></span>
-          تعديل   
+        تعديل   
         </button>&nbsp;
-        <button  class="btn btn-primary"> <span class="fa fa-money-check"></span>
-      رصد    
+        <button  class="btn btn-primary" @click="setRecpPaid(recp_2, 1)"> <span class="fa fa-money-check"></span>
+        رصد    
         </button>&nbsp;
-        <button  class="btn btn-primary"> <span class="fa fa-money-bill"></span>
-      صرف   
+        <button  class="btn btn-primary" @click="setRecpPaid(recp_2, 2)"> <span class="fa fa-money-bill"></span>
+        صرف   
         </button> &nbsp;
         <button  class="btn btn-success"> <span class="fa fa-print"></span>
         طباعة    
@@ -254,18 +280,39 @@
               style="color:red;float: left;"></span>
             </td>
           </tr>
-            <tr>
-            
+          <tr>
+            <td ><b class="border-top border-primary">{{modal_recp.sale_value | round2 | toAR }} </b></td>
+            <td colspan="6" style="border: none !important;"></td>
+          </tr>
+          <tr>
             <td>( {{modal_recp.recp_comm | round2 | toAR }} )</td>
-            <th >عمولة</th>
-            <td></td>
-            <td></td>
+            <th style="border: none !important;">عمولة</th>
+            <td colspan="2" style="border: none !important;"></td>
             <td ><input v-model="modal_recp.comm_rate" class="form-control"  ></td>
             <th>
               <span >
                نسبة العمولة {{modal_recp.comm_rate }}%  
                </span>
             </th>
+          </tr>
+          <tr v-if="modal_recp.total_nolon">
+            <td ><b >( {{modal_recp.total_nolon | round2 | toAR }} )</b></td>
+            <td colspan="6" style="border: none !important;">نولون</td>
+          </tr>
+          <tr v-if="modal_recp.recp_expenses">
+            <td ><b >( {{modal_recp.recp_expenses | round2 | toAR }} )</b></td>
+            <td colspan="6" style="border: none !important;">مصاريف فاتورة</td>
+          </tr>
+          <tr>
+            <td>( {{modal_recp.recp_given | round2 | toAR }} )</td>
+            <th style="border: none !important;">وهبة الكاتب</th>
+            <td colspan="2" style="border: none !important;"></td>
+            <td ><input v-model="modal_recp.recp_given" class="form-control" placeholder="ادخل مبلغ الوهبة" ></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td ><b class="border-top border-primary">{{modal_recp.net_value | round2 | toAR }} </b></td>
+            <td colspan="6" style="border: none !important;">صافي الفاتورة</td>
           </tr>
         </tbody>
       </table>
@@ -446,6 +493,23 @@ export default {
           sell_comm: dao.sell_comm
       }
     },
+    /**@param {ReceiptDAO} dao*/
+    calc_receipt(dao) {
+      let sale_value = 0
+      dao.details.forEach(detail => {
+        sale_value += parseFloat(detail.weight) * parseFloat(detail.kg_price)
+      })
+      console.log("sale_value after ",dao.sale_value)
+
+      dao.sale_value = sale_value
+      // TODO INIT VALUES
+      dao.comm_rate = dao.comm_rate ? dao.comm_rate : 0
+      dao.recp_comm = ( dao.comm_rate / 100 ) * sale_value
+      dao.recp_expenses = dao.recp_expenses ? dao.recp_expenses : 0
+      dao.recp_given = dao.recp_given ? dao.recp_given : 0 
+      dao.net_value = sale_value - dao.recp_comm - dao.recp_given - dao.recp_expenses - dao.total_nolon
+      console.log("dao after ",sale_value , dao.recp_comm , dao.recp_given , dao.recp_expenses - dao.total_nolon)
+    }
   },
   async mounted(){
     this.refresh_all()
@@ -456,8 +520,20 @@ export default {
     modal_recp: {
       /**@param {ReceiptDAO} dao*/
       handler: async function(dao) {
-        dao.recp_comm = dao.comm_rate * dao.sale_value
+        this.calc_receipt(dao)
       },
+      deep: true
+    },
+    recp_1: {
+      handler: async function(dao){ this.calc_receipt(dao) },
+      deep: true
+    },
+    recp_2: {
+      handler: async function(dao){ this.calc_receipt(dao) },
+      deep: true
+    },
+    recp_3: {
+      handler: async function(dao){ this.calc_receipt(dao) },
       deep: true
     },
     'recp_1.details':{

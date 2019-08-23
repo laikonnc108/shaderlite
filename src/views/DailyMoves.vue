@@ -38,10 +38,10 @@
               -->
               <td>{{item.total_sell_comm | round }}</td>
               <td>{{item.recp_comm | round2}}</td>
-              <td>{{ ( item.total_sell_comm + item.recp_comm ) | round}}</td>
+              <td>{{ ( item.total_sell_comm + item.recp_comm ) | round2}}</td>
               <td >
                 <span v-if="(item.out_sale_value - item.sale_value) > 0">+</span>
-                {{ (item.out_sale_value - item.sale_value) | round}}
+                {{ (item.out_sale_value - item.sale_value) | round2}}
               </td>
               
               <td>{{item.total_nolon | round}}</td>
