@@ -95,17 +95,21 @@
           </div>
         </draggable>
         <hr>
-        <div>
-          <span> النولون</span>
+        <div class="row-detail">
+          <label> النولون</label>
           <span> {{recp_1.total_nolon | default0}} </span>
         </div>
-        <div>
-          <span> مصاريف الفاتورة</span>
+        <div class="row-detail" v-if="recp_1.recp_expenses">
+          <label> مصاريف الفاتورة</label>
           <span> {{recp_1.recp_expenses | default0}} </span>
         </div>
-        <div>
-          <span> عمولة الفاتورة</span>
-          <span> {{recp_1.recp_comm | default0}} </span>
+        <div class="row-detail">
+          <label> عمولة الفاتورة</label>
+          <span> {{recp_1.recp_comm | default0}} -<label> نسبة العمولة </label> ({{recp_1.comm_rate | default0}} % )</span>
+        </div>
+        <div class="row-detail">
+          <label> وهبة الفاتورة</label>
+          <span> {{recp_1.recp_given | round2}} </span>
         </div>
         <hr>
       <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_1"> <span class="fa fa-edit"></span>
@@ -233,24 +237,35 @@
               {{item.kg_price *  item.weight | round2 | toAR }}
             </td>
             <td >
-              <input v-model="item.count" class="form-control"  v-if="! print_mode && ! modal_recp.recp_paid">
-              <span v-if=" print_mode || modal_recp.recp_paid">{{item.count | toAR }}</span>
+              <!-- v-if="! print_mode && ! modal_recp.recp_paid" -->
+              <input v-model="item.count" class="form-control"  >
+              <!-- <span v-if=" print_mode || modal_recp.recp_paid">{{item.count | toAR }}</span> -->
+              
             </td>
             <td >
-              <input v-model="item.weight" class="form-control"  v-if="! print_mode && ! modal_recp.recp_paid">
-              <span v-if=" print_mode || modal_recp.recp_paid">{{item.weight | toAR }}</span>
+              <input v-model="item.weight" class="form-control"  >
             </td>
             <td>X</td>
             <td >
-              <input v-model="item.kg_price" class="form-control"  v-if="! print_mode && ! modal_recp.recp_paid">
-              <span v-if=" print_mode || modal_recp.recp_paid">{{item.kg_price | toAR }}</span>
+              <input v-model="item.kg_price" class="form-control"  >
             </td>
             <td >{{item.product_name}} 
-              <button v-if=" ! print_mode && ! modal_recp.recp_paid" class="btn text-success" @click="removeRecpDetail(item.id)" >
-                <span class="fa fa-remove "></span> 
-                حذف
-              </button>
+              <span class="fa fa-minus-circle" @click="remove_from_list(modal_recp.details, idx)"
+              style="color:red;float: left;"></span>
             </td>
+          </tr>
+            <tr>
+            
+            <td>( {{modal_recp.recp_comm | round2 | toAR }} )</td>
+            <th >عمولة</th>
+            <td></td>
+            <td></td>
+            <td ><input v-model="modal_recp.comm_rate" class="form-control"  ></td>
+            <th>
+              <span >
+               نسبة العمولة {{modal_recp.comm_rate }}%  
+               </span>
+            </th>
           </tr>
         </tbody>
       </table>
@@ -438,7 +453,13 @@ export default {
     this.supplier = await suppliersCtrl.findById(this.supplier_id)
   },
   watch: {
-
+    modal_recp: {
+      /**@param {ReceiptDAO} dao*/
+      handler: async function(dao) {
+        dao.recp_comm = dao.comm_rate * dao.sale_value
+      },
+      deep: true
+    },
     'recp_1.details':{
       handler: async function(){ this.watchit() },
       deep: true
@@ -458,7 +479,7 @@ export default {
 }
 </script>
 
-<style scoped >
+<style >
 .receipt {
   background-color: #cee;
   border-radius: 10px;
@@ -468,5 +489,8 @@ export default {
   border: #2f92d8 1px dashed;
   border-radius: 10px;
   padding: 12px;
+}
+.row-detail label{
+  font-weight: bold;
 }
 </style>

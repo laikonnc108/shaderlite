@@ -1,4 +1,4 @@
-import { bookshelf } from '../main'
+import { bookshelf, knex } from '../main'
 
 export class ReceiptDAO {
   
@@ -19,6 +19,7 @@ export class ReceiptDAO {
   out_sale_value
   recp_expenses
   details = []
+  products_arr
   serial
 
   static get INIT_DAO() {
@@ -70,13 +71,17 @@ export class ReceiptsCtrl {
   /**@param {ReceiptDAO} data */
   async save(data) {
     let details_arr = data.details
+    data.products_arr = details_arr.map(detail => detail.product_id).join(',')
+
     data.parseTypes()
     if(data.id) {
-      await this.deleteDetailsById(data.id)
+      let ok = await this.deleteDetailsById(data.id)
+      console.log("ok deleted", ok)
     }
     let record = await this.model.forge(data).save()
 
     details_arr.forEach(item => {
+      delete item.id
       item.receipt_id = record.id
     })
 
@@ -102,7 +107,7 @@ export class ReceiptsCtrl {
   }
 
   async deleteById(id){
-    let instance = await this.model.where('id',id).fetch()
+    let instance = await this.model.where('id',id).fetch({withRelated:['details']})
     if(instance) {
       await instance.details().invokeThen('destroy')
       return await instance.destroy()
@@ -112,8 +117,13 @@ export class ReceiptsCtrl {
   }
 
   async deleteDetailsById(id) {
-    let instance = await this.model.where('id',id).fetch()
-    return await instance.details().invokeThen('destroy')
+    /*
+    let instance = await this.model.where('id',id).fetch({withRelated:['details']})
+    console.log(instance, instance.details())
+    return await instance.related('details').invokeThen('destroy')
+    */
+    await knex.raw('delete from receipt_details where receipt_id = ' + id)
+    /* */
   }
 
 }
