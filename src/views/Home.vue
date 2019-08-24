@@ -54,6 +54,12 @@ export default {
       await UsersCTRL.addNew({username:"abido",password:"arika",nono: "no"})
       */
     },
+    async backup(){
+      //const out = await sync_exec(`C:\\PROGRA~1\\7-Zip\\7z a D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.7z C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db`)
+      const out = await sync_exec(`copy C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.db
+      `)
+      console.log(out)
+    },
     reload_electron(){
       remote.getCurrentWindow().reload();
     },
