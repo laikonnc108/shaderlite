@@ -18,6 +18,12 @@
           <input v-model="product_form.name" class="form-control "  placeholder="ادخل اسم الصنف">
         </div>
       </div>
+      <div class="form-group row">
+        <label  class="col-sm-2">بياعة الصنف</label>
+        <div class="col-sm-10">
+          <input v-model="product_form.product_sell_comm" class="form-control "  placeholder="ادخل مبلغ بياعة الصنف">
+        </div>
+      </div>
       <!--
       <div class="form-group row" v-if="isBoth">
         <label  class="col-sm-2">نوع الصنف</label>
@@ -27,7 +33,8 @@
       </div>
       -->
 
-      <button type="submit" class="btn btn-success" :disabled="! product_form.name">اضافة</button>
+      <button type="submit" class="btn btn-success" 
+      :disabled="! product_form.name || ! product_form.product_sell_comm">اضافة</button>
     </form>
     </div>
   </b-collapse>
@@ -71,7 +78,7 @@
             <tr v-for="(item, idx) in comp_products_arr" :key='idx' >
               <td>{{item.id}}</td>
               <td>{{item.name}}</td>
-              <td>{{item.sell_comm}}</td>
+              <td>{{item.product_sell_comm}}</td>
               <td>{{item.notes}}</td>
               <td class="d-print-none">
                 <button class="btn text-danger" @click="archive(item.id)" v-if="! item.deleted_at">
@@ -124,6 +131,7 @@ export default {
       }
       
       this.product_form = new ProductDAO(ProductDAO.INIT_DAO)
+      this.search_term = ''
       this.refresh_all()
     },
     async refresh_all() {
@@ -162,5 +170,10 @@ export default {
       })
     }
   },
+  watch:{
+    'product_form.name': function(val){
+      this.search_term = val
+    }
+  }
 }
 </script>

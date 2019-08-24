@@ -9,12 +9,15 @@
       <div class="row" style="max-width: 100%;">
         <nav class="col-md-2 d-none d-md-block bg-light sidebar d-print-none" >
           <div class="sidebar-sticky mt-3" v-if="! require_login">
-            <b class=" text-muted">
+            <div class="pl-2 pr-2">
+              مرحباً {{$store.state.logged_in_user.username}}
+            </div>
+            <b class=" text-muted p-2">
               {{ $store.state.day.d_week }}
             </b>
-            <h3 class="d-flex justify-content-between align-items-center px-3  mb-1 text-muted">
+            <h4 class="d-flex justify-content-between align-items-center px-3  mb-1 text-muted">
               <router-link to="/daily" > {{ $store.state.day.arab }} </router-link>
-            </h3>
+            </h4>
             <b class="m-3 ">
               <router-link class="text-danger" to="/daily" style="float:left;padding: 0 10px;">
               تغيير اليوم
@@ -104,16 +107,17 @@
                 </router-link>
               </li>
 
-              <li class="nav-item">
+              <li class="nav-item" v-if="$store.state.logged_in_user.user_type === 'developer'">
                 <router-link class="nav-link active" to="/developer">
                   <span class="fa fa-code"></span>
-                   معلومات النظام<span class="sr-only">(current)</span>
+                    Developer<span class="sr-only">(current)</span>
                 </router-link>
               </li>
-              <li class="nav-item">
-                <router-link class="nav-link active" to="/asasy">
-                  <span class="fa fa-code"></span>
-                    انت اساسي<span class="sr-only">(current)</span>
+              
+              <li class="nav-item" v-if="$store.state.logged_in_user.user_type != 'editor'">
+                <router-link class="nav-link active" to="/app_data">
+                  <span class="fa fa-database"></span>
+                    بيانات البرنامج<span class="sr-only">(current)</span>
                 </router-link>
               </li>
             </ul>
@@ -176,6 +180,7 @@ export default {
       if(logged_in){
         // Store logged in user
         this.require_login = false
+        this.$store.commit(MyStoreMutations.setLoggedInUser, logged_in)
         this.$bvModal.hide('login-modal')
       } else {
         console.log('logged_in else ')

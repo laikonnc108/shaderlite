@@ -4,11 +4,12 @@ export class ProductDAO {
     id
     name
     notes
+    product_sell_comm
     // season 
     // collection = ''
 
   static get INIT_DAO() {
-    return { }
+    return { name: ''}
   }
 
   constructor( data = {} ){
@@ -34,7 +35,7 @@ export class ProductsCtrl {
   }
 
   async findAll(filter = {}, options = {}) {
-    let all = await this.model.where(filter).fetchAll(options)
+    let all = await this.model.where(filter).query('orderBy', 'id', 'desc').fetchAll(options)
     return all.map( _=> new ProductDAO(_.attributes))
   }
 

@@ -30,9 +30,16 @@ export class UsersCtrl {
     this.model = require('../models/UsersModel')(bookshelf)
   }
 
-  async findAll(filter = {}) {
-    let all = await this.model.where(filter).fetchAll({})
+  async findAll(filter = {}, options = {}) {
+    let all = await this.model.where(filter).fetchAll(options)
     return all.map( _=> new UserDAO(_.attributes))
+  }
+
+  /**@param {UserDAO} data */
+  async save(data) {
+    data.parseTypes()
+    let record = await this.model.forge(data).save()
+    return record.id
   }
 
   async login(user = {username: null, password:null}){
@@ -41,5 +48,20 @@ export class UsersCtrl {
       return new UserDAO(logged_in.toJSON())
     else
       return
+  }
+
+  async deleteById(id){
+    
+    let instance = await this.model.where('id',id).fetch()
+    if(instance)
+      return await instance.destroy()
+    else
+      return null
+  }
+
+  async resotreById(id) {
+    let instance = await this.model.where('id',id).fetch({softDelete: false})
+    instance.set('deleted_at',null)
+    return await instance.save()
   }
 }
