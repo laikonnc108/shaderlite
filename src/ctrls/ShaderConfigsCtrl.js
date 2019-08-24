@@ -35,15 +35,16 @@ export class ShaderConfigsCtrl {
     let configs_arr = []
     // Can do map 
     all_configs.forEach( element => {
-      element.get('config_name')
-      configs_arr[element.get('config_name')] = element.get('config_value')
+      let config_value = (element.get('config_value') === 'true' || element.get('config_value') === 'false' ) ? JSON.parse(element.get('config_value')) : element.get('config_value')
+      configs_arr[element.get('config_name')] = config_value
     });
     // Override with custom labels
     let custom_labels = await this.findAll({shader_name: 'magdy',category:'config'})
     custom_labels.forEach( element => {
-      element.get('config_name')
-      configs_arr[element.get('config_name')] = element.get('config_value')
-    });
+      let config_value = (element.get('config_value') === 'true' || element.get('config_value') === 'false' ) ? JSON.parse(element.get('config_value')) : element.get('config_value')
+      configs_arr[element.get('config_name')] = config_value
+    })
+    console.log(configs_arr)
     return configs_arr
   }
 
@@ -53,13 +54,11 @@ export class ShaderConfigsCtrl {
     let labels_arr = []
     // Can do map 
     all_labels.forEach( element => {
-      element.get('config_name')
       labels_arr[element.get('config_name')] = element.get('config_value')
     });
     // Override with custom labels
     let custom_labels = await this.findAll({shader_name: 'magdy',category:'label'})
     custom_labels.forEach( element => {
-      element.get('config_name')
       labels_arr[element.get('config_name')] = element.get('config_value')
     });
     return labels_arr

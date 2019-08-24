@@ -18,6 +18,7 @@ const store = new Vuex.Store({
       state.day = day
     },
     setShaderConfigs (state, payload) {
+      console.log('setShaderConfigs', payload)
       state.shader_configs = payload
     },
     setElectronData (state, payload) {

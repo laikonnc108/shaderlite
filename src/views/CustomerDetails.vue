@@ -1,12 +1,15 @@
 <template>
-  <section class="customer-details p-3 bg-accounts pr-me">
+  <section class="customer-details p-3 pr-me">
     <div class="p-1">
-        <button class="btn btn-primary d-print-none" @click="$router.go(-1)">
+        <button class="btn btn-primary d-print-none pr-hideme" @click="$router.go(-1)">
             <span class="fa fa-arrow-right"></span> &nbsp;   العودة
         </button>
-        <br/>
-        <h3 class="d-inline-block ">حساب البائع : {{customer.name}}</h3>
-        <table class="table table-bordered mt-1" v-if=" ! customer.is_self">
+        <br class="pr-hideme"/>
+<template v-if="true || print_mode" >
+  <p class="pr-only" v-html="shader_configs['recp_header']"></p>
+</template>
+        <h3 class="d-inline-block ">كشف حساب / {{customer.name}}</h3>
+        <table class="table table-bordered mt-1 pr-hideme" v-if=" ! customer.is_self">
             <tr>
             <th>تليفون البياع</th>
             <td>{{customer.phone}}</td>
@@ -77,7 +80,7 @@
               <td>{{trans.debt_after | toAR}}</td>
               <td>
                 
-                <button class="btn text-danger" @click="removeLastTrans(trans)" v-if="idx == customer_trans.length - 1">
+                <button class="btn text-danger pr-hideme" @click="removeLastTrans(trans)" v-if="idx == customer_trans.length - 1">
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[trans.id]"> حذف الحركة</template>
                   <template v-if="confirm_step[trans.id]"> تأكيد </template>
@@ -100,9 +103,8 @@
     حركة نقدية : تحصيل / امانة 
   </button>
 
-
         <button class="btn btn-printo pr-hideme m-1" 
-        @click="vue_window.print()">
+        @click="print_co()">
           <span class="fa fa-print"></span> طباعة
         </button>
 
@@ -151,7 +153,8 @@
 <script >
 import { CustomersCtrl, CustomerTransDAO } from '../ctrls/CustomersCtrl'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl'
-import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl';
+import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl'
+import { MainMixin } from '../mixins/MainMixin';
 
 export default {
   name: 'customer-details',
@@ -171,6 +174,7 @@ export default {
       sell_rest: {actual_sale: 0 , notes: ''}
     }
   },
+  mixins: [MainMixin],
   methods: {
     async getCustomerDetails() {
       //let {dao, trans} = await this.customersCtrl.getCustomerDetails(this.customer_id)

@@ -11,7 +11,7 @@
       <b class="text-danger float-left " @click="discard_success = null">اغلاق x</b>
   </b-alert> 
 
-  <h2>وارد اليوم {{store_day.arab}}</h2>
+  <h2>وارد اليوم {{day.arab}}</h2>
       <div class="table-responsive">
         <table class="table table-striped table-sm">
           <thead>
@@ -50,12 +50,15 @@
             </tr>
           </tbody>
         </table>
-        <!--
-        <button class="btn btn-primary pr-hideme" v-if="flags.detailed === false" @click="flags.detailed = true"> عرض التفاصيل </button>
-        -->
-        <button class="btn btn-printo pr-hideme"  @click=";vue_window.print()">
+
+        <button class="btn btn-primary pr-hideme" v-if="flags.detailed === false" @click="flags.detailed= true"> عرض التفاصيل </button>
+        
+        <button class="btn btn-printo pr-hideme"  @click="print_co">
           <span class="fa fa-print"></span> طباعة
         </button>
+
+         &nbsp;
+        <button class="btn btn-primary pr-hideme" v-if="flags.detailed !== false" @click="flags.detailed= false"> العودة للوارد </button>
       </div> 
   </div>
 
@@ -64,13 +67,14 @@
 <script>
 import IncomingResalahForm from '@/components/IncomingResalahForm.vue'
 import { IncomingsCtrl, IncomingDAO } from '../ctrls/IncomingsCtrl'
+// import { } from '../main'
+import { MainMixin } from '../mixins/MainMixin'
 
 export default {
   name: 'incomings',
   data() {
     return {
       incomings_arr: [],
-      store_day: this.$store.state.day,
       active_suppliers: [],
       incomingsCtrl: new IncomingsCtrl(),
       active_products: [],
@@ -80,10 +84,11 @@ export default {
       incoming_form: new IncomingDAO(IncomingDAO.INIT_DAO) // set defaults 
     }
   },
+  mixins:[MainMixin],
   methods: {
     async refresh_all() {
-      this.incoming_form.day = this.store_day.iso
-      this.incomings_arr = await this.incomingsCtrl.findAll({day: this.store_day.iso})
+      this.incoming_form.day = this.day.iso
+      this.incomings_arr = await this.incomingsCtrl.findAll({day: this.day.iso})
     },
     async discard(id) {
       if( this.confirm_step[id] ) {

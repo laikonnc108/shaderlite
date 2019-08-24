@@ -41,7 +41,7 @@ export class OutgoingDAO {
 
   // Constant member
   static get INIT_DAO() {
-    return { sell_comm: 6 }
+    return { }
   }
 
   constructor (data) {

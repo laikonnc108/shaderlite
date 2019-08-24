@@ -10,13 +10,13 @@
         <nav class="col-md-2 d-none d-md-block bg-light sidebar d-print-none" >
           <div class="sidebar-sticky mt-3" v-if="! require_login">
             <div class="pl-2 pr-2">
-              مرحباً {{$store.state.logged_in_user.username}}
+              مرحباً {{logged_in_user.username}}
             </div>
             <b class=" text-muted p-2">
-              {{ $store.state.day.d_week }}
+              {{ day.d_week }}
             </b>
             <h4 class="d-flex justify-content-between align-items-center px-3  mb-1 text-muted">
-              <router-link to="/daily" > {{ $store.state.day.arab }} </router-link>
+              <router-link to="/daily" > {{ day.arab }} </router-link>
             </h4>
             <b class="m-3 ">
               <router-link class="text-danger" to="/daily" style="float:left;padding: 0 10px;">
@@ -107,14 +107,14 @@
                 </router-link>
               </li>
 
-              <li class="nav-item" v-if="$store.state.logged_in_user.user_type === 'developer'">
+              <li class="nav-item" v-if="logged_in_user.user_type === 'developer' || shader_configs['curr_dev']">
                 <router-link class="nav-link active" to="/developer">
                   <span class="fa fa-code"></span>
                     Developer<span class="sr-only">(current)</span>
                 </router-link>
               </li>
               
-              <li class="nav-item" v-if="$store.state.logged_in_user.user_type != 'editor'">
+              <li class="nav-item" v-if="logged_in_user.user_type != 'editor'">
                 <router-link class="nav-link active" to="/app_data">
                   <span class="fa fa-database"></span>
                     بيانات البرنامج<span class="sr-only">(current)</span>
@@ -125,7 +125,7 @@
           </div>
         </nav>
 
-        <b-modal id="login-modal" hide-footer  class="p-4">
+        <b-modal id="login-modal" hide-footer no-close-on-esc no-close-on-backdrop hide-header-close  class="p-4">
           <form @submit="loginSubmit">
             <p class="h4 text-center mb-4">تسجيل الدخول</p>
             <label for="defaultFormLoginEmailEx" class="grey-text">اسم المستخدم</label>
@@ -158,6 +158,7 @@ import { ProductsCtrl } from './ctrls/ProductsCtrl'
 import { TransTypesCtrl } from './ctrls/TransTypesCtrl'
 import { MyStoreMutations } from './main.js'
 import { UsersCtrl } from './ctrls/UsersCtrl';
+import { MainMixin } from './mixins/MainMixin';
 
 Settings.defaultLocale = 'ar'
 Settings.defaultZoneName = 'UTC'
@@ -172,6 +173,7 @@ export default {
       user: {username: null, password: null}
     }
   },
+  mixins:[MainMixin],
   methods: {
     async loginSubmit(evt) {
       evt.preventDefault()
@@ -189,7 +191,8 @@ export default {
   },
   async mounted(){
     let app_configs = await this.shaderConfigsCtrl.getAppCongifs()
-    this.require_login = app_configs['require_login'] ? app_configs['require_login'] == 'true' : false
+    this.$store.commit(MyStoreMutations.setShaderConfigs, app_configs)
+    this.require_login = app_configs['require_login'] ? app_configs['require_login'] : false
     if(this.require_login) {
       this.$bvModal.show('login-modal')
     }
@@ -198,7 +201,7 @@ export default {
     console.log("beforeMount",this.$store.state)
 
     this.custom_labels = await this.shaderConfigsCtrl.getAppLabels()
-    this.$store.commit('setCustomLabels', this.custom_labels)
+    this.$store.commit(MyStoreMutations.setCustomLabels, this.custom_labels)
 
     let products_arr = await new ProductsCtrl().getProductsArr()
     this.$store.commit(MyStoreMutations.setProductsArr, products_arr)
@@ -223,13 +226,6 @@ export default {
     if ( ! this.$store.state.day.now ) {
       this.$store.commit('setDay' , day)
     }
-    
-    /*
-    if ( ! this.$store.state.shader_configs || this.$store.state.shader_configs.length < 1 ) {
-      let shader_configs = await AdminCTRL.getShaderConfigs()
-      this.$store.commit('setShaderConfigs', shader_configs)
-    }
-    */
   }
 }
 </script>
@@ -237,6 +233,7 @@ export default {
 body {
   direction: rtl;
   text-align: right;
+  -webkit-print-color-adjust: exact !important;
 }
 
 h1,h2,h3,h4,h5 {
@@ -381,7 +378,6 @@ pre {
   background-color: #e1e6b3;
   */
   border-radius: 0 10px 10px 0 ;
-
 }
 
 
@@ -398,6 +394,23 @@ pre {
   height: 3em;
   display: block;
   border: 2px solid;
+}
+.pr-only {
+  display: none
+}
+.recp-hr {
+  border: 0;
+  height: 2px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}
+.h-shadow {
+  color: white !important;
+  background-color: #666;
+  border-radius: 5px;
+  padding: 2px;
+  margin: 0 auto;
+  max-width: 90%;
+  font-size: 1.2em;
 }
 /*
 #app {
@@ -508,6 +521,9 @@ pre {
   .pr-hideme {
     display: none
   }
+  .pr-only {
+    display: block
+  }
   .pr-mt-2 {
     margin-top: 2em;
   }
@@ -526,6 +542,9 @@ pre {
     border-color: black;
     -webkit-print-color-adjust:exact;
     -webkit-border-vertical-spacing: 0px !important;
+  }
+  a:not(.btn) {
+    text-decoration: none !important; 
   }
 
 }

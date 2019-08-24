@@ -17,15 +17,15 @@ const {app} = require('electron').remote
 const path = require('path')
 const log = require('electron-log')
 
-log.info('app.getAppPath())'+ app.getAppPath())
 
-const dbFile = path.resolve(path.dirname(app.getAppPath()), './db/shaderlite.db')
+const dbFile = path.resolve(app.getPath('userData'), 'db/shaderlite.db')
 
 log.info('dbFile',dbFile)
 
 store.commit('setElectronData',{
   app_path: app.getAppPath(),
   curr_dir: path.dirname(app.getAppPath()),
+  user_data_path: app.getPath('userData'),
   db_path: dbFile,
   env:process.env
 })
@@ -44,7 +44,7 @@ Object.defineProperty(knex, "name", { value: "knex" })
 let bookshelf= require('bookshelf')(knex)
 bookshelf.plugin(require('bookshelf-soft-delete'))
 
-export { knex, sqlite_config, bookshelf, MyStoreMutations };
+export { knex, sqlite_config, bookshelf, MyStoreMutations, log };
 export * from './tools';
 import {moment} from './tools'
 

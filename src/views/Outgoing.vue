@@ -1,6 +1,6 @@
 <template>
   <div class="out row ">
-    <div class="col-5 bg-outgoing minh90 d-print-none" v-if="detailed === false">
+    <div class="col-5 bg-outgoing minh90 d-print-none" v-if="flags.detailed === false">
     <br/>
     <!-- <img alt="Vue logo" src="../assets/logo.png"> 
     <HelloWorld msg="Welcome to Your Vue.js App"/>
@@ -22,15 +22,15 @@
 <div class="p-2" v-show="! selected_inc || ! selected_inc.product_id">
 <button v-for="(incom, idx) in avilable_incomings" :key="idx" 
 v-b-toggle.collapse2 
-@click="selected_inc= incom"
+@click="setSelectedInc(incom)"
 class="btn btn-lg  m-1 btn-block" 
-:class="{'btn-primary': incom.day === store_day.iso, 'btn-danger': incom.day !== store_day.iso}">
+:class="{'btn-primary': incom.day === day.iso, 'btn-danger': incom.day !== day.iso}">
   <span class="fa fa-shopping-cart"></span> &nbsp; 
   {{incom.product_name}} - 
   زرع <b> {{incom.supplier_name}} </b> 
   <br/>
   متبقي ({{incom.diff}}) 
-  <span v-if="incom.day !== store_day.iso"> -
+  <span v-if="incom.day !== day.iso"> -
 وارد {{incom.day | arDate }}
   </span>
   
@@ -48,47 +48,50 @@ class="btn btn-lg  m-1 btn-block"
   </h4>
     <form  @submit="saveOutgoing">
   <div class="form-group row">
-    <label class="col-sm-2">التاريخ</label>
-    <div class="col-sm-10">
+    <label class="col-sm-3">التاريخ</label>
+    <div class="col-sm-9">
       <input v-model="outgoing_form.day" class="form-control" disabled>
     </div>
   </div>
 
   <div class="form-group row">
-    <label :class="{ 'text-danger':  outgoing_form.count > selected_inc.diff}" class="col-sm-2">عدد</label>
-    <div class="col-sm-10">
+    <label :class="{ 'text-danger':  outgoing_form.count > selected_inc.diff}" class="col-sm-3">عدد</label>
+    <div class="col-sm-9">
       <input v-model="outgoing_form.count" class="form-control">
     </div>
   </div>
 
   <div class="form-group row">
-    <label :class="{ 'text-danger':  outgoing_form.sell_comm > 10 }" class="col-sm-2">
+    <label :class="{ 'text-danger':  outgoing_form.sell_comm > 10 }" class="col-sm-3">
       قيمة البياعة
     </label>
-    <div class="col-sm-10">
+    <div class="col-sm-9">
       <input v-model="outgoing_form.sell_comm" class="form-control" placeholder="ادخل القيمة">
     </div>
   </div>
 
   <div class="form-group row">
-    <label class="col-sm-2">وزن</label>
-    <div class="col-sm-10">
+    <label class="col-sm-3">وزن</label>
+    <div class="col-sm-9">
       <input v-model="outgoing_form.weight" class="form-control" placeholder="ادخل القيمة">
     </div>
   </div>
 
   <div class="form-group row">
-    <label :class="{ 'text-danger':  outgoing_form.kg_price > 99 }" class="col-sm-2">سعر الكيلو</label>
-    <div class="col-sm-10">
+    <label :class="{ 'text-danger':  outgoing_form.kg_price > 50 }" class="col-sm-3">سعر الكيلو</label>
+    <div class="col-sm-9">
       <input v-model="outgoing_form.kg_price" class="form-control" placeholder="ادخل القيمة">
+    </div>
+    <div class="text-danger" v-if="outgoing_form.kg_price > 50">
+      سعر الكيلو اكبر من 50 جنيه
     </div>
   </div>
 
 <hr/>
 
   <div class="form-group row">
-    <label  class="col-sm-2">الاجمالي</label>
-    <div class="col-sm-10" >
+    <label  class="col-sm-3">الاجمالي</label>
+    <div class="col-sm-9" >
       <button class="btn btn-success" type="button" v-if="false && ! outgoing_form.value_calc && valid_form " @click="outgoing_form.value_calc=true"> حساب الاجمالي </button>
       <div v-if="value_calc && valid_form">
         <span style="float: right"> {{value_calc_text}} &nbsp; = </span>
@@ -98,8 +101,8 @@ class="btn btn-lg  m-1 btn-block"
   </div>
 
   <div class="form-group row">
-    <label for="notes1" class="col-sm-2">اسم البياع</label>
-    <div class="col-sm-10">
+    <label for="notes1" class="col-sm-3">اسم البياع</label>
+    <div class="col-sm-9">
       <select v-model="outgoing_form.customer_id" class="form-control"  >
         <option value="">كاش</option>
       <option v-for="(customer, idx) in active_customers" :key='idx' :value="customer.id">
@@ -110,15 +113,15 @@ class="btn btn-lg  m-1 btn-block"
   </div>
 
   <div class="form-group row" v-if="outgoing_form.customer_select && outgoing_form.customer_select.id">
-    <label  class="col-sm-2">تحصيل جزء</label>
-    <div class="col-sm-10">
+    <label  class="col-sm-3">تحصيل جزء</label>
+    <div class="col-sm-9">
       <input v-model="outgoing_form.collecting" class="form-control" placeholder="ادخل قيمة التحصيل">
     </div>
   </div>
   
   <div class="form-group row">
-    <label for="notes1" class="col-sm-2">ملاحظات</label>
-    <div class="col-sm-10">
+    <label for="notes1" class="col-sm-3">ملاحظات</label>
+    <div class="col-sm-9">
       <input v-model="outgoing_form.notes" class="form-control" id="notes1"  placeholder="ادخال الملاحظات">
     </div>
   </div>
@@ -132,10 +135,10 @@ class="btn btn-lg  m-1 btn-block"
 
 </div>
 <!-- conditional class col-6 -->
-<div class="p-3 col-print-12 pr-me" :class="{ 'col-7': ! detailed , 'col-10':  detailed }">
+<div class="p-3 col-print-12 pr-me" :class="{ 'col-7': ! flags.detailed , 'col-11':  flags.detailed }">
 
   <div class="m-3  ">
-  <h2>بيع اليوم {{store_day.arab}}</h2>
+  <h2>بيع اليوم {{day.arab}}</h2>
       <div class="table-responsive">
         <table class="table table-striped table-sm pr-me">
           <thead>
@@ -145,17 +148,17 @@ class="btn btn-lg  m-1 btn-block"
               <th>زرع العميل</th>
               <th>عدد</th>
               <th>الصنف</th>
-              <th v-if="detailed ">وارد يوم</th>
+              <th v-if="flags.detailed ">وارد يوم</th>
               <th>اسم البياع</th>
               
-              <th v-if="detailed ">بياعة </th>
-              <th v-if="detailed ">مبلغ البياعة </th>
+              <th v-if="flags.detailed ">بياعة </th>
+              <th v-if="flags.detailed ">مبلغ البياعة </th>
               
               <th >الوزن</th>
               <th>السعر</th>
               <th>المبلغ</th>
-              <th v-if="detailed ">ملاحظات</th>
-              <th v-if="detailed "></th>
+              <th v-if="flags.detailed ">ملاحظات</th>
+              <th v-if="flags.detailed "></th>
             </tr>
           </thead>
           <tbody>
@@ -167,21 +170,21 @@ class="btn btn-lg  m-1 btn-block"
               </td>
               <td>{{item.count }}</td>
               <td>{{item.product_name}}</td>
-              <td v-if="detailed ">{{item.income_day | arDate}}</td>
+              <td v-if="flags.detailed ">{{item.income_day | arDate}}</td>
               <td>
                 <router-link v-if="item.customer_id" :to="{name:'customer_details', params: {id: item.customer_id}}" >
                   {{item.customer_name}}
                 </router-link>
               </td>
               
-              <td v-if="detailed ">{{item.sell_comm}}</td>
-              <td v-if="detailed ">{{item.sell_comm * item.count}}</td>
+              <td v-if="flags.detailed ">{{item.sell_comm}}</td>
+              <td v-if="flags.detailed ">{{item.sell_comm * item.count}}</td>
               
               <td>{{item.weight}}</td>
               <td>{{item.kg_price}}</td>
               <td>{{item.value_calc}}</td>
-              <td v-if="detailed ">{{item.notes}}</td>
-              <td v-if="detailed" class="d-print-none">
+              <td v-if="flags.detailed ">{{item.notes}}</td>
+              <td v-if="flags.detailed" class="d-print-none">
                 <button class="btn text-danger" @click="discard(item.id)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[item.id]"> حذف المبيع</template>
@@ -191,14 +194,14 @@ class="btn btn-lg  m-1 btn-block"
             </tr>
           </tbody>
         </table>
-        <button class="btn btn-primary pr-hideme" v-if="detailed === false" @click="show_details()"> عرض التفاصيل </button>
+        <button class="btn btn-primary pr-hideme" v-if="flags.detailed === false" @click="flags.detailed = true"> عرض التفاصيل </button>
         
-        <button class="btn btn-printo pr-hideme" v-if="detailed !== false" 
-        @click="clipboard.writeText('بيع اليوم '+store_day.iso);vue_window.print()">
+        <button class="btn btn-printo pr-hideme" v-if="flags.detailed !== false" 
+        @click="clipboard.writeText('بيع اليوم '+day.iso);print_co()">
           <span class="fa fa-print"></span> طباعة
         </button>
         &nbsp;
-        <button class="btn btn-primary pr-hideme" v-if="detailed !== false" @click="detailed= false"> العودة للبيع </button>
+        <button class="btn btn-primary pr-hideme" v-if="flags.detailed !== false" @click="flags.detailed= false"> العودة للبيع </button>
       </div>
     </div>
   </div>
@@ -209,6 +212,7 @@ class="btn btn-lg  m-1 btn-block"
 import { InoutHeadCtrl } from '../ctrls/InoutHeadCtrl'
 import { OutgoingDAO, OutgoingsCtrl } from '../ctrls/OutgoingsCtrl'
 import { CustomersCtrl } from '../ctrls/CustomersCtrl';
+import { MainMixin } from '../mixins/MainMixin';
 
 export default {
   name: 'outgoings',
@@ -220,15 +224,15 @@ export default {
       inoutHeadCtrl: new InoutHeadCtrl(),
       outgoingsCtrl: new OutgoingsCtrl(),
       customersCtrl: new CustomersCtrl(),
-      store_day: this.$store.state.day,
       avilable_incomings: [],
       selected_inc: {},
       outgoing_form: new OutgoingDAO({ day: this.$store.state.day.iso, ...OutgoingDAO.INIT_DAO}),
-      detailed: false,
+      flags:{detailed: false},
       confirm_step: [],
       discard_success: false
     }
   },
+  mixins: [MainMixin],
   computed: {
     value_calc_text: function () {
       if(this.outgoing_form.count && 
@@ -284,13 +288,14 @@ export default {
         this.confirm_step[id] = true
       }
     },
-    show_details() {
-      this.detailed = true
+    setSelectedInc(incom){
+      this.selected_inc = incom
+      this.outgoing_form.sell_comm = incom.product_sell_comm
     },
     async refresh_all() {
       this.avilable_incomings = await this.inoutHeadCtrl.findAll({diff: '> 0', day: this.$store.state.day.iso})
       this.active_customers = await this.customersCtrl.findAll({},{softDelete: true})
-      this.outgoings_arr = await this.outgoingsCtrl.findAll({day: this.store_day.iso})
+      this.outgoings_arr = await this.outgoingsCtrl.findAll({day: this.day.iso})
       this.outgoing_form = new OutgoingDAO({ day: this.$store.state.day.iso, ...OutgoingDAO.INIT_DAO})
       this.selected_inc = {}
     }

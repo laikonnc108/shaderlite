@@ -1,5 +1,6 @@
 <template>
   <section class="supp-receipts-details m-3">
+  <section class="data-play pr-hideme">
     <h1>شاشة فواتير {{supplier.name}} لليوم</h1>
     <hr>
     <section class="row ">
@@ -70,6 +71,8 @@
       </div>
     </section>
     <hr>
+    
+
     <section class="row ">
       <div class=" receipt col-4 p-3 "  v-if="show_receipts[1]">
         <h3>فاتورة 1 
@@ -118,7 +121,7 @@
         </div>
         <hr>
         <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_1"> <span class="fa fa-edit"></span>
-        تعديل   
+        تعديل / عرض  
         </button>&nbsp;
         <button  class="btn btn-primary" @click="setRecpPaid(recp_1, 1)"> <span class="fa fa-money-check"></span>
         رصد    
@@ -126,9 +129,7 @@
         <button  class="btn btn-primary" @click="setRecpPaid(recp_1, 2)"> <span class="fa fa-money-bill"></span>
         صرف    
         </button> &nbsp;
-        <button  class="btn btn-success"> <span class="fa fa-print"></span>
-        طباعة    
-        </button>
+
 
       </div>
 
@@ -177,7 +178,7 @@
         </div>
         <hr>
         <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_2"> <span class="fa fa-edit"></span>
-        تعديل   
+         تعديل / عرض 
         </button>&nbsp;
         <button  class="btn btn-primary" @click="setRecpPaid(recp_2, 1)"> <span class="fa fa-money-check"></span>
         رصد    
@@ -185,9 +186,6 @@
         <button  class="btn btn-primary" @click="setRecpPaid(recp_2, 2)"> <span class="fa fa-money-bill"></span>
         صرف   
         </button> &nbsp;
-        <button  class="btn btn-success"> <span class="fa fa-print"></span>
-        طباعة    
-        </button>
 
       </div>
 
@@ -241,9 +239,23 @@
       حذف الفواتير   
       </button>
     </div>
+  </section>
 
     <!-- Modal -->
-<b-modal id="modal-recp" size="xl" :title="' فاتورة' + modal_recp.serial" hide-footer hide-header-close>
+<b-modal id="modal-recp" size="xl" class="col-print-12"
+hide-header hide-footer hide-header-close hide-backdrop>
+<template v-if="true || print_mode">
+  <p v-html="shader_configs['recp_header']"></p>
+</template>
+<h4 class="text-center"> فاتورة 
+  <span class="pr-hideme">({{modal_recp.serial}})</span>
+</h4>
+<h4 class="pr-me ">
+  تحريراً في {{day.arab }}
+  <br/>
+  المطلوب من السيد/ {{supplier.name}}
+</h4>
+
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me" >
         <thead>
@@ -255,6 +267,7 @@
             <th>سعر الكيلو
             </th>
             <th>الصنف</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -263,20 +276,21 @@
               {{item.kg_price *  item.weight | round2 | toAR }}
             </td>
             <td >
-              <!-- v-if="! print_mode && ! modal_recp.recp_paid" -->
-              <input v-model="item.count" class="form-control"  >
-              <!-- <span v-if=" print_mode || modal_recp.recp_paid">{{item.count | toAR }}</span> -->
-              
+              <input v-if="! print_mode && ! modal_recp.recp_paid" v-model="item.count" class="form-control"  >
+              <span v-else>{{item.count | toAR }}</span>
             </td>
             <td >
-              <input v-model="item.weight" class="form-control"  >
+              <input v-if="! print_mode && ! modal_recp.recp_paid" v-model="item.weight" class="form-control"  >
+              <span v-else>{{item.weight | toAR }}</span>
             </td>
             <td>X</td>
             <td >
-              <input v-model="item.kg_price" class="form-control"  >
+              <input v-if="! print_mode && ! modal_recp.recp_paid" v-model="item.kg_price" class="form-control"  >
+              <span v-else> {{item.weight | toAR }}</span>
             </td>
-            <td >{{item.product_name}} 
-              <span class="fa fa-minus-circle" @click="remove_from_list(modal_recp.details, idx)"
+            <td >{{item.product_name}} </td>
+            <td>
+              <span class="fa fa-minus-circle pr-hideme" @click="remove_from_list(modal_recp.details, idx)"
               style="color:red;float: left;"></span>
             </td>
           </tr>
@@ -285,42 +299,59 @@
             <td colspan="6" style="border: none !important;"></td>
           </tr>
           <tr>
-            <td>( {{modal_recp.recp_comm | round2 | toAR }} )</td>
-            <th style="border: none !important;">عمولة</th>
             <td colspan="2" style="border: none !important;"></td>
-            <td ><input v-model="modal_recp.comm_rate" class="form-control"  ></td>
+            <td >
+              <input v-if="! print_mode && ! modal_recp.recp_paid" v-model="modal_recp.comm_rate" class="form-control"  >
+            </td>
+            <td></td>
             <th>
               <span >
                نسبة العمولة {{modal_recp.comm_rate }}%  
                </span>
             </th>
+            <td>( {{modal_recp.recp_comm | round2 | toAR }} )</td>
+            <th style="border: none !important;">عمولة</th>
           </tr>
           <tr v-if="modal_recp.total_nolon">
+            <td colspan="5" style="border: none !important;"></td>
             <td ><b >( {{modal_recp.total_nolon | round2 | toAR }} )</b></td>
-            <td colspan="6" style="border: none !important;">نولون</td>
+            <td  style="border: none !important;">نولون</td>
           </tr>
           <tr v-if="modal_recp.recp_expenses">
+            <td colspan="5" style="border: none !important;"></td>
             <td ><b >( {{modal_recp.recp_expenses | round2 | toAR }} )</b></td>
-            <td colspan="6" style="border: none !important;">مصاريف فاتورة</td>
+            <td  style="border: none !important;">مصاريف فاتورة</td>
           </tr>
           <tr>
+            <td colspan="2" style="border: none !important;"></td>
+            <td >
+              <input v-if="! print_mode && ! modal_recp.recp_paid" 
+              v-model="modal_recp.recp_given" class="form-control" placeholder="ادخل مبلغ الوهبة" >
+            </td>
+            <td></td>
+            <td></td>
             <td>( {{modal_recp.recp_given | round2 | toAR }} )</td>
             <th style="border: none !important;">وهبة الكاتب</th>
-            <td colspan="2" style="border: none !important;"></td>
-            <td ><input v-model="modal_recp.recp_given" class="form-control" placeholder="ادخل مبلغ الوهبة" ></td>
-            <td></td>
           </tr>
+
           <tr>
+            <td style="border: none !important;"></td>
+            <td style="border: none !important;">صافي الفاتورة</td>
             <td ><b class="border-top border-primary">{{modal_recp.net_value | round2 | toAR }} </b></td>
-            <td colspan="6" style="border: none !important;">صافي الفاتورة</td>
+            
           </tr>
         </tbody>
       </table>
 
       <div class="m-2">
-          <button class="btn btn-primary" @click="$bvModal.hide('modal-recp')" >
+          <button class="btn btn-primary pr-hideme" @click="$bvModal.hide('modal-recp')" >
             <span class="fa fa-check "></span> &nbsp;
             موافق
+          </button>
+          &nbsp;
+          <button class="btn btn-printo pr-hideme" 
+            @click="print_co()">
+            <span class="fa fa-print"></span> طباعة
           </button>
       </div>
   </div>
@@ -336,6 +367,7 @@ import { ReceiptDAO, ReceiptsCtrl } from '../ctrls/ReceiptsCtrl'
 import { OutgoingsCtrl } from '../ctrls/OutgoingsCtrl'
 import { SupplierDAO, SuppliersCtrl } from '../ctrls/SuppliersCtrl'
 import draggable  from 'vuedraggable'
+import { MainMixin } from '../mixins/MainMixin';
 
 export default {
   name: 'supp-receipts-details',
@@ -357,9 +389,10 @@ export default {
       recp_2: new ReceiptDAO({serial: 2, ...ReceiptDAO.INIT_DAO}),
       recp_3: new ReceiptDAO({serial: 3, ...ReceiptDAO.INIT_DAO}),
       modal_recp: {},
-      print_mode: false
+      print_mode: false,
     }
   },
+  mixins: [MainMixin],
   methods: {
     async refresh_all(){
       this.recp_1 = new ReceiptDAO({serial: 1, ...ReceiptDAO.INIT_DAO})
@@ -512,6 +545,7 @@ export default {
     }
   },
   async mounted(){
+    console.log('shader_configs', this.$store.state.shader_configs)
     this.refresh_all()
     let suppliersCtrl = new SuppliersCtrl()
     this.supplier = await suppliersCtrl.findById(this.supplier_id)
@@ -568,5 +602,12 @@ export default {
 }
 .row-detail label{
   font-weight: bold;
+}
+@media print {
+  .modal-xl {
+    margin: 0 !important;
+    width: 100%;
+    max-width: 100%;
+  }
 }
 </style>

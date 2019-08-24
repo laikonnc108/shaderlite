@@ -1,10 +1,11 @@
 <template>
-  <div class="home">
+  <div class="home p-3">
     <!-- <img alt="Vue logo" src="../assets/logo.png"> 
     <HelloWorld msg="Welcome to Your Vue.js App"/>
     -->
+    <div>Check if 7z installed {{is_7z_ok}}</div>
     
-    Check if 7z installed {{is_7z_ok}}
+
     <pre>{{ $store.state.electron_data }}</pre>
   <div class="card" style="width: 18rem;">
     <div class="card-body">
@@ -14,16 +15,17 @@
       <span>&nbsp;</span>
       <a href="#" @click="addUser()" class="btn btn-primary">Add User</a>
       <a href="#" @click="reload_electron()" class="btn btn-primary">Reload</a>
+      <a href="#" @click="print_co()" class="btn btn-primary">print</a>
+      <a href="#" @click="backup()" class="btn btn-primary">backup</a>
     </div>
   </div>
   </div>
 </template>
 
 <script >
-import HelloWorld from '@/components/HelloWorld.vue'
 import { sync_exec } from '../main'
 import { remote } from 'electron'
-
+import { MainMixin } from '../mixins/MainMixin'
 const fs = require('fs')
 
 export default {
@@ -34,8 +36,8 @@ export default {
       printers: []
     }
   },
+  mixins: [MainMixin],
   components: {
-    HelloWorld
   },
   async mounted() {
     /*
@@ -65,7 +67,7 @@ export default {
         this.is_7z_ok = true
         const contents = remote.getCurrentWebContents()
         this.printers = contents.getPrinters()
-        // contents.print({silent: false })
+        contents.print({silent: true })
         // contents.printToPDF(options, callback)
         contents.printToPDF({/*pageSize:"A5"*/}, (error, data) => {
           if (error) throw error
