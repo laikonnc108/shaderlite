@@ -1,0 +1,10 @@
+delete from cashflow;
+delete from customer_trans;
+delete from incomings;
+delete from outgoings;
+delete from products;
+delete from receipts;
+delete from receipt_details;
+delete from customers;
+delete from supplier_trans;
+delete from suppliers;

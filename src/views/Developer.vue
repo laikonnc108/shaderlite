@@ -1,5 +1,28 @@
 <template>
-  <div class="home p-3">
+<section class="home p-3">
+  <div class="m-3">
+    <h1 class="m-3">نظام مدير يومية الشادر</h1>
+    <h2 class="text-danger"> اصدار رقم {{app_version}}</h2>
+    <br/>
+    <h3 class="text-danger" v-if="demo_till">* نسخة تجريبية حتي {{demo_till}}</h3>
+    <h3 class="text-success" v-if="! demo_till">* نسخة مرخصة</h3>
+    <h3 >
+      تم قراءة ملف قاعدة بيانات, تاريخ اخر تحديث له
+      {{db_file.time_updated}}
+    </h3>
+      <pre>{{ $store.state.electron_data.user_data_path }}</pre>
+      <button :disabled="! db_file.found" class="btn btn-primary btn-lg" @click="import_db()" >
+        <span class="fa fa-database "></span> &nbsp;
+        استيراد قاعدة البيانات
+      </button>
+      &nbsp;
+      <button class="btn btn-secondary btn-lg" @click="reload_electron()" >
+        <span class="fa fa-sync "></span> &nbsp;
+        اعادة تشغيل البرنامج
+      </button>
+  </div>
+  <div v-if="shader_configs['logged_in_user'] && shader_configs['logged_in_user'].user_type =='developer'">
+    
     <!-- <img alt="Vue logo" src="../assets/logo.png"> 
     <HelloWorld msg="Welcome to Your Vue.js App"/>
     -->
@@ -20,10 +43,11 @@
     </div>
   </div>
   </div>
+</section>
 </template>
 
 <script >
-import { sync_exec } from '../main'
+import { sync_exec, knex } from '../main'
 import { remote } from 'electron'
 import { MainMixin } from '../mixins/MainMixin'
 const fs = require('fs')
@@ -33,7 +57,10 @@ export default {
   data() {
     return {
       is_7z_ok: null,
-      printers: []
+      printers: [],
+      db_file:{found: false, time_updated: ''},
+      app_version: remote.app.getVersion(),
+      demo_till: ''
     }
   },
   mixins: [MainMixin],
@@ -46,7 +73,23 @@ export default {
     const res = await axios.get('https://jsonplaceholder.typicode.com/todos/1')
     this.breeds = res.data
     */
-    
+    //const out = await sync_exec(`dir D:\\00_db`)
+    try {
+      let db_ok = await knex.raw('select * from products')
+    } catch (error) {
+      const fs = require('fs');
+      const moment = require('moment')
+      moment.locale('ar')
+      fs.readdir('D:\\00_db', (err, files) => {
+        files.forEach(file => {
+          if(file == 'shaderlite.db') {
+            let {mtimeMs} = fs.statSync('D:\\00_db'+ '\\'+ file)
+            this.db_file.found = true
+            this.db_file.time_updated = moment(mtimeMs).format('LLL')
+          }
+        })
+      })
+    }
   },
   methods: {
     async addUser(){
@@ -59,6 +102,11 @@ export default {
       const out = await sync_exec(`copy C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.db
       `)
       console.log(out)
+    },
+    async import_db(){
+      await sync_exec(`IF not exist ${this.$store.state.electron_data.user_data_path}\\db mkdir ${this.$store.state.electron_data.user_data_path}\\db NUL`)
+      const out = await sync_exec(`copy D:\\00_db\\shaderlite.db ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db`)
+      window.alert('تم استيراد قاعدة البيانات بنجاح')
     },
     reload_electron(){
       remote.getCurrentWindow().reload();

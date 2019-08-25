@@ -17,6 +17,65 @@
 
       </table>
     </section>
+    <button v-b-toggle.collapse_pay class=" btn btn-success ml-3 mr-3" >
+      <span class="fa fa-money-bill-wave"></span> &nbsp; 
+    اضافة فواتير سابقة / دفعات / تحصيلات
+    </button>
+    <!-- Element to collapse  <div class="m-2"></div>-->
+  <b-collapse id="collapse_pay" style="padding:25px;" class="pr-hideme">
+    <div class="entry-form">
+    <form  @submit="addPayments">
+      <b-form-group label="نوع الحركة">
+        <b-form-radio-group  v-model="trans_form.trans_type">
+          <b-form-radio value="supp_pre_payment">دفعة سابقة</b-form-radio>
+          <b-form-radio value="supp_pre_recp">فاتورة سابقة</b-form-radio>
+          <b-form-radio value="supp_collect">تحصيل</b-form-radio>
+          <b-form-radio value="supp_payment">دفعة اليوم</b-form-radio>
+          <b-form-radio value="supp_recp_expensess">مصروف فاتورة</b-form-radio>
+        </b-form-radio-group>
+      </b-form-group>
+
+      <div class="form-group row">
+        <label  class="col-sm-2">المبلغ</label>
+        <div class="col-sm-10">
+          <input v-model="trans_form.amount" class="form-control "  placeholder="ادخل المبلغ">
+        </div>
+      </div>
+      <div class="form-group row" v-if="trans_form.trans_type === 'supp_pre_payment' || trans_form.trans_type === 'supp_pre_recp'">
+        <label  class="col-sm-2">تاريخ</label>
+        <div class="col-sm-10">
+          <datetime v-model="trans_form.day" :auto="true" class="datetime" min-datetime="2018-01-01"></datetime>
+        </div>
+      </div>
+      <div class="form-group row" >
+        <label  class="col-sm-2">ملاحظات</label>
+        <div class="col-sm-10">
+          <input v-model="trans_form.notes" class="form-control " placeholder="ادخال الملاحظات">
+        </div>
+      </div>     
+      <div class="form-group row" v-if=" trans_form.sum === 'supp_pre_recp'">
+        <label  class="col-sm-2">عدد الطرود</label>
+        <div class="col-sm-10">
+          <input v-model="trans_form.count" class="form-control " placeholder="ادخال العدد">
+        </div>
+      </div>     
+      <div class="form-group row" v-if=" trans_form.sum === 'supp_pre_recp'">
+        <label  class="col-sm-2">الاصناف</label>
+        <div class="col-sm-10">
+          <input v-model="trans_form.products" class="form-control " placeholder=" ادخال اسماء الاصناف">
+        </div>
+      </div>     
+
+      <button type="submit" class="btn btn-success" :disabled="! valid_payments_form ">
+        <span v-if="trans_form.trans_type === 'supp_pre_payment' || trans_form.trans_type === 'supp_payment' || trans_form.trans_type === 'supp_recp_expensess'">اضافة دفعة</span>
+        <span v-if="trans_form.trans_type === 'supp_pre_recp' ">اضافة الفاتورة</span>
+        <span v-if=" trans_form.trans_type == 'supp_collect'">تحصيل مبلغ</span>
+      </button>
+      <button type="button" class="btn btn-danger mr-1"  v-b-toggle.collapse_pay >  اغلاق</button>
+    </form>
+    </div>
+  </b-collapse>
+
     <div class="table-responsive" >
       <h3 class="m-3">سجل دفعات العميل </h3>
         <table class="table table-striped pr-me">
@@ -101,8 +160,13 @@
 </template>
 
 <script>
-import { SupplierDAO, SuppliersCtrl } from '../ctrls/SuppliersCtrl';
-import { ReceiptsCtrl } from '../ctrls/ReceiptsCtrl';
+import { Settings, DateTime } from 'luxon'
+import { SupplierDAO, SuppliersCtrl } from '../ctrls/SuppliersCtrl'
+import { ReceiptsCtrl } from '../ctrls/ReceiptsCtrl'
+
+Settings.defaultLocale = 'ar'
+Settings.defaultZoneName = 'UTC'
+
 export default {
   name: 'supllier-details',
   data(){
@@ -113,7 +177,8 @@ export default {
       supplier_id: this.$route.params.id,
       store_day: this.$store.state.day,
       confirm_step_recp: [],
-      suppliersCtrl: new SuppliersCtrl()
+      suppliersCtrl: new SuppliersCtrl(),
+      trans_form: {trans_type: 'supp_payment'},
     }
   },
   methods: {
@@ -123,13 +188,83 @@ export default {
       this.supplier_trans = trans
       let receiptsCtrl = new ReceiptsCtrl()
       this.supplier_receipts = await receiptsCtrl.findAll({supplier_id: this.supplier_id})
-    }
+    },
+    async addPayments(evt){
+      evt.preventDefault()
+
+      if(this.trans_form.day) {
+        this.trans_form.day = DateTime.fromISO(this.trans_form.day).toISODate()
+      }
+      else {
+        this.trans_form.day = this.store_day.iso
+      }
+
+      if(this.trans_form.sum === '+' ) {
+        this.trans_form.amount = parseFloat(this.trans_form.amount)
+        let cashflowDAO = new CashflowDAO(CashflowDAO.SUPP_COLLECT_DAO)
+        cashflowDAO.amount = this.trans_form.amount
+        cashflowDAO.day = this.store_day.iso
+        this.trans_form.day = this.store_day.iso
+        cashflowDAO.actor_id = this.supplier.id
+        cashflowDAO.actor_name = this.supplier.name
+
+        this.trans_form.cashflow_id = await CashflowDB.addNew(cashflowDAO)
+      }
+      else if ( this.trans_form.sum === '--') {
+
+        let cashflowDAO = new CashflowDAO(CashflowDAO.SUPP_PAY_DAO)
+        cashflowDAO.amount = parseFloat( this.trans_form.amount )
+        this.trans_form.amount = - parseFloat(this.trans_form.amount)
+        cashflowDAO.day = this.store_day.iso
+        this.trans_form.day = this.store_day.iso
+        cashflowDAO.actor_id = this.supplier.id
+        cashflowDAO.actor_name = this.supplier.name
+
+        this.trans_form.cashflow_id = await CashflowDB.addNew(cashflowDAO)
+      }
+      else if ( this.trans_form.sum === '-r') {
+        
+        let cashflowDAO = new CashflowDAO(CashflowDAO.OUT_RECEIPT_DAO)
+        cashflowDAO.amount = parseFloat( this.trans_form.amount )
+        this.trans_form.amount = - parseFloat(this.trans_form.amount)
+        cashflowDAO.day = this.store_day.iso
+        this.trans_form.day = this.store_day.iso
+        cashflowDAO.actor_id = this.supplier.id
+        cashflowDAO.actor_name = this.supplier.name
+
+        this.trans_form.cashflow_id = await CashflowDB.addNew(cashflowDAO)
+      }
+      else if (this.trans_form.sum === 'supp_pre_recp') {
+        console.log(this.trans_form)
+        let recp = new ReceiptDAO()
+        recp.day = this.trans_form.day
+        recp.total_count = parseInt(this.trans_form.count)
+        recp.products_arr = this.trans_form.products
+        recp.net_value = this.trans_form.amount
+        recp.supplier_id = this.supplier.id
+        recp.supplier_name = this.supplier.name
+        recp.recp_paid = 1
+        // await ReceiptsDB.addNew(recp)
+      }
+      else {
+        this.trans_form.amount = parseFloat(this.trans_form.amount)
+      }
+
+      if(this.trans_form.sum !== 'supp_pre_recp' ) {
+        //await SuppliersDB.updateBalance(this.supplier_id, this.trans_form)
+      }
+        
+      
+      this.trans_form = {sum: '-'}
+      this.$root.$emit('bv::toggle::collapse', 'collapse_pay')
+      this.refresh_all()
+    },
   },
   mounted() {
     this.refresh_all()
   },
   computed: {
-      supp_recps_sums: function() {
+    supp_recps_sums: function() {
       let supp_recps_sums = {total_rasd: 0 }
       this.supplier_receipts.forEach(item =>{
         if(item.recp_paid == 1)
@@ -138,6 +273,17 @@ export default {
       // this.receipt.sale_value = sum
       return supp_recps_sums
     },
+    valid_payments_form: function() {
+
+      if(this.trans_form.sum && this.trans_form.amount && parseFloat(this.trans_form.amount)) {
+        if(this.trans_form.sum == '-' && ! this.trans_form.day)
+          return false
+        else 
+          return true
+      }
+      return false
+
+    }
   }
 }
 </script>

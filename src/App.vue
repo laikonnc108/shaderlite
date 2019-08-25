@@ -72,7 +72,12 @@
                   {{ custom_labels['collecting'] }} 
                 </router-link>
               </li>
-
+              <li class="nav-item">
+                <router-link class="nav-link active" to="/daily_totals">
+                  <span class="fa fa-calendar-alt"></span>
+                  المجمعات اليومية
+                </router-link>
+              </li>
             </ul>
 
             <h3 class="d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
@@ -115,7 +120,7 @@
               </li>
               
               <li class="nav-item" v-if="logged_in_user.user_type != 'editor'">
-                <router-link class="nav-link active" to="/app_data">
+                <router-link class="nav-link active" to="/developer">
                   <span class="fa fa-database"></span>
                     بيانات البرنامج<span class="sr-only">(current)</span>
                 </router-link>
@@ -190,17 +195,25 @@ export default {
     },
   },
   async mounted(){
+
+  },
+  async beforeMount () {
+    console.log("beforeMount",this.$store.state)
+    try {
+      this.custom_labels = await this.shaderConfigsCtrl.getAppLabels()
+    } catch (error) {
+      window.alert("لم يتم ربط قاعدة البيانات")
+      this.$router.push('developer')
+      return
+    }
+    
     let app_configs = await this.shaderConfigsCtrl.getAppCongifs()
     this.$store.commit(MyStoreMutations.setShaderConfigs, app_configs)
     this.require_login = app_configs['require_login'] ? app_configs['require_login'] : false
     if(this.require_login) {
       this.$bvModal.show('login-modal')
     }
-  },
-  async beforeMount () {
-    console.log("beforeMount",this.$store.state)
 
-    this.custom_labels = await this.shaderConfigsCtrl.getAppLabels()
     this.$store.commit(MyStoreMutations.setCustomLabels, this.custom_labels)
 
     let products_arr = await new ProductsCtrl().getProductsArr()

@@ -137,9 +137,11 @@ export default {
   methods: {
     async saveSupplier(evt) {
       evt.preventDefault()
+      console.log(this.supplier_form)
       try {
         await this.suppliersCtrl.save(this.supplier_form)
       } catch (error) {
+        console.error(error)
         this.$bvToast.show('example-toast')
         return
       }

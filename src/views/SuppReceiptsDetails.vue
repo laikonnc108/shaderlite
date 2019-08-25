@@ -71,7 +71,6 @@
       </div>
     </section>
     <hr>
-    
 
     <section class="row ">
       <div class=" receipt col-4 p-3 "  v-if="show_receipts[1]">
@@ -123,10 +122,12 @@
         <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_1"> <span class="fa fa-edit"></span>
         تعديل / عرض  
         </button>&nbsp;
-        <button  class="btn btn-primary" @click="setRecpPaid(recp_1, 1)"> <span class="fa fa-money-check"></span>
+        <button  class="btn btn-primary" v-if="! recp_1.recp_paid" @click="setRecpPaid(recp_1, 1)">
+          <span class="fa fa-money-check"></span>
         رصد    
         </button>&nbsp;
-        <button  class="btn btn-primary" @click="setRecpPaid(recp_1, 2)"> <span class="fa fa-money-bill"></span>
+        <button  class="btn btn-primary" v-if="! recp_1.recp_paid" @click="setRecpPaid(recp_1, 2)">
+          <span class="fa fa-money-bill"></span>
         صرف    
         </button> &nbsp;
 
@@ -180,34 +181,76 @@
         <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_2"> <span class="fa fa-edit"></span>
          تعديل / عرض 
         </button>&nbsp;
-        <button  class="btn btn-primary" @click="setRecpPaid(recp_2, 1)"> <span class="fa fa-money-check"></span>
+        <button  class="btn btn-primary" v-if="! recp_2.recp_paid" @click="setRecpPaid(recp_2, 1)">
+          <span class="fa fa-money-check"></span>
         رصد    
         </button>&nbsp;
-        <button  class="btn btn-primary" @click="setRecpPaid(recp_2, 2)"> <span class="fa fa-money-bill"></span>
+        <button  class="btn btn-primary" v-if="! recp_2.recp_paid" @click="setRecpPaid(recp_2, 2)">
+          <span class="fa fa-money-bill"></span>
         صرف   
         </button> &nbsp;
 
       </div>
 
       <div class="receipt col-4 p-1 pb-3"  v-if="show_receipts[3]">
-        <h3>فاتورة 3 {{'recp_status_'+ recp_3.recp_paid | tr_label }}</h3>
+        <h3>فاتورة 2 {{'recp_status_'+ recp_3.recp_paid | tr_label }}</h3>
         <draggable
-          class="drag-area list-group"
+          class="drag-area list-group " 
           :list="recp_3.details"
           group="outsums"
-          @change="recp_changed"
         >
           <div
             class="list-group-item"
             v-for="(element, idx) in recp_3.details"
             :key="idx"
           >
-            {{ element.product_name }} {{ element.count }} {{ element.kg_price }} {{ element.weight }}
+          
+            {{ element.product_name }} عدد {{ element.count }} 
+            وزن {{ element.weight }}
+            بسعر {{ element.kg_price }} 
+            
             <span class="fa fa-minus-circle" @click="remove_from_list(recp_3.details, idx)"
             style="color:red;float: left;"></span>
           </div>
         </draggable>
+        <hr>
+        <div class="row-detail" v-if="recp_3.total_nolon">
+          <label> النولون</label>
+          <span> {{recp_3.total_nolon | default0}} </span>
+        </div>
+        <div class="row-detail" v-if="recp_3.recp_expenses">
+          <label> مصاريف الفاتورة</label>
+          <span> {{recp_3.recp_expenses | default0}} </span>
+        </div>
+        <div class="row-detail">
+          <label> عمولة الفاتورة</label>
+          <span> {{recp_3.recp_comm | default0}} -<label> نسبة العمولة </label> ({{recp_3.comm_rate | default0}} % )</span>
+        </div>
+        <div class="row-detail">
+          <label> وهبة الفاتورة</label>
+          <span> {{recp_3.recp_given | round2}} </span>
+        </div>
+        <hr>
+        <div class="row-detail">
+          <label> صافي الفاتورة</label>
+          <span> {{recp_3.net_value | round2}} </span>
+        </div>
+        <hr>
+        <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_3"> <span class="fa fa-edit"></span>
+         تعديل / عرض 
+        </button>&nbsp;
+        <button  class="btn btn-primary" v-if="! recp_3.recp_paid" @click="setRecpPaid(recp_3, 1)">
+          <span class="fa fa-money-check"></span>
+        رصد    
+        </button>&nbsp;
+        <button  class="btn btn-primary" v-if="! recp_3.recp_paid" @click="setRecpPaid(recp_3, 2)">
+          <span class="fa fa-money-bill"></span>
+        صرف   
+        </button> &nbsp;
       </div>
+
+      <!-- end recps -->
+
       <button  class="btn btn-primary" @click="addReceipt(2)" v-if="show_receipts[1] && ! show_receipts[2]">
       اضافة فاتورة   &nbsp; <span class="fa fa-external-link-square-alt"></span>
       <br/>
@@ -362,12 +405,13 @@ hide-header hide-footer hide-header-close hide-backdrop>
 
 <script >
 import { InoutHeadCtrl } from '../ctrls/InoutHeadCtrl'
-import { CashflowCtrl } from '../ctrls/CashflowCtrl'
+import { CashflowCtrl, CashflowDAO } from '../ctrls/CashflowCtrl'
 import { ReceiptDAO, ReceiptsCtrl } from '../ctrls/ReceiptsCtrl'
 import { OutgoingsCtrl } from '../ctrls/OutgoingsCtrl'
 import { SupplierDAO, SuppliersCtrl } from '../ctrls/SuppliersCtrl'
 import draggable  from 'vuedraggable'
 import { MainMixin } from '../mixins/MainMixin';
+import { TransTypesCtrl } from '../ctrls/TransTypesCtrl';
 
 export default {
   name: 'supp-receipts-details',
@@ -385,9 +429,10 @@ export default {
       total_nolon: 0,
       inc_headers: [],
       recp_in_sums: {},
-      recp_1: new ReceiptDAO({serial: 1, ...ReceiptDAO.INIT_DAO}),
-      recp_2: new ReceiptDAO({serial: 2, ...ReceiptDAO.INIT_DAO}),
-      recp_3: new ReceiptDAO({serial: 3, ...ReceiptDAO.INIT_DAO}),
+      recp_default_comm_rate: this.$store.state.shader_configs['recp_comm'] ? parseFloat(this.$store.state.shader_configs['recp_comm']) : 0 ,
+      recp_1: new ReceiptDAO({}),
+      recp_2: new ReceiptDAO({}),
+      recp_3: new ReceiptDAO({}),
       modal_recp: {},
       print_mode: false,
     }
@@ -395,9 +440,10 @@ export default {
   mixins: [MainMixin],
   methods: {
     async refresh_all(){
-      this.recp_1 = new ReceiptDAO({serial: 1, ...ReceiptDAO.INIT_DAO})
-      this.recp_2 = new ReceiptDAO({serial: 2, ...ReceiptDAO.INIT_DAO})
-      this.recp_3 = new ReceiptDAO({serial: 3, ...ReceiptDAO.INIT_DAO})
+      let recp_default_comm_rate = this.shader_configs['recp_comm'] ? parseFloat(this.shader_configs['recp_comm']) : 0 
+      this.recp_1 = new ReceiptDAO({serial: 1, comm_rate: this.recp_default_comm_rate, ...ReceiptDAO.INIT_DAO})
+      this.recp_2 = new ReceiptDAO({serial: 2, comm_rate: this.recp_default_comm_rate, ...ReceiptDAO.INIT_DAO})
+      this.recp_3 = new ReceiptDAO({serial: 3, comm_rate: this.recp_default_comm_rate, ...ReceiptDAO.INIT_DAO})
 
       this.show_receipts= {1: false, 2: false, 3: false}
       let {total_nolon} = await this.cashflowCtrl.getSupplierNolons({supplier_id: this.supplier_id, day: this.store_day.iso})
@@ -428,8 +474,19 @@ export default {
 
       this.refresh_all()
     },
-    setRecpPaid( receipt, recp_paid ) {
+    async setRecpPaid( receipt, recp_paid ) {
       receipt.recp_paid = recp_paid
+      if(recp_paid == 2 ){
+        let cashflowDAO = new CashflowDAO({
+          day: this.day.iso,
+          supplier_id: this.supplier_id,
+          amount: receipt.net_value,
+          d_product: receipt.products_arr
+        })
+        let transType = await new TransTypesCtrl().findOne({name: 'recp_paid', category: 'cashflow'})
+        cashflowDAO.transType = transType
+        await this.cashflowCtrl.save(cashflowDAO)
+      }
       this.saveAll()
     },
     async saveAll(){
@@ -475,6 +532,7 @@ export default {
         let all = this.outgoings_sums.map( dao => this.clone(dao))
         this.recp_1.details = all
         this.recp_1.total_nolon = this.total_nolon
+        console.log(this.recp_1)
       }
     },
     async watchit(){
@@ -532,7 +590,6 @@ export default {
       dao.details.forEach(detail => {
         sale_value += parseFloat(detail.weight) * parseFloat(detail.kg_price)
       })
-      console.log("sale_value after ",dao.sale_value)
 
       dao.sale_value = sale_value
       // TODO INIT VALUES
@@ -541,7 +598,7 @@ export default {
       dao.recp_expenses = dao.recp_expenses ? dao.recp_expenses : 0
       dao.recp_given = dao.recp_given ? dao.recp_given : 0 
       dao.net_value = sale_value - dao.recp_comm - dao.recp_given - dao.recp_expenses - dao.total_nolon
-      console.log("dao after ",sale_value , dao.recp_comm , dao.recp_given , dao.recp_expenses - dao.total_nolon)
+      // console.log("dao after ",sale_value , dao.recp_comm , dao.recp_given , dao.recp_expenses - dao.total_nolon)
     }
   },
   async mounted(){

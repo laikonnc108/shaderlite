@@ -71,6 +71,25 @@
         </table>
       </div>
   </section>
+  <hr>
+    <div>
+      <h4>اجمالي فواتير الرصد فقط : {{recp_sums.sum_rasd_net | round }}</h4>
+    </div>
+
+  <hr>
+    <div>
+      <h4>اجمالي ايرادات اليوم : {{recp_sums.sum_income | round2}}</h4>
+    </div>
+
+  <hr>
+    <div>
+      <h4>اجمالي مصروفات تخصم من ايراد اليوم : {{daily_totals.sum_deducts | round2}}</h4>
+    </div>
+  <hr>
+    <div>
+      <h4>صافي الايراد اليومي : {{ (recp_sums.sum_income - daily_totals.sum_deducts) | round2}}</h4>
+    </div>
+  <hr>
   <section class="inout-cashflow">
     <h2>تحصيلات اليوم</h2>
     <CashflowTable :cashflow_arr="cashflow_arr_in" 
@@ -94,6 +113,7 @@ import { CashflowCtrl } from '../ctrls/CashflowCtrl'
 import { ReceiptsCtrl } from '../ctrls/ReceiptsCtrl'
 import CashflowTable from '@/components/CashflowTable.vue'
 import { MainMixin } from '../mixins/MainMixin'
+import { knex } from '../main'
 
 export default {
   name: 'daily-moves',
@@ -106,6 +126,7 @@ export default {
       cashflowCtrl: new CashflowCtrl(),
       receiptsCtrl: new ReceiptsCtrl(),
       daily_receipts: [],
+      daily_totals: {},
       cashflow_arr_in: [],
       cashflow_arr_out: [],
       day_sums: {
@@ -120,6 +141,9 @@ export default {
       this.cashflow_arr_in = await this.cashflowCtrl.findAll({sum: '+', day: this.$store.state.day.iso})
       this.cashflow_arr_out = await this.cashflowCtrl.findAll({sum: '-', day: this.$store.state.day.iso})
       this.daily_receipts = await this.receiptsCtrl.findDailyReceipts({day: this.$store.state.day.iso })
+      // TODO MOVE
+      this.daily_totals = await knex('v_daily_sums').where('day', this.day.iso).first()
+      
     },
     receiptsSepStatus(concat_recp_paid) {
       if(concat_recp_paid)

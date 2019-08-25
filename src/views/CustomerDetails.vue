@@ -118,6 +118,7 @@
           <b-form-radio value="cust_collecting">تحصيل</b-form-radio>
           <b-form-radio value="cust_advance_pay">سلفة</b-form-radio>
           <b-form-radio value="cust_acc_rest">باقي حساب</b-form-radio>
+          <b-form-radio value="cust_discount">خصم للتاجر</b-form-radio>
           |
           <b-form-radio value="cust_trust">امانة</b-form-radio>
           <b-form-radio value="repay_cust_trust">رد امانة</b-form-radio>
@@ -141,8 +142,7 @@
       </div>
 
       <button  v-if="customer_trans_form.trans_type" type="submit" class="btn btn-success" :disabled="! valid_form">
-        <span v-if=" customer_trans_form.trans_type =='cst_advance_pay' || customer_trans_form.trans_type =='r' || customer_trans_form.trans_type =='#' || customer_trans_form.trans_type == 'p_rhn'  ">دفع</span>
-        <span v-if=" customer_trans_form.trans_type =='+' || customer_trans_form.trans_type =='$' || customer_trans_form.trans_type == 'rhn' ">تحصيل</span>
+        اضافة
       </button>
     </form>
     </div>

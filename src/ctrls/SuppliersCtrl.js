@@ -8,7 +8,7 @@ export class SupplierDAO {
   phone
   address
   notes
-  is_self
+  //is_self
   deleted_at
 
   static get INIT_DAO() {

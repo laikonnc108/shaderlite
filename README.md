@@ -29,10 +29,15 @@ npm run postinstall
 ```
 ---
 
-### Business Constrains
+### Business Constrains (TO REMOVE)
 
 - Fixed sell_comm per product / or flexi receipts
 - Products can't be edited
+
+
+### Business TODOS
+- يجب تحصيل خصم التاجر في النقدية 
+- مراجعة النوالين مع الفواتير
 
 ## Tools And Resources
 

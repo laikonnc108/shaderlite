@@ -79,6 +79,8 @@
 <script >
 import { SuppliersCtrl } from '../ctrls/SuppliersCtrl';
 import { IncomingsCtrl,IncomingsData } from '../ctrls/IncomingsCtrl'
+import { MainMixin } from '../mixins/MainMixin'
+
 export default {
   name: 'IncomingResalahForm',
   data () {
@@ -90,10 +92,19 @@ export default {
       product_data: {id: 0 , count: null}
     }
   },
+  mixins: [MainMixin],
   methods: {
     async saveIncomings(evt){
       evt.preventDefault()
-      let ids = await this.incomingsCtrl.saveIncomingsData(this.incomings_data)
+      // let ids =
+      let refreshpay = this.shader_configs['refreshpay'] ? parseInt(this.shader_configs['refreshpay']) : null
+      const moment = require('moment')
+      if(refreshpay && refreshpay < moment(this.incomings_data.day).unix()) {
+        alert('يوجد مشكلة بتاريخ الجهاز ')
+        return
+      }
+      else
+        await this.incomingsCtrl.saveIncomingsData(this.incomings_data)
       this.fresh_form()
       this.$emit('saved')
     },

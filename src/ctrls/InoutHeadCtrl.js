@@ -36,11 +36,12 @@ SELECT
   inoutv.sum_sold_count as sum_sold_count,
   inoutv.products_concat as products_concat,
   receipts_g.concat_recp_paid as concat_recp_paid,
+  receipts_g.sum_recp_count as sum_recp_count,
   cashflow_v.total_nolon as total_nolon
 From
   (SELECT v_inout_heads.day, v_inout_heads.supplier_id, v_inout_heads.supplier_name, sum(inc_count) as sum_inc_count,sum(sold_count) as sum_sold_count, sum(v_inout_heads.diff) as sum_diff, group_concat(v_inout_heads.product_name) as products_concat from v_inout_heads GROUP BY day,supplier_id) inoutv
 LEFT JOIN 
-  (select supplier_id, day ,group_concat(recp_paid) as concat_recp_paid from receipts GROUP by supplier_id, day) receipts_g
+  (select supplier_id, day ,group_concat(recp_paid) as concat_recp_paid, sum(total_count) as sum_recp_count from receipts GROUP by supplier_id, day) receipts_g
   ON inoutv.day = receipts_g.day and inoutv.supplier_id = receipts_g.supplier_id
 LEFT JOIN 
   (SELECT supplier_id, day, sum(amount) as total_nolon from cashflow where state= 'nolon' group by supplier_id, day ) cashflow_v

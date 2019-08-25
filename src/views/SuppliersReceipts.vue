@@ -22,6 +22,7 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
         <th>تم بيع</th>
         <th>طرود متبقية</th>
         <th>تم انشاء فواتير</th>
+        <th>بعدد </th>
         <th></th>
       </tr>
     </thead>
@@ -50,6 +51,7 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
             <span v-if="index+1 != receiptsSepStatus(row.concat_recp_paid).length">, </span>
           </span>
         </td>
+        <td>{{row.sum_recp_count}}</td>
         <td>
           
           <router-link class="nav-link " :to="{name:'supp_recp_details', params: {supplier_id: row.supplier_id}}">

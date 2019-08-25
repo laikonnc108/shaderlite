@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 import Daily from './views/Daily.vue'
-import Home from './views/Home.vue'
+import Developer from './views/Developer.vue'
 import Incomings from './views/Incomings.vue'
 import Customers from './views/Customers.vue'
 import Suppliers from './views/Suppliers.vue'
@@ -16,6 +16,7 @@ import CustomersAccounts from './views/CustomersAccounts.vue'
 import Cashflow from './views/Cashflow.vue'
 import DailyMoves from './views/DailyMoves.vue'
 import Users from './views/Users.vue'
+import DailyTotals from './views/DailyTotals.vue'
 
 Vue.use(Router)
 
@@ -25,13 +26,18 @@ export default new Router({
   routes: [
     {
       path: '/developer',
-      name: 'home',
-      component: Home
+      name: 'developer',
+      component: Developer
     },
     {
       path: '/daily',
       name: 'daily',
       component: Daily
+    },
+    {
+      path: '/daily_totals',
+      name: 'daily_totals',
+      component: DailyTotals
     },
     {
       path: '/incomings',
