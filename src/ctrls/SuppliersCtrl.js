@@ -42,6 +42,14 @@ export class SupplierTransDAO {
 
   parseTypes () {
     this.amount = this.amount? parseFloat(this.amount) : 0
+    delete this.products
+    delete this.count
+  }
+
+  /**@param {import('./TransTypesCtrl').TransTypeDAO} transDAO */
+  set transType(transDAO) {
+    this.trans_type = transDAO.name
+    this.sum = transDAO.sum
   }
 
   constructor (data) {
@@ -53,8 +61,12 @@ export class SuppliersCtrl {
   /**@type {import('bookshelf').Model} */
   model
 
+  /**@type {import('bookshelf').Model} */
+  supplierTransModel
+
   constructor() {
     this.model = require('../models/SuppliersModel')(bookshelf)
+    this.supplierTransModel = require('../models/SupplierTransModel')(bookshelf)
   }
 
   /**@param {SupplierDAO} data */
@@ -63,6 +75,33 @@ export class SuppliersCtrl {
     let record = await this.model.forge(data).save()
     return record.id
   }
+
+  /**@param {SupplierTransDAO} transDAO */
+  async updateBalanceByTrans(transDAO) {
+    /**@type {import('bookshelf').ModelBase} */
+    let instance = await this.model.forge('id',transDAO.supplier_id).fetch()
+    let balance = parseFloat(instance.get('balance')) ? parseFloat(instance.get('balance')) : 0
+    if(transDAO.sum === '+') {
+      balance += parseFloat(transDAO.amount)
+    } else if(transDAO.sum === '-'){
+      balance -= parseFloat(transDAO.amount)
+    }
+    await instance.save({balance: balance})
+    transDAO.balance_after = balance
+    return await this.createSupplierTrans(transDAO)
+  }
+
+  /**@param {SupplierTransDAO} transDAO */
+  async createSupplierTrans(transDAO) {
+    transDAO.parseTypes()
+
+    if(transDAO.trans_type == 'supp_pre_payment')
+      transDAO.trans_type == 'supp_payment'
+
+    let trans_record = await this.supplierTransModel.forge(transDAO).save()
+    return trans_record.id
+  }
+
 
   async findAll(filter = {}, options = {}) {
     let all = await this.model.where(filter).fetchAll(options)

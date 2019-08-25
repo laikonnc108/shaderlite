@@ -53,13 +53,13 @@
           <input v-model="trans_form.notes" class="form-control " placeholder="ادخال الملاحظات">
         </div>
       </div>     
-      <div class="form-group row" v-if=" trans_form.sum === 'supp_pre_recp'">
+      <div class="form-group row" v-if=" trans_form.trans_type == 'supp_pre_recp'">
         <label  class="col-sm-2">عدد الطرود</label>
         <div class="col-sm-10">
           <input v-model="trans_form.count" class="form-control " placeholder="ادخال العدد">
         </div>
       </div>     
-      <div class="form-group row" v-if=" trans_form.sum === 'supp_pre_recp'">
+      <div class="form-group row" v-if=" trans_form.trans_type == 'supp_pre_recp'">
         <label  class="col-sm-2">الاصناف</label>
         <div class="col-sm-10">
           <input v-model="trans_form.products" class="form-control " placeholder=" ادخال اسماء الاصناف">
@@ -90,7 +90,7 @@
           </thead>
           <tbody>
             <template v-for="(payment, idx) in supplier_trans" >
-            <tr :key='idx' v-if="payment.trans_type == 'payment'">
+            <tr :key='idx' v-if="payment.trans_type == 'supp_payment'">
               <th>{{idx +1 | toAR }} </th>
               <td>{{payment.day | arDate }}</td>
               <td>
@@ -161,8 +161,10 @@
 
 <script>
 import { Settings, DateTime } from 'luxon'
-import { SupplierDAO, SuppliersCtrl } from '../ctrls/SuppliersCtrl'
-import { ReceiptsCtrl } from '../ctrls/ReceiptsCtrl'
+import { SupplierDAO, SuppliersCtrl, SupplierTransDAO } from '../ctrls/SuppliersCtrl'
+import { ReceiptsCtrl, ReceiptDAO } from '../ctrls/ReceiptsCtrl'
+import { TransTypesCtrl } from '../ctrls/TransTypesCtrl';
+import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl';
 
 Settings.defaultLocale = 'ar'
 Settings.defaultZoneName = 'UTC'
@@ -184,10 +186,10 @@ export default {
   methods: {
     async refresh_all(){
       let {dao, trans} = await this.suppliersCtrl.getSupplierDetails(this.supplier_id)
+      console.log(trans)
       this.supplier = dao
       this.supplier_trans = trans
-      let receiptsCtrl = new ReceiptsCtrl()
-      this.supplier_receipts = await receiptsCtrl.findAll({supplier_id: this.supplier_id})
+      this.supplier_receipts = await new ReceiptsCtrl().findAll({supplier_id: this.supplier_id})
     },
     async addPayments(evt){
       evt.preventDefault()
@@ -198,7 +200,32 @@ export default {
       else {
         this.trans_form.day = this.store_day.iso
       }
+      let transTypesCtrl = new TransTypesCtrl()
+      let selectedTrans = await transTypesCtrl.findOne({name: this.trans_form.trans_type , category: 'supplier_trans'})
+      console.log(selectedTrans)
+      if(selectedTrans) {
+        let cashflow_id = null
+        if(selectedTrans.map_cashflow){
+          // Create cashflow with trans
+          let cashflowTrans = await transTypesCtrl.findOne({name: selectedTrans.map_cashflow , category: 'cashflow'})
 
+          let newCashflow = new CashflowDAO({
+            amount: this.trans_form.amount,
+            day: this.trans_form.day,
+            supplier_id: this.supplier_id,
+          })
+
+          newCashflow.transType = cashflowTrans
+          cashflow_id = await new CashflowCtrl().save(newCashflow)
+        }
+
+        let suppTransDAO = new SupplierTransDAO(this.trans_form)
+        suppTransDAO.supplier_id = this.supplier_id
+        suppTransDAO.cashflow_id = cashflow_id
+        suppTransDAO.transType = selectedTrans
+        await this.suppliersCtrl.updateBalanceByTrans(suppTransDAO)
+      }
+      /*
       if(this.trans_form.sum === '+' ) {
         this.trans_form.amount = parseFloat(this.trans_form.amount)
         let cashflowDAO = new CashflowDAO(CashflowDAO.SUPP_COLLECT_DAO)
@@ -249,13 +276,26 @@ export default {
       else {
         this.trans_form.amount = parseFloat(this.trans_form.amount)
       }
+      */
 
-      if(this.trans_form.sum !== 'supp_pre_recp' ) {
+      if(this.trans_form.trans_type !== 'supp_pre_recp' ) {
         //await SuppliersDB.updateBalance(this.supplier_id, this.trans_form)
       }
         
+      if (this.trans_form.trans_type == 'supp_pre_recp') {
+        let recp = new ReceiptDAO({
+          day: this.trans_form.day,
+          total_count: parseInt(this.trans_form.count),
+          products_arr: this.trans_form.products,
+          net_value: this.trans_form.amount,
+          supplier_id: this.supplier_id,
+          recp_paid: 1
+        })
+        console.log()
+        await new ReceiptsCtrl().save(recp)
+      }
       
-      this.trans_form = {sum: '-'}
+      this.trans_form = {}
       this.$root.$emit('bv::toggle::collapse', 'collapse_pay')
       this.refresh_all()
     },
@@ -275,8 +315,8 @@ export default {
     },
     valid_payments_form: function() {
 
-      if(this.trans_form.sum && this.trans_form.amount && parseFloat(this.trans_form.amount)) {
-        if(this.trans_form.sum == '-' && ! this.trans_form.day)
+      if(this.trans_form.trans_type && this.trans_form.amount && parseFloat(this.trans_form.amount)) {
+        if(this.trans_form.trans_type == 'supp_pre_payment' && ! this.trans_form.day)
           return false
         else 
           return true
