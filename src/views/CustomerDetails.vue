@@ -104,7 +104,7 @@
   </button>
 
         <button class="btn btn-printo pr-hideme m-1" 
-        @click="print_co()">
+        @click="print_co();print_done()">
           <span class="fa fa-print"></span> طباعة
         </button>
 
@@ -155,6 +155,7 @@ import { CustomersCtrl, CustomerTransDAO } from '../ctrls/CustomersCtrl'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl'
 import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl'
 import { MainMixin } from '../mixins/MainMixin';
+import { knex } from '../main';
 
 export default {
   name: 'customer-details',
@@ -180,7 +181,7 @@ export default {
       //let {dao, trans} = await this.customersCtrl.getCustomerDetails(this.customer_id)
       // TODO get trans dynamicly
       this.customer = await this.customersCtrl.findOne(this.customer_id)
-      this.customer_trans = await this.customersCtrl.getCustomerTrans(this.customer_id)
+      this.customer_trans = await this.customersCtrl.getCustomerTrans({id: this.customer_id, day: this.day.iso})
     },
     async removeLastTrans(trans) {
       if( this.confirm_step[trans.id] ) {
@@ -192,6 +193,9 @@ export default {
         this.confirm_step = []
         this.confirm_step[trans.id] = true
       }
+    },
+    async print_done(){
+      await knex.raw(`insert into customers_daily (customer_id, day, printed) values( ${this.customer_id} , '${this.day.iso}', 1)`)
     },
     async sellRest(evt) {
       evt.preventDefault()

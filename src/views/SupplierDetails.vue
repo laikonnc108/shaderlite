@@ -31,7 +31,7 @@
           <b-form-radio value="supp_pre_recp">فاتورة سابقة</b-form-radio>
           <b-form-radio value="supp_collect">تحصيل</b-form-radio>
           <b-form-radio value="supp_payment">دفعة اليوم</b-form-radio>
-          <b-form-radio value="supp_recp_expensess">مصروف فاتورة</b-form-radio>
+          <b-form-radio value="supp_recp_expensess">(مبالغ اخري (للفاتورة</b-form-radio>
         </b-form-radio-group>
       </b-form-group>
 

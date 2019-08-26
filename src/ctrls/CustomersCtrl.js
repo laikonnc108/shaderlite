@@ -106,9 +106,10 @@ export class CustomersCtrl {
     return new CustomerDAO(one.toJSON())
   }
 
-  async getCustomerTrans(id) {
+  async getCustomerTrans(filter= {id:null , day: ''}) {
+    // TODO NOOOO
     let all_trans = await this.customerTransModel
-    .where({customer_id: id}).fetchAll({withRelated:['outgoing','product']})
+    .where({customer_id: filter.id, trans_type:'outgoing', day: filter.day}).fetchAll({withRelated:['outgoing','product']})
 
     return all_trans.map( _=> {
       let transDAO = new CustomerTransDAO(_.attributes)

@@ -223,6 +223,11 @@ export default {
     },
   },
   components: {
+  },
+  watch:{
+    'customer_form.name': function(val){
+      this.search_term = val
+    }
   }
 }
 </script>

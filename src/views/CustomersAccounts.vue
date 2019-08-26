@@ -6,7 +6,10 @@
 :to="{name:'customer_details', params: {id: outgoing.customer_id}}"
 class="btn btn-lg btn-primary m-1 btn-block">
   <span class="fa fa-cash-register"></span> &nbsp; 
-  عرض حساب البياع - {{outgoing.customer_name}}
+  عرض حساب البياع - {{outgoing.customer_name}} 
+  <span v-if="printed_all[outgoing.customer_id]">
+    ( تمت طباعته )
+  </span>
 </router-link>
 
   </section>
@@ -15,20 +18,28 @@ class="btn btn-lg btn-primary m-1 btn-block">
 <script >
 // import { db } from '../main'
 import { OutgoingsCtrl } from '../ctrls/OutgoingsCtrl'
+import { knex } from '../main';
+import { MainMixin } from '../mixins/MainMixin';
 
 export default {
   name: 'accounts',
   data () {
     return {
-      unique_daily_customers: []
+      unique_daily_customers: [],
+      printed_all: {}
     }
   },
+  mixins: [MainMixin],
   methods: {
     async refresh_all () {
       let outgoingsCtrl = new OutgoingsCtrl()
+      let printed = await knex.raw(`select customer_id, printed from customers_daily where day ='${this.day.iso}'`)
+      printed.forEach(one => {
+        if(one.printed === 1)
+          this.printed_all[one.customer_id] = (one.printed == 1)
+      });
       this.unique_daily_customers = await outgoingsCtrl.findDailyCustomers({day: this.$store.state.day.iso})
-      console.log(this.unique_daily_customers)
-    }
+    },
   },
   components: {
   },
@@ -38,6 +49,3 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
-
-</style>

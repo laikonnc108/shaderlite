@@ -117,11 +117,13 @@ export class OutgoingsCtrl {
     let all = await this.model.query(q => {
       q.distinct('customer_id')
       q.whereNotNull('customer_id')
-    }).where(filter).orderBy('customer_id','ASC').fetchAll({withRelated: ['customer']})
+    }).where(filter).orderBy('customer_id','ASC').fetchAll({withRelated: ['customer','customers_daily']})
 
     return all.map( _=> {
       let outDAO = new OutgoingDAO(_.attributes)
       outDAO.customer_name = _.related('customer').get('name')
+      console.log(_)
+      outDAO.printed =  _.related('customers_daily').get('printed')
       return outDAO
     })
   }

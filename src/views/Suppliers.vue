@@ -193,6 +193,11 @@ export default {
     }
   },
   components: {
+  },
+  watch:{
+    'supplier_form.name': function(val){
+      this.search_term = val
+    }
   }
 }
 </script>

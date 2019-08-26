@@ -348,7 +348,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             </td>
             <td></td>
             <th>
-              <span >
+              <span class="pr-hideme">
                نسبة العمولة {{modal_recp.comm_rate }}%  
                </span>
             </th>
@@ -363,7 +363,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
           <tr v-if="modal_recp.recp_expenses">
             <td colspan="5" style="border: none !important;"></td>
             <td ><b >( {{modal_recp.recp_expenses | round2 | toAR }} )</b></td>
-            <td  style="border: none !important;">مصاريف فاتورة</td>
+            <td  style="border: none !important;">مبالغ اخري</td>
           </tr>
           <tr>
             <td colspan="2" style="border: none !important;"></td>
@@ -374,7 +374,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             <td></td>
             <td></td>
             <td>( {{modal_recp.recp_given | round2 | toAR }} )</td>
-            <th style="border: none !important;">وهبة الكاتب</th>
+            <th style="border: none !important;">مشال</th>
           </tr>
 
           <tr>
