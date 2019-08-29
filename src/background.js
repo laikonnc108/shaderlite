@@ -2,6 +2,7 @@
 
 import { app, protocol, BrowserWindow } from 'electron'
 import * as path from 'path'
+import { sync_exec } from'./tools'
 import { format as formatUrl } from 'url'
 import {
   createProtocol,
@@ -35,8 +36,15 @@ function createMainWindow () {
     )
   }
 
-  window.on('closed', () => {
+  window.on('closed', async (e) => {
     mainWindow = null
+    let moment = require('moment')
+    moment.locale('en')
+    let isoDay = moment().format('YYYY-MM-DD')
+    // TODO get dirs programaticly and do in one place
+    let so1 = await sync_exec(`copy C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db D:\\00_db\\shaderlite-${isoDay}.db`)
+    let so2 = await sync_exec(`copy C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.db`)
+    console.log(so1, so2)
   })
 
   window.webContents.on('devtools-opened', () => {
@@ -74,4 +82,7 @@ app.on('ready', async () => {
     await installVueDevtools()
   }
   mainWindow = createMainWindow()
+  mainWindow.on('close', async ()=> {
+    await sync_exec(`copy C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.db`)
+  })
 })

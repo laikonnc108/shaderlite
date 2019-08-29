@@ -329,7 +329,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             <td>X</td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" v-model="item.kg_price" class="form-control"  >
-              <span v-else> {{item.weight | toAR }}</span>
+              <span v-else> {{item.kg_price | toAR }}</span>
             </td>
             <td >{{item.product_name}} </td>
             <td>

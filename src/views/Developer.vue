@@ -10,7 +10,10 @@
       تم قراءة ملف قاعدة بيانات, تاريخ اخر تحديث له
       {{db_file.time_updated}}
     </h3>
-      <pre>{{ $store.state.electron_data.user_data_path }}</pre>
+      <pre>
+        {{db_file.filename}}
+        {{ $store.state.electron_data.user_data_path }}
+      </pre>
       <button :disabled="! db_file.found" class="btn btn-primary btn-lg" @click="import_db()" >
         <span class="fa fa-database "></span> &nbsp;
         استيراد قاعدة البيانات
@@ -58,7 +61,7 @@ export default {
     return {
       is_7z_ok: null,
       printers: [],
-      db_file:{found: false, time_updated: ''},
+      db_file:{found: false, time_updated: null, filename:null},
       app_version: remote.app.getVersion(),
       demo_till: ''
     }
@@ -75,16 +78,22 @@ export default {
     */
     //const out = await sync_exec(`dir D:\\00_db`)
     try {
-      let db_ok = await knex.raw('select * from products')
+      await knex.raw('select * from products')
     } catch (error) {
       const fs = require('fs');
       const moment = require('moment')
       moment.locale('ar')
-      fs.readdir('D:\\00_db', (err, files) => {
+      let lastModifiedDay = ''
+      fs.readdir('D:\\00_db', async (err, files) => {
         files.forEach(file => {
-          if(file == 'shaderlite.db') {
-            let {mtimeMs} = fs.statSync('D:\\00_db'+ '\\'+ file)
+          let fileday = (file.split(/-(.+)/)[1]) ? file.split(/-(.+)/)[1].split('.')[0] : null
+          if(fileday > lastModifiedDay) {
+            lastModifiedDay = fileday
+
+            this.db_file.filename = file
             this.db_file.found = true
+
+            let {mtimeMs} = fs.statSync('D:\\00_db'+ '\\'+ this.db_file.filename)
             this.db_file.time_updated = moment(mtimeMs).format('LLL')
           }
         })
@@ -99,13 +108,12 @@ export default {
     },
     async backup(){
       //const out = await sync_exec(`C:\\PROGRA~1\\7-Zip\\7z a D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.7z C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db`)
-      const out = await sync_exec(`copy C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.db
-      `)
+      const out = await sync_exec(`copy C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.db`)
       console.log(out)
     },
     async import_db(){
       await sync_exec(`IF not exist ${this.$store.state.electron_data.user_data_path}\\db mkdir ${this.$store.state.electron_data.user_data_path}\\db NUL`)
-      const out = await sync_exec(`copy D:\\00_db\\shaderlite.db ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db`)
+      await sync_exec(`copy D:\\00_db\\${this.db_file.filename} ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db`)
       window.alert('تم استيراد قاعدة البيانات بنجاح')
     },
     reload_electron(){
