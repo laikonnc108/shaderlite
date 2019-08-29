@@ -6,13 +6,15 @@ export const MainMixin = {
   data(){
     return {
       clipboard: clipboard,
+      search_term: ''
     }
   },
   computed : {
     ...mapState([
       'day',
       'logged_in_user',
-      'shader_configs'
+      'shader_configs',
+      'custom_labels'
     ])
   },
   methods: {

@@ -1,5 +1,13 @@
 <template>
   <section class="receipts bg-receipts minh90 p-3">
+
+    <div class="pr-hideme">
+      <h3 class="text-danger fa fa-eraser larger"
+      @click="search_term = ''" v-if="search_term"></h3>
+      <input v-model="search_term" class="form-control" :placeholder="custom_labels['search_suppliers']">
+      <br/>
+    </div>
+
     <h1> فواتير العملاء - معاملات اليوم</h1>
 <!--
 <router-link  v-for="(supplier, idx) in today_suppliers_arr" 
@@ -27,7 +35,7 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(row, idx) in today_suppliers_arr" :key='idx'>
+      <tr v-for="(row, idx) in fltrd_today_suppliers_arr" :key='idx'>
         <td>
           {{row.supplier_name}}
         </td>
@@ -67,6 +75,7 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
 
 <script >
 import { InoutHeadCtrl } from '../ctrls/InoutHeadCtrl'
+import { MainMixin } from '../mixins/MainMixin'
 
 export default {
   name: 'suppliers-receipts',
@@ -76,6 +85,7 @@ export default {
       inoutHeadCtrl: new InoutHeadCtrl()
     }
   },
+  mixins: [MainMixin],
   methods: {
     async refresh_all() {
       /*
@@ -95,7 +105,11 @@ export default {
   components: {
   },
   computed: {
-    
+    fltrd_today_suppliers_arr: function(){
+      return this.today_suppliers_arr.filter( item => {
+        return (item.supplier_name.includes(this.search_term))
+      })
+    }
   },
   mounted() {
     this.refresh_all()

@@ -31,10 +31,8 @@ export default {
   },
   methods: {
     change_luxon_date(date){
-      //console.log(DateTime.toUTC(date))
       let dateTime = DateTime.fromISO(date)
       if(dateTime.valueOf()) {
-        console.log('valueOf ',dateTime.valueOf())
         this.$store.commit('setDay' ,{
           ts: dateTime.valueOf(),
           iso: dateTime.toISODate(),

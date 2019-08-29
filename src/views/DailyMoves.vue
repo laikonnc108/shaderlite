@@ -1,6 +1,14 @@
 <template>
 <section class="m-3">
   <section class="daily-receipts">
+    
+    <div class="pr-hideme">
+      <h3 class="text-danger fa fa-eraser larger"
+      @click="search_term = ''" v-if="search_term"></h3>
+      <input v-model="search_term" class="form-control" :placeholder="custom_labels['search_receipts']">
+      <br>
+    </div>
+    
           <h2>فواتير اليومية</h2>
       <div class="table-responsive">
         <table class="table table-striped table-sm pr-me1">
@@ -20,7 +28,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, idx) in daily_receipts" :key='idx'>
+            <tr v-for="(item, idx) in fltrd_daily_receipts" :key='idx'>
               <td>
                 <router-link class=" " :to="{name:'supp_recp_details', params: {supplier_id: item.supplier_id}}">
                 {{item.supplier_name}}
@@ -156,6 +164,11 @@ export default {
     this.refresh_all()
   },
   computed: {
+    fltrd_daily_receipts: function(){
+      return this.daily_receipts.filter( item => {
+        return (item.supplier_name.includes(this.search_term) )
+      })
+    },
     recp_sums: function() {
       let recp_sums = { 
         sum_count:0 ,

@@ -67,40 +67,40 @@ export class OutgoingsCtrl {
     return record.id
   }
 
-    /**@param {OutgoingDAO} data */
-    async saveOutgoingData(data) {
-      let out_id = await this.save(data)
-      console.log(data)
-      if(data.customer_id){
-        let outgoingTrans = await this.transTypesCtrl.findOne({name: 'outgoing', category: 'customer_trans'})
-        
-        let customerTrans = new CustomerTransDAO()
-        customerTrans.transType = outgoingTrans
-        customerTrans.day = data.day
-        customerTrans.amount = parseFloat(data.value_calc)
-        customerTrans.customer_id = data.customer_id
-        customerTrans.outgoing_id = out_id
-        customerTrans.product_id = data.product_id
+  /**@param {OutgoingDAO} data */
+  async saveOutgoingData(data) {
+    let out_id = await this.save(data)
+    // console.log(data)
+    if(data.customer_id){
+      let outgoingTrans = await this.transTypesCtrl.findOne({name: 'outgoing', category: 'customer_trans'})
+      
+      let customerTrans = new CustomerTransDAO()
+      customerTrans.transType = outgoingTrans
+      customerTrans.day = data.day
+      customerTrans.amount = parseFloat(data.value_calc)
+      customerTrans.customer_id = data.customer_id
+      customerTrans.outgoing_id = out_id
+      customerTrans.product_id = data.product_id
 
-        let customersCtrl = new CustomersCtrl()
-        await customersCtrl.updateDebtByTrans(customerTrans)
-      } else {
-        // Create cashflow with outgoing
-        let cashflowTrans =  await this.transTypesCtrl.findOne({name: 'outgoing_cash', category: 'cashflow'})
-        let cashDAO = new CashflowDAO({
-          day: data.day,
-          d_product: data.product_id
-        })
-        cashDAO.transType = cashflowTrans
-        cashDAO.outgoing_id = out_id
-        cashDAO.amount = parseFloat(data.value_calc)
+      let customersCtrl = new CustomersCtrl()
+      await customersCtrl.updateDebtByTrans(customerTrans)
+    } else {
+      // Create cashflow with outgoing
+      let cashflowTrans =  await this.transTypesCtrl.findOne({name: 'outgoing_cash', category: 'cashflow'})
+      let cashDAO = new CashflowDAO({
+        day: data.day,
+        d_product: data.product_id
+      })
+      cashDAO.transType = cashflowTrans
+      cashDAO.outgoing_id = out_id
+      cashDAO.amount = parseFloat(data.value_calc)
 
-        let cashflowCtrl = new CashflowCtrl()
-        await cashflowCtrl.save(cashDAO)
-      }
-
-      return out_id
+      let cashflowCtrl = new CashflowCtrl()
+      await cashflowCtrl.save(cashDAO)
     }
+
+    return out_id
+  }
 
   async findAll(filter = {}) {
     let all = await this.model.where(filter).fetchAll({withRelated: ['supplier','product','customer']})
@@ -113,6 +113,12 @@ export class OutgoingsCtrl {
     })
   }
 
+  async getLastKgPrice(product_id) {
+    let last_kg_price = await knex.raw(`SELECT kg_price from outgoings where product_id = ${product_id} ORDER BY id DESC LIMIT 1`)
+    last_kg_price = last_kg_price[0] ? parseFloat(last_kg_price[0].kg_price) : null
+    return last_kg_price
+  }
+
   async findDailyCustomers(filter = {day:'',}) {
     let all = await this.model.query(q => {
       q.distinct('customer_id')
@@ -122,7 +128,6 @@ export class OutgoingsCtrl {
     return all.map( _=> {
       let outDAO = new OutgoingDAO(_.attributes)
       outDAO.customer_name = _.related('customer').get('name')
-      console.log(_)
       outDAO.printed =  _.related('customers_daily').get('printed')
       return outDAO
     })

@@ -182,7 +182,7 @@ export default {
   methods: {
     async loginSubmit(evt) {
       evt.preventDefault()
-      console.log(this.user)
+      //console.log(this.user)
       let logged_in = await this.usersCtrl.login(this.user)
       if(logged_in){
         // Store logged in user
@@ -198,7 +198,7 @@ export default {
 
   },
   async beforeMount () {
-    console.log("beforeMount",this.$store.state)
+
     try {
       this.custom_labels = await this.shaderConfigsCtrl.getAppLabels()
     } catch (error) {
@@ -226,19 +226,20 @@ export default {
     // to get current local time correctly
     moment.locale('en')
     let dateTime = DateTime.fromISO(moment().format('YYYY-MM-DD'))
+    if(app_configs['new_day_opens'] && moment().format('HH') >= app_configs['new_day_opens']){
+      // Open new Day
+      dateTime = DateTime.fromISO(moment().add(1,'days').format('YYYY-MM-DD'))
+    }
+
     moment.locale('ar')
 
     const day = {
       ts: dateTime.valueOf(),
       iso: dateTime.toISODate(),
       d_week: dateTime.toLocaleString({ weekday: 'long'}),
-      arab: moment().format('LL')
+      arab: moment(dateTime.toISODate()).format('LL')
     }
-
-    this.day_comp = day
-    if ( ! this.$store.state.day.now ) {
-      this.$store.commit('setDay' , day)
-    }
+    this.$store.commit('setDay' , day)
   }
 }
 </script>

@@ -20,7 +20,15 @@
 -->
 
 <div class="p-2" v-show="! selected_inc || ! selected_inc.product_id">
-<button v-for="(incom, idx) in avilable_incomings" :key="idx" 
+
+  <div class="pr-hideme">
+    <h3 class="text-danger fa fa-eraser larger"
+    @click="search_term_incomings = ''" v-if="search_term_incomings"></h3>
+    <input v-model="search_term_incomings" class="form-control" :placeholder="custom_labels['search_incomings']">
+    <br>
+  </div>
+
+<button v-for="(incom, idx) in fltrd_avilable_incomings" :key="idx" 
 v-b-toggle.collapse2 
 @click="setSelectedInc(incom)"
 class="btn btn-lg  m-1 btn-block" 
@@ -39,6 +47,8 @@ class="btn btn-lg  m-1 btn-block"
 
 
 <div class="p-4" v-if="selected_inc && selected_inc.product_id">
+
+
   <h4 :class="{ 'text-danger':  outgoing_form.count > selected_inc.diff}">
     بيع {{outgoing_form.count}} من
       {{selected_inc.product_name}} - 
@@ -73,7 +83,7 @@ class="btn btn-lg  m-1 btn-block"
   <div class="form-group row">
     <label class="col-sm-3">وزن</label>
     <div class="col-sm-9">
-      <input v-model="outgoing_form.weight" class="form-control" placeholder="ادخل القيمة">
+      <input v-model="outgoing_form.weight" class="form-control" placeholder="ادخل الوزن">
     </div>
   </div>
 
@@ -137,6 +147,12 @@ class="btn btn-lg  m-1 btn-block"
 <!-- conditional class col-6 -->
 <div class="p-3 col-print-12 pr-me" :class="{ 'col-7': ! flags.detailed , 'col-11':  flags.detailed }">
 
+    <div class="pr-hideme">
+      <h3 class="text-danger fa fa-eraser larger"
+      @click="search_term = ''" v-if="search_term"></h3>
+      <input v-model="search_term" class="form-control" :placeholder="custom_labels['search_outgoings']">
+    </div>
+
   <div class="m-3  ">
   <h2>بيع اليوم {{day.arab}}</h2>
       <div class="table-responsive">
@@ -162,7 +178,7 @@ class="btn btn-lg  m-1 btn-block"
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, idx) in outgoings_arr" :key='idx'>
+            <tr v-for="(item, idx) in fltrd_outgoings_arr" :key='idx'>
               <td>{{item.id}}</td>
 
               <td>
@@ -229,11 +245,25 @@ export default {
       outgoing_form: new OutgoingDAO({ day: this.$store.state.day.iso, ...OutgoingDAO.INIT_DAO}),
       flags:{detailed: false},
       confirm_step: [],
-      discard_success: false
+      discard_success: false,
+      search_term_incomings: ''
     }
   },
   mixins: [MainMixin],
   computed: {
+    fltrd_outgoings_arr: function(){
+      return this.outgoings_arr.filter( item => {
+        return (item.supplier_name.includes(this.search_term) 
+        || item.product_name.includes(this.search_term)
+        || item.customer_name.includes(this.search_term))
+      })
+    },
+    fltrd_avilable_incomings: function(){
+      return this.avilable_incomings.filter( item => {
+        return (item.supplier_name.includes(this.search_term_incomings) 
+        || item.product_name.includes(this.search_term_incomings))
+      })
+    },
     value_calc_text: function () {
       if(this.outgoing_form.count && 
       this.outgoing_form.sell_comm &&
@@ -288,8 +318,9 @@ export default {
         this.confirm_step[id] = true
       }
     },
-    setSelectedInc(incom){
+    async setSelectedInc(incom){
       this.selected_inc = incom
+      this.outgoing_form.kg_price = await this.outgoingsCtrl.getLastKgPrice(incom.product_id)
       this.outgoing_form.sell_comm = incom.product_sell_comm
     },
     async refresh_all() {

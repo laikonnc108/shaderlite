@@ -1,4 +1,4 @@
-import { bookshelf } from '../main'
+import { bookshelf, knex } from '../main'
 import { CashflowDAO , CashflowCtrl} from './CashflowCtrl';
 import { TransTypesCtrl } from './TransTypesCtrl';
 import { InoutHeadCtrl } from './InoutHeadCtrl';
@@ -12,6 +12,9 @@ export class IncomingDAO {
   product_id 
   product_name
   count
+  group_id
+  nolon
+  given
 
   // Constant member
   static get INIT_DAO() {
@@ -27,6 +30,8 @@ export class IncomingDAO {
     this.product_id = parseInt(this.product_id)
     delete this.supplier_name
     delete this.product_name
+    delete this.nolon
+    delete this.given
   }
 }
 
@@ -76,30 +81,40 @@ export class IncomingsCtrl {
     // TODO Add Customer Trans
   }
 
+  // To solve foreach async problem
+  async asyncEach(array, callback) {
+    for (let index = 0 ; index < array.length ; index ++) {
+      await callback( array[index] , index )
+    }
+  }
+
   /**@param {IncomingsData} data */
   async saveIncomingsData(data) {
     
     data.parseTypes()
-    let saved_ids = [] , products_ids = []
-    data.products_arr.forEach( async product => {
+    let first_inc_id = null , products_ids = []
+
+    await this.asyncEach(data.products_arr, async (product)=> {
       products_ids.push(product.id)
+      
       let incDAO = new IncomingDAO({day: data.day,
         supplier_id: data.supplier_id,
         product_id: product.id,
-        count: product.count
+        count: product.count,
+        group_id: first_inc_id
       })
-      incDAO.parseTypes()
-      let record = await this.model.forge(incDAO).save()
-      saved_ids.push(record.id)
+      let record_id = await this.save(incDAO)
+      first_inc_id = first_inc_id ? first_inc_id : record_id
     })
-    // then add nolon and given cashflows
+
     if(data.nolon || data.given ) {
 
       // default cashflow
       let cashDAO = new CashflowDAO({
         supplier_id: data.supplier_id,
         day: data.day,
-        d_product: products_ids.join()
+        d_product: products_ids.join(),
+        incoming_id: first_inc_id
       })
 
       if(data.nolon) {
@@ -117,7 +132,7 @@ export class IncomingsCtrl {
       }
       
     }
-    return saved_ids
+    return first_inc_id
   }
 
   async removeIncoming(id) {
@@ -130,6 +145,7 @@ export class IncomingsCtrl {
     if(parseInt(instance.get('count')) <= inoutHeadRecord.diff) {
       // Save to remove
       await instance.destroy()
+      await knex.raw('delete from cashflow where incoming_id = '+ id)
       return true
     }
     else {
@@ -138,11 +154,19 @@ export class IncomingsCtrl {
   }
 
   async findAll(filter = {}) {
-    let all = await this.model.where(filter).fetchAll({withRelated: ['supplier','product']})
+    let all = await this.model.where(filter).fetchAll({withRelated: ['supplier','product','cashflows']})
     return all.map( _=> {
       let incDAO = new IncomingDAO(_.attributes)
       incDAO.supplier_name = _.related('supplier').get('name')
       incDAO.product_name = _.related('product').get('name')
+      if(_.related('cashflows').toJSON()[0]) { // is array 
+        _.related('cashflows').toJSON().forEach(cashflow => {
+          if(cashflow.state == 'nolon')
+            incDAO.nolon = cashflow.amount
+          else if (cashflow.state == 'given')
+            incDAO.given = cashflow.amount
+        })
+      }
       return incDAO
     })
   }

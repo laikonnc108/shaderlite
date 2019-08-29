@@ -5,6 +5,12 @@
   v-if="! flags.detailed">
   </IncomingResalahForm>
   <div class="col-6 p-4 col-print-10 pr-me" >
+    <div class="pr-hideme">
+      <h3 class="text-danger fa fa-eraser larger"
+      @click="search_term = ''" v-if="search_term"></h3>
+      <input v-model="search_term" class="form-control" :placeholder="custom_labels['search_incomings']">
+    </div>
+    
   <br/>
   <b-alert :show="discard_success === false">
       لا يمكن حذف هذا الوارد 
@@ -20,11 +26,13 @@
               <th>العميل</th>
               <th>الصنف</th>
               <th>عدد الطرود</th>
+              <th v-if="flags.detailed">نولون </th>
+              <th v-if="flags.detailed">وهبة</th>
               <th v-if="flags.detailed"></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(incom, idx) in incomings_arr" :key='idx'>
+            <tr v-for="(incom, idx) in fltrd_incomings_arr" :key='idx'>
               <td>{{incom.id}}</td>
               <td>
                 <router-link v-if="incom.supplier_name" :to="{name:'supplier_details', params: {id: incom.supplier_id}}" >
@@ -33,6 +41,8 @@
               </td>
               <td>{{incom.product_name}}</td>
               <td>{{incom.count}}</td>
+              <td v-if="flags.detailed">{{incom.nolon}}</td>
+              <td v-if="flags.detailed">{{incom.given}}</td>
               <td v-if="flags.detailed" class="d-print-none">
                 <button class="btn text-danger" @click="discard(incom.id)" >
                   <span class="fa fa-archive "></span> 
@@ -41,7 +51,7 @@
                 </button>
               </td>
             </tr>
-            <tr>
+            <tr v-if="! search_term">
               <td></td>
               <th>المجموع</th>
               <td></td>
@@ -67,7 +77,6 @@
 <script>
 import IncomingResalahForm from '@/components/IncomingResalahForm.vue'
 import { IncomingsCtrl, IncomingDAO } from '../ctrls/IncomingsCtrl'
-// import { } from '../main'
 import { MainMixin } from '../mixins/MainMixin'
 
 export default {
@@ -113,7 +122,12 @@ export default {
         inc_sums.c_total_count += item.count
       })
       return inc_sums
-    }
+    },
+    fltrd_incomings_arr: function () {
+      return this.incomings_arr.filter( item => {
+        return (item.supplier_name.includes(this.search_term) || item.product_name.includes(this.search_term))
+      })
+    },
   },
   components: {
     IncomingResalahForm
