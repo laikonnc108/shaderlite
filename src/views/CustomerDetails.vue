@@ -68,7 +68,8 @@
               <td>{{trans.day | arDate }}</td>
               <td>
                 {{trans.trans_type | tr_label('trans_types')}}
-                <span v-if="trans.trans_type === 'outgoing'"> 
+                <!-- v-if="trans.trans_type === 'outgoing'" -->
+                <span > 
                   - عدد {{trans.count | toAR }} 
                   - وزن {{trans.weight | toAR }}
                   - سعر {{trans.kg_price | toAR }}
@@ -77,10 +78,9 @@
               </td>
               <td>{{trans.product_name}} </td>
               <td>{{trans.amount | toAR}}</td>
-              <td>{{trans.debt_after | toAR}}</td>
               <td>
                 
-                <button class="btn text-danger pr-hideme" @click="removeLastTrans(trans)" v-if="idx == customer_trans.length - 1">
+                <button class="btn text-danger pr-hideme" @click="removeTrans(trans)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[trans.id]"> حذف الحركة</template>
                   <template v-if="confirm_step[trans.id]"> تأكيد </template>
@@ -181,11 +181,11 @@ export default {
       //let {dao, trans} = await this.customersCtrl.getCustomerDetails(this.customer_id)
       // TODO get trans dynamicly
       this.customer = await this.customersCtrl.findOne(this.customer_id)
-      this.customer_trans = await this.customersCtrl.getCustomerTrans({id: this.customer_id, day: this.day.iso})
+      this.customer_trans = await this.customersCtrl.getCustomerTrans({id: this.customer_id}) // , day: this.day.iso
     },
-    async removeLastTrans(trans) {
+    async removeTrans(trans) {
       if( this.confirm_step[trans.id] ) {
-        this.discard_success = await this.customersCtrl.removeLastTrans(trans)
+        this.discard_success = await this.customersCtrl.removeCustomerTrans(trans)
         this.confirm_step = []
         this.getCustomerDetails()
       }

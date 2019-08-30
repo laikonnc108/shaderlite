@@ -105,7 +105,7 @@ class="btn btn-lg  m-1 btn-block"
       <button class="btn btn-success" type="button" v-if="false && ! outgoing_form.value_calc && valid_form " @click="outgoing_form.value_calc=true"> حساب الاجمالي </button>
       <div v-if="value_calc && valid_form">
         <span style="float: right"> {{value_calc_text}} &nbsp; = </span>
-        <b style="float: right"> {{value_calc}} </b> &nbsp; جنيه
+        <b style="float: right"> {{value_calc | round2 }} </b> &nbsp; جنيه
       </div>
     </div>
   </div>

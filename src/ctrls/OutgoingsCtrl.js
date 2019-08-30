@@ -142,8 +142,10 @@ export class OutgoingsCtrl {
 
   async deleteById(id){
     let instance = await this.model.where('id',id).fetch()
-    if(instance)
+    if(instance){
+      await new CustomersCtrl().removeTransFromOutgoing(id)
       return await instance.destroy()
+    }
     else
       return null
   }

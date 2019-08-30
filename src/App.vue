@@ -171,7 +171,6 @@ Settings.defaultZoneName = 'UTC'
 export default {
   data() {
     return {
-      custom_labels: [],
       require_login: true,
       shaderConfigsCtrl: new ShaderConfigsCtrl(),
       usersCtrl: new UsersCtrl(),
@@ -198,14 +197,15 @@ export default {
 
   },
   async beforeMount () {
-
+    let custom_labels = null
     try {
-      this.custom_labels = await this.shaderConfigsCtrl.getAppLabels()
+      custom_labels = await this.shaderConfigsCtrl.getAppLabels()
     } catch (error) {
       window.alert("لم يتم ربط قاعدة البيانات")
       this.$router.push('developer')
       return
     }
+    this.$store.commit(MyStoreMutations.setCustomLabels, custom_labels)
     
     let app_configs = await this.shaderConfigsCtrl.getAppCongifs()
     this.$store.commit(MyStoreMutations.setShaderConfigs, app_configs)
@@ -213,8 +213,6 @@ export default {
     if(this.require_login) {
       this.$bvModal.show('login-modal')
     }
-
-    this.$store.commit(MyStoreMutations.setCustomLabels, this.custom_labels)
 
     let products_arr = await new ProductsCtrl().getProductsArr()
     this.$store.commit(MyStoreMutations.setProductsArr, products_arr)

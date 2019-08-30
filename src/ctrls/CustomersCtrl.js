@@ -40,7 +40,6 @@ export class CustomerTransDAO {
   amount
   sum
   trans_type
-  debt_after
   notes
   count
   weight
@@ -63,7 +62,6 @@ export class CustomerTransDAO {
 
   parseTypes () {
     this.amount = this.amount? parseFloat(this.amount): 0
-    this.debt_after = this.debt_after? parseFloat(this.debt_after) : 0
     this.actual_sale = this.actual_sale? parseFloat(this.actual_sale) : 0
     delete this.weight
     delete this.kg_price
@@ -109,7 +107,7 @@ export class CustomersCtrl {
   async getCustomerTrans(filter= {id:null , day: ''}) {
     // TODO NOOOO
     let all_trans = await this.customerTransModel
-    .where({customer_id: filter.id, trans_type:'outgoing', day: filter.day}).fetchAll({withRelated:['outgoing','product']})
+    .where({customer_id: filter.id }).fetchAll({withRelated:['outgoing','product']})
 
     return all_trans.map( _=> {
       let transDAO = new CustomerTransDAO(_.attributes)
@@ -134,7 +132,6 @@ export class CustomersCtrl {
       debt -= parseFloat(transDAO.amount)
     }
     await instance.save({debt: debt})
-    transDAO.debt_after = debt
     return await this.createCustomerTrans(transDAO)
   }
 
@@ -146,7 +143,7 @@ export class CustomersCtrl {
   }
 
   /**@param {CustomerTransDAO} transDAO */
-  async removeLastTrans(transDAO) {
+  async removeCustomerTrans(transDAO) {
 
     /**@type {import('bookshelf').ModelBase} */
     let customerInstance = await this.model.forge('id',transDAO.customer_id).fetch()
@@ -158,10 +155,18 @@ export class CustomersCtrl {
     } else {
       debt = parseFloat(debt) + amount
     }
+
     await customerInstance.save({debt: debt})
     let transInstance = await this.customerTransModel.where('id', transDAO.id).fetch()
     await transInstance.destroy()
     return true 
+  }
+
+  async removeTransFromOutgoing(outgoing_id) {
+    /**@type {import('bookshelf').ModelBase} */
+    let customerInstance = await this.customerTransModel.where('outgoing_id', outgoing_id).fetch()
+    let transDAO = new CustomerTransDAO(customerInstance.toJSON())
+    await this.removeCustomerTrans(transDAO)
   }
 
   async deleteById(id){
