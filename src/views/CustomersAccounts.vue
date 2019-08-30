@@ -14,7 +14,7 @@
 class="btn btn-lg btn-primary m-1 btn-block">
   <span class="fa fa-cash-register"></span> &nbsp; 
   عرض حساب البياع - {{outgoing.customer_name}} 
-  <span v-if="printed_all[outgoing.customer_id]">
+  <span v-if="printed_all[outgoing.customer_id]" style="float:left">
     ( تمت طباعته )
   </span>
 </router-link>

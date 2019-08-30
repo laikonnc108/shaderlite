@@ -1,4 +1,4 @@
-import { bookshelf } from '../main'
+import { bookshelf, knex } from '../main'
 
 export class CustomerDAO {
 
@@ -7,6 +7,7 @@ export class CustomerDAO {
   debt 
   phone
   address
+  nat_id
   notes
   is_self
   deleted_at
@@ -104,12 +105,11 @@ export class CustomersCtrl {
     return new CustomerDAO(one.toJSON())
   }
 
-  async getCustomerTrans(filter= {id:null , day: ''}) {
-    // TODO NOOOO
-    let all_trans = await this.customerTransModel
-    .where({customer_id: filter.id }).fetchAll({withRelated:['outgoing','product']})
+  async getDailyOutTrans(filter= {id:null , day: ''}) {
+    let daily_out_trans = await this.customerTransModel
+    .where({customer_id: filter.id, day:filter.day, trans_type: 'outgoing' }).fetchAll({withRelated:['outgoing','product']})
 
-    return all_trans.map( _=> {
+    return daily_out_trans.map( _=> {
       let transDAO = new CustomerTransDAO(_.attributes)
       if(_.related('outgoing')){
         transDAO.kg_price = _.related('outgoing').get('kg_price')
@@ -119,6 +119,18 @@ export class CustomersCtrl {
       }
       return transDAO
     })
+  }
+
+  async getCustomerTrans(filter= {id:null , day: ''}) {
+
+    let results = await knex.raw(`
+select null as id,day,sum(amount) as amount, 'sum_outgoing' as trans_type  from customer_trans 
+where customer_id = ${filter.id} and trans_type ='outgoing' GROUP BY day
+UNION
+select id, day , amount , trans_type  from customer_trans 
+where customer_id = ${filter.id} and trans_type <> 'outgoing'
+    `)
+    return results.map(_ => new CustomerTransDAO(_))
   }
 
   /**@param {CustomerTransDAO} transDAO */
@@ -162,11 +174,13 @@ export class CustomersCtrl {
     return true 
   }
 
-  async removeTransFromOutgoing(outgoing_id) {
+  async removeTransByOutgoingId(outgoing_id) {
     /**@type {import('bookshelf').ModelBase} */
     let customerInstance = await this.customerTransModel.where('outgoing_id', outgoing_id).fetch()
-    let transDAO = new CustomerTransDAO(customerInstance.toJSON())
-    await this.removeCustomerTrans(transDAO)
+    if(customerInstance){
+      let transDAO = new CustomerTransDAO(customerInstance.toJSON())
+      await this.removeCustomerTrans(transDAO)
+    }
   }
 
   async deleteById(id){

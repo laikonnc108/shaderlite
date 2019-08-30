@@ -143,7 +143,8 @@ export class OutgoingsCtrl {
   async deleteById(id){
     let instance = await this.model.where('id',id).fetch()
     if(instance){
-      await new CustomersCtrl().removeTransFromOutgoing(id)
+      await new CustomersCtrl().removeTransByOutgoingId(id)
+      await knex.raw('delete from cashflow where outgoing_id = '+ id)
       return await instance.destroy()
     }
     else

@@ -64,9 +64,10 @@ String.prototype.toAR= function() {
   return this.replace(/\d/g, d =>  '٠١٢٣٤٥٦٧٨٩'[d])
 }
 
-Vue.filter('toAR' , function(number) {
+Vue.filter('toAR' , function(number, fixed) {
   let num = ( number || number === 0 ) ? parseFloat(number) : '--'
-  return num.toLocaleString('ar-EG')
+  let minmax = fixed ? {minimumFractionDigits: 2, maximumFractionDigits: 2} : {}
+  return num.toLocaleString('ar-EG', minmax)
 })
 
 function roundOf(n, p) {
@@ -85,13 +86,13 @@ Vue.filter('round', function(value, decimals) {
   if(!decimals) 
     decimals = 0;
 
-  value = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
-  return value;
+  value = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)
+  return value
 });
 
 Vue.filter('round2' , function(number) {
   let rounded = number? parseFloat(number) : 0
-  return roundOf(rounded,2)
+  return roundOf(rounded,2).toFixed(2)
 })
 
 Vue.filter('default0' , function(number) {

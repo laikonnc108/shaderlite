@@ -87,6 +87,8 @@ WHERE
     return results[0]
   }
 
+  // async removeByOutgoingId(outgoing_id) { }
+
   async deleteById(id){
     let instance = await this.model.where('id',id).fetch()
     if(instance)

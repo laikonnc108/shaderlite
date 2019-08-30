@@ -42,7 +42,7 @@ export default {
       evt.preventDefault()
     },
     async refresh_all(){
-      this.daily_totals = await knex('v_daily_sums').orderBy('day',"desc")
+      this.daily_totals = await knex('v_daily_sums').orderBy('day',"asc")
     }
   },
   async mounted() {

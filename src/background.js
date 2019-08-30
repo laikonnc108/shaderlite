@@ -36,15 +36,8 @@ function createMainWindow () {
     )
   }
 
-  window.on('closed', async (e) => {
+  window.on('closed', async () => {
     mainWindow = null
-    let moment = require('moment')
-    moment.locale('en')
-    let isoDay = moment().format('YYYY-MM-DD')
-    // TODO get dirs programaticly and do in one place
-    let so1 = await sync_exec(`copy C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db D:\\00_db\\shaderlite-${isoDay}.db`)
-    let so2 = await sync_exec(`copy C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.db`)
-    console.log(so1, so2)
   })
 
   window.webContents.on('devtools-opened', () => {
@@ -82,7 +75,15 @@ app.on('ready', async () => {
     await installVueDevtools()
   }
   mainWindow = createMainWindow()
-  mainWindow.on('close', async ()=> {
-    await sync_exec(`copy C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.db`)
+  mainWindow.on('close', async (e)=> {
+    //await sync_exec(`copy C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.db`)
+    let moment = require('moment')
+    moment.locale('en')
+    let isoDay = moment().format('YYYY-MM-DD')
+    const path = require('path')
+    const dbFile = path.resolve(app.getPath('userData'), 'db/shaderlite.db')
+    // TODO get dirs programaticly and do in one place
+    let sout = await sync_exec(`copy ${dbFile} D:\\00_db\\shaderlite-${isoDay}.db`)
+    console.log(sout.stdout ,dbFile, e)
   })
 })

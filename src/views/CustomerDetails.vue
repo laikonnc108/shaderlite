@@ -1,112 +1,39 @@
 <template>
-  <section class="customer-details p-3 pr-me">
-    <div class="p-1">
+  <section class="customer-details p-3 pr-me row">
+    <div class="col-5 pr-hideme">
         <button class="btn btn-primary d-print-none pr-hideme" @click="$router.go(-1)">
             <span class="fa fa-arrow-right"></span> &nbsp;   العودة
         </button>
-        <br class="pr-hideme"/>
-<template v-if="true || print_mode" >
-  <p class="pr-only" v-html="shader_configs['recp_header']"></p>
-</template>
-        <h3 class="d-inline-block ">كشف حساب / {{customer.name}}</h3>
+        <br />
+
+        <h3 class="d-inline-block ">كشف مديونية / {{customer.name}}</h3>
         <table class="table table-bordered mt-1 pr-hideme" v-if=" ! customer.is_self">
             <tr>
-            <th>تليفون البياع</th>
-            <td>{{customer.phone}}</td>
+              <th>تليفون </th>
+              <td>{{customer.phone}}</td>
             </tr>
             <tr>
-            <th>عنوان البياع</th>
-            <td>{{customer.address}}</td>
+              <th>عنوان </th>
+              <td>{{customer.address}}</td>
+            </tr>
+            <tr>
+              <th>رقم بطاقة </th>
+              <td>{{customer.nat_id}}</td>
             </tr>
         </table>
-      </div>
-      
-      <div class=" row d-print-none p-1 "  v-if="customer.is_self">
-        <h3 class="text-center"> الزرع المتبقي في حساب المحل </h3>
-        <br>
-        <button v-for="(item, idx) in self_rest_products" :key="idx" 
-        v-b-toggle.collapse_sell  @click="sell_rest = item"
-        class="btn btn-lg btn-primary m-1 btn-block">
-          <span class="fa fa-shopping-cart"></span> &nbsp; 
-          {{item.product_name}}  - 
-          عدد ({{item.count}}) - السعر التقديري {{item.amount}}
-        </button>
-      </div>
-        <b-collapse id="collapse_sell" class="d-print-none p-1">
-          <div class="entry-form">
-          <form  @submit="sellRest" class="m-2">
-            <div class="form-group row">
-              <label  class="col-sm-2">السعر الفعلي</label>
-              <div class="col-sm-10">
-                <input v-model="sell_rest.actual_sale" class="form-control "  placeholder="ادخل مبلغ البيع">
-              </div>
-            </div>
-            <div class="form-group row">
-              <label  class="col-sm-2">ملاحظات</label>
-              <div class="col-sm-10">
-                <input v-model="sell_rest.notes" class="form-control " placeholder="ادخال الملاحظات">
-              </div>
-            </div>
-            <button type="submit" class="btn btn-success" :disabled="! sell_rest.amount">تحصيل</button>
-          </form>
-          </div>
-        </b-collapse>
-    <hr/>
-        <table class="table table-striped ">
-          <thead>
-            <tr>
-              <th>التاريخ</th>
-              <th>الحركة</th>
-              <th>الصنف</th>
-              <th>المبلغ</th>
-              <th>باقي</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(trans, idx) in customer_trans" :key='idx'>
-              <td>{{trans.day | arDate }}</td>
-              <td>
-                {{trans.trans_type | tr_label('trans_types')}}
-                <!-- v-if="trans.trans_type === 'outgoing'" -->
-                <span > 
-                  - عدد {{trans.count | toAR }} 
-                  - وزن {{trans.weight | toAR }}
-                  - سعر {{trans.kg_price | toAR }}
-                </span>
-                <span v-if="trans.notes">- {{trans.notes}} </span> 
-              </td>
-              <td>{{trans.product_name}} </td>
-              <td>{{trans.amount | toAR}}</td>
-              <td>
-                
-                <button class="btn text-danger pr-hideme" @click="removeTrans(trans)" >
-                  <span class="fa fa-archive "></span> 
-                  <template v-if="! confirm_step[trans.id]"> حذف الحركة</template>
-                  <template v-if="confirm_step[trans.id]"> تأكيد </template>
-                </button>
 
-              </td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>رصيد المديونية الحالي</td>
-              <td></td>
-              <td>
-                <b>{{customer.debt | toAR}}</b>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+
   <button v-b-toggle.collapse_collect class="btn btn-success m-1 d-print-none">
     <span class="fa fa-credit-card"></span> &nbsp; 
     حركة نقدية : تحصيل / امانة 
+  </button> 
+
+  <button @click="showOutModal()" class="btn btn-primary m-1 d-print-none">
+    <span class="fa fa-table"></span> &nbsp; 
+    عرض كشف مبيعات اليوم
   </button>
 
-        <button class="btn btn-printo pr-hideme m-1" 
-        @click="print_co();print_done()">
-          <span class="fa fa-print"></span> طباعة
-        </button>
 
   <!-- Element to collapse -->
   <b-collapse id="collapse_collect" class="d-print-none p-1">
@@ -147,6 +74,147 @@
     </form>
     </div>
   </b-collapse>
+      
+      <div class=" row d-print-none p-1 "  v-if="customer.is_self">
+        <h3 class="text-center"> الزرع المتبقي في حساب المحل </h3>
+        <br>
+        <button v-for="(item, idx) in self_rest_products" :key="idx" 
+        v-b-toggle.collapse_sell  @click="sell_rest = item"
+        class="btn btn-lg btn-primary m-1 btn-block">
+          <span class="fa fa-shopping-cart"></span> &nbsp; 
+          {{item.product_name}}  - 
+          عدد ({{item.count}}) - السعر التقديري {{item.amount}}
+        </button>
+      </div>
+        <b-collapse id="collapse_sell" class="d-print-none p-1">
+          <div class="entry-form">
+          <form  @submit="sellRest" class="m-2">
+            <div class="form-group row">
+              <label  class="col-sm-2">السعر الفعلي</label>
+              <div class="col-sm-10">
+                <input v-model="sell_rest.actual_sale" class="form-control "  placeholder="ادخل مبلغ البيع">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label  class="col-sm-2">ملاحظات</label>
+              <div class="col-sm-10">
+                <input v-model="sell_rest.notes" class="form-control " placeholder="ادخال الملاحظات">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-success" :disabled="! sell_rest.amount">تحصيل</button>
+          </form>
+          </div>
+        </b-collapse>
+      </div>
+
+      <div class="table-responsive col-7 " v-if="flags.modal_closed">
+
+        <h1 class="pr-only">كشف مديونية  {{customer.name}}</h1>
+
+        <table class="table table-striped ">
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th>مبلغ</th>
+              <th>الحركة</th>              
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(trans, idx) in customer_trans" :key='idx'>
+              <td>{{trans.day | arDate }}</td>
+              <td>{{trans.amount | toAR}}</td>
+              <td>
+                {{trans.trans_type | tr_label('trans_types')}}
+                <span v-if="trans.notes">- {{trans.notes}} </span> 
+              </td>              
+              <td>
+                
+                <button  v-if="trans.id"
+                class="btn text-danger pr-hideme" @click="removeTrans(trans)" >
+                  <span class="fa fa-archive "></span> 
+                  <template v-if="! confirm_step[trans.id]"> حذف </template>
+                  <template v-if="confirm_step[trans.id]"> تأكيد </template>
+                </button>
+
+                <button  v-if="trans.trans_type === 'sum_outgoing'"
+                class="btn text-primary pr-hideme" @click="showOutModal(trans.day)" >
+                  <span class="fa fa-table "></span> 
+                  عرض الكشف
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>رصيد المديونية الحالي</td>
+              <td></td>
+              <td>
+                <b>{{customer.debt | toAR(true)}}</b>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="btn btn-printo pr-hideme m-1" 
+        @click="print_co()">
+          <span class="fa fa-print"></span> طباعة كشف المديونية
+        </button>
+      </div>
+      
+    <!-- Modal -->
+<b-modal id="modal-daily" size="xl" class="col-print-12"
+hide-header hide-footer hide-header-close hide-backdrop>
+<template>
+  <p v-html="shader_configs['recp_header']"></p>
+</template>
+<h4 class="text-center"> كشف حساب </h4>
+<h4 class="pr-me ">
+  تحريراً في {{outg_day | arDate }}
+  <br/>
+  المطلوب من السيد/ {{customer.name}}
+</h4>
+
+  <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
+      <table class="table table-bordered table-sm pr-me" >
+        <thead>
+          <tr>
+            <th>المبلغ</th>
+            <th>عدد </th>
+            <th> وزن</th>
+            <th>سعر </th>
+            <th>صنف</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, idx) in daily_out_trans" :key='idx'>
+            <td>{{ item.amount | toAR(true) }}</td>
+            <td> {{ item.count | toAR }}</td>
+            <td> {{ item.weight | toAR }}</td>
+            <td> {{ item.kg_price | toAR(true) }}</td>
+            <td>{{item.product_name}} </td>
+            <td> </td>
+          </tr>
+          <tr>
+            <td ><b class="border-top border-primary">{{ sum_outgoings_val | toAR(true) }} </b></td>
+            <td style="border: none !important;"> اجمالي </td>
+            
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="m-2">
+          <button class="btn btn-primary pr-hideme" @click="$bvModal.hide('modal-daily')" >
+            <span class="fa fa-check "></span> &nbsp;
+            موافق
+          </button>
+          &nbsp;
+          <button class="btn btn-printo pr-hideme" 
+            @click="print_co();print_done(outg_day)">
+            <span class="fa fa-print"></span> طباعة
+          </button>
+      </div>
+  </div>
+</b-modal>
   </section>
 </template>
 
@@ -166,13 +234,15 @@ export default {
       transTypesCtrl: new TransTypesCtrl(),
       customer_trans_form: {trans_type:'+', amount: null , notes: null},
       customer_trans: [],
+      daily_out_trans: [],
       self_rest_products: [],
       customer_id: this.$route.params.id,
-      custom_labels: this.$store.state.custom_labels,
       transtypes_labels: this.$store.state.transtypes_arr,
       confirm_step: [],
+      flags: {modal_closed: true },
       discard_success: false,
-      sell_rest: {actual_sale: 0 , notes: ''}
+      sell_rest: {actual_sale: 0 , notes: ''},
+      outg_day: {}
     }
   },
   mixins: [MainMixin],
@@ -181,7 +251,12 @@ export default {
       //let {dao, trans} = await this.customersCtrl.getCustomerDetails(this.customer_id)
       // TODO get trans dynamicly
       this.customer = await this.customersCtrl.findOne(this.customer_id)
-      this.customer_trans = await this.customersCtrl.getCustomerTrans({id: this.customer_id}) // , day: this.day.iso
+      this.customer_trans = await this.customersCtrl.getCustomerTrans({id: this.customer_id})
+    },
+    async showOutModal(day = null){
+      this.outg_day = day ? day : this.day.iso
+      this.daily_out_trans = await this.customersCtrl.getDailyOutTrans({id: this.customer_id, day: this.outg_day})
+      this.$bvModal.show('modal-daily')
     },
     async removeTrans(trans) {
       if( this.confirm_step[trans.id] ) {
@@ -194,8 +269,8 @@ export default {
         this.confirm_step[trans.id] = true
       }
     },
-    async print_done(){
-      await knex.raw(`insert into customers_daily (customer_id, day, printed) values( ${this.customer_id} , '${this.day.iso}', 1)`)
+    async print_done(outg_day){
+      await knex.raw(`insert into customers_daily (customer_id, day, printed) values( ${this.customer_id} , '${outg_day}', 1)`)
     },
     async sellRest(evt) {
       evt.preventDefault()
@@ -239,12 +314,25 @@ export default {
   components: { },
   mounted() {
     this.getCustomerDetails()
+    this.$root.$on('bv::modal::show', (bvEvent, modalId) => {
+      if(modalId == 'modal-daily') this.flags.modal_closed = false
+    })
+    this.$root.$on('bv::modal::hide', (bvEvent, modalId) => {
+      if(modalId == 'modal-daily') this.flags.modal_closed = true
+    })
   },
   computed: {
     valid_form: function() {
       if(this.customer_trans_form.amount && parseFloat(this.customer_trans_form.amount) && this.customer_trans_form.trans_type){
         return true
       }
+    },
+    sum_outgoings_val: function() {
+      let sum = 0
+      this.daily_out_trans.forEach(item => {
+        sum += parseFloat(item.amount)
+      })
+      return sum
     }
   }
 }

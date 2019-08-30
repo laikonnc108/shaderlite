@@ -37,6 +37,13 @@
       </div>
 
       <div class="form-group row">
+        <label class="col-sm-2">رقم بطاقة</label>
+        <div class="col-sm-10">
+          <input v-model="customer_form.nat_id" class="form-control "  placeholder="ادخال رقم البطاقة">
+        </div>
+      </div>
+
+      <div class="form-group row">
         <label class="col-sm-2">مبلغ المديونية</label>
         <div class="col-sm-10">
           <input v-model="customer_form.debt" :disabled="customer_form.id"
@@ -93,7 +100,7 @@
             <tr>
               <th> كود </th>
               <th>اسم</th>
-              <th v-if="! flags.zm_mode" >التليفون</th>
+              <th v-if="false && ! flags.zm_mode" >التليفون</th>
               <th>مديونية</th>
               <th v-if=" flags.zm_mode" width="25%">تحصيل</th>
               <th v-if="false">ملاحظات</th>
@@ -109,7 +116,7 @@
                 {{item.name}}
                 </router-link>
               </td>
-              <td v-if="! flags.zm_mode"  >{{item.phone}}</td>
+              <td v-if="false && ! flags.zm_mode"  >{{item.phone}}</td>
               <td>{{item.debt | toAR }}</td>
               <td v-if=" flags.zm_mode" >
                 <span class="collect-box "></span>
@@ -178,6 +185,7 @@ export default {
       }
       
       this.customer_form = new CustomerDAO(CustomerDAO.INIT_DAO)
+      this.customer_form.name = ''
       this.refresh_all()
     },
     async edit(id) {
