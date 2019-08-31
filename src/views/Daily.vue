@@ -19,7 +19,7 @@ import { Settings, DateTime } from 'luxon'
 
 Settings.defaultLocale = 'ar'
 Settings.defaultZoneName = 'UTC'
-// console.log( DateTime.local().locale)
+console.log( DateTime.local().locale)
 
 export default {
   name: 'daily',

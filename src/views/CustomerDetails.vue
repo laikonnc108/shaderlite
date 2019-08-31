@@ -182,7 +182,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             <th> وزن</th>
             <th>سعر </th>
             <th>صنف</th>
-            <th></th>
+            <th class="pr-hideme"></th>
           </tr>
         </thead>
         <tbody>
@@ -192,7 +192,12 @@ hide-header hide-footer hide-header-close hide-backdrop>
             <td> {{ item.weight | toAR }}</td>
             <td> {{ item.kg_price | toAR(true) }}</td>
             <td>{{item.product_name}} </td>
-            <td> </td>
+            <td class="pr-hideme">
+              <b v-if="shader_configs['pay_arboon']">
+                عربون : 
+              </b>
+              {{item.notes }}
+            </td>
           </tr>
           <tr>
             <td ><b class="border-top border-primary">{{ sum_outgoings_val | toAR(true) }} </b></td>

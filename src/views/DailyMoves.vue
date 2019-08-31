@@ -81,21 +81,21 @@
   </section>
   <hr>
     <div>
-      <h4>اجمالي فواتير الرصد فقط : {{recp_sums.sum_rasd_net | round }}</h4>
+      <h4>اجمالي فواتير الرصد فقط : {{recp_sums.sum_rasd_net | toAR(true) }}</h4>
     </div>
 
   <hr>
     <div>
-      <h4>اجمالي ايرادات اليوم : {{recp_sums.sum_income | round2}}</h4>
+      <h4>اجمالي ايرادات اليوم : {{recp_sums.sum_income | toAR(true) }}</h4>
     </div>
 
   <hr>
     <div>
-      <h4>اجمالي مصروفات تخصم من ايراد اليوم : {{daily_totals.sum_deducts | round2}}</h4>
+      <h4>اجمالي مصروفات تخصم من ايراد اليوم : {{daily_totals.sum_deducts | toAR(true) }}</h4>
     </div>
   <hr>
     <div>
-      <h4>صافي الايراد اليومي : {{ (recp_sums.sum_income - daily_totals.sum_deducts) | round2}}</h4>
+      <h4>صافي الايراد اليومي : {{ (recp_sums.sum_income - daily_totals.sum_deducts) | toAR(true) }}</h4>
     </div>
   <hr>
   <section class="inout-cashflow">
@@ -150,7 +150,8 @@ export default {
       this.cashflow_arr_out = await this.cashflowCtrl.findAll({sum: '-', day: this.$store.state.day.iso})
       this.daily_receipts = await this.receiptsCtrl.findDailyReceipts({day: this.$store.state.day.iso })
       // TODO MOVE
-      this.daily_totals = await knex('v_daily_sums').where('day', this.day.iso).first()
+      let totals = await knex('v_daily_sums').where('day', this.day.iso).first()
+      this.daily_totals = totals ? totals : {}
       
     },
     receiptsSepStatus(concat_recp_paid) {

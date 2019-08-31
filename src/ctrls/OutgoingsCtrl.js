@@ -81,6 +81,7 @@ export class OutgoingsCtrl {
       customerTrans.customer_id = data.customer_id
       customerTrans.outgoing_id = out_id
       customerTrans.product_id = data.product_id
+      customerTrans.notes = data.notes
 
       let customersCtrl = new CustomersCtrl()
       await customersCtrl.updateDebtByTrans(customerTrans)

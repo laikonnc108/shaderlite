@@ -25,9 +25,19 @@
           </tbody>
         </table>
         <hr>
-        <div class="row detailed">
-          <div class="col-6">اجمالي نوالين اليوم</div>
-          <div class="col-6">{{ total_nolon| round2 }}</div>
+        <div class="row detailed" v-b-modal.modal-nolons>
+          <div class="col-6">
+            <span class="btn text-primary">
+            اجمالي نوالين اليوم
+            </span>
+          </div>
+          <div class="col-6 btn text-primary">
+            <span >
+            {{ total_nolon| round2 }}
+            </span>
+            <span class="fa fa-table"></span>
+            عرض النوالين
+          </div>
         </div>
       </div>
       <div class=" col-6" >
@@ -52,8 +62,8 @@
               <td>{{item.product_name}}</td>
               <td>{{item.sum_count}}</td>
               <td>{{item.sum_weight}}</td>
-              <td>{{item.kg_price}}</td>
-              <td>{{item.sum_weight * item.kg_price }}</td>
+              <td>{{item.kg_price | round2}}</td>
+              <td>{{item.sum_weight * item.kg_price | round2}}</td>
             </tr>
             <tr>
               <td></td>
@@ -284,9 +294,39 @@
     </div>
   </section>
 
+<!-- Nolons Modal -->
+<b-modal id="modal-nolons"  
+ hide-footer hide-header-close hide-backdrop>
+  <template slot="modal-title">
+    عرض نوالين اليوم للفلاح
+  </template>
+  <table class="table table-striped table-sm pr-me">
+    <thead>
+      <tr>
+        <th>المبلغ</th>
+        <th>الصنف الوارد</th>
+        <th>المبلغ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="(item, idx) in today_nolons" :key='idx'>
+        <td></td>
+        <td>{{item.amount}}</td>
+        <td>{{item.sum_count}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="m-2">
+    <button class="btn btn-success pr-hideme" @click="$bvModal.hide('modal-nolons')" >
+      <span class="fa fa-check "></span> &nbsp;
+      حفظ
+    </button>
+  </div>
+</b-modal>
     <!-- Modal -->
-<b-modal id="modal-recp" size="xl" class="col-print-12"
-hide-header hide-footer hide-header-close hide-backdrop>
+<b-modal id="modal-recp" size="xl" class="col-print-12" hide-header
+ hide-footer hide-header-close hide-backdrop>
 <template v-if="true || print_mode">
   <p v-html="shader_configs['recp_header']"></p>
 </template>
@@ -428,6 +468,7 @@ export default {
       outgoings_sums:[],
       total_nolon: 0,
       inc_headers: [],
+      today_nolons: [],
       recp_in_sums: {},
       recp_default_comm_rate: this.$store.state.shader_configs['recp_comm'] ? parseFloat(this.$store.state.shader_configs['recp_comm']) : 0 ,
       recp_1: new ReceiptDAO({}),
@@ -457,6 +498,8 @@ export default {
         //this['recp_'+ receipt.serial].details = JSON.parse(receipt.details)
         this.show_receipts[receipt.serial] = true        
       })
+
+      let today_nolons 
       
     },
     async recp_changed(){

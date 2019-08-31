@@ -129,6 +129,7 @@ where customer_id = ${filter.id} and trans_type ='outgoing' GROUP BY day
 UNION
 select id, day , amount , trans_type  from customer_trans 
 where customer_id = ${filter.id} and trans_type <> 'outgoing'
+ORDER BY day 
     `)
     return results.map(_ => new CustomerTransDAO(_))
   }
