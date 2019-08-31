@@ -68,7 +68,7 @@ npm run postinstall
 - create forign keys
 
 **Customer_trans**
-- remove product_name , count
+- remove product_name , count also debt_after
 - rename states
 
 **Receipts**

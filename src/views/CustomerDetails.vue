@@ -39,7 +39,7 @@
   <b-collapse id="collapse_collect" class="d-print-none p-1">
     <div class="entry-form">
     <form  @submit="createCustomerTrans" class="m-2">
-      <!-- todo get dynamic -->
+      <!-- todo get dynamic 
       <b-form-group label="نوع الحركة">
         <b-form-radio-group  v-model="customer_trans_form.trans_type">
           <b-form-radio value="cust_collecting">تحصيل</b-form-radio>
@@ -54,6 +54,20 @@
           <b-form-radio value="p_rhn">رد رهن</b-form-radio>
         </b-form-radio-group>
       </b-form-group>
+      -->
+
+      <div class="form-group row">
+        <label  class="col-sm-2">نوع الحركة</label>
+        <div class="col-sm-10">
+          <select v-model="customer_trans_form.trans_type" class="form-control"  >
+            <option 
+            :class="{ 'text-danger': trans_type.sum == '+' }"
+            v-for="(trans_type, idx) in trans_types_opts" :key='idx' :value="trans_type.name">
+              {{trans_type.ar_name}}
+            </option>
+          </select>
+        </div>
+      </div>
 
       <div class="form-group row">
         <label  class="col-sm-2">المبلغ</label>
@@ -61,6 +75,7 @@
           <input v-model="customer_trans_form.amount" class="form-control "  placeholder="ادخل المبلغ ">
         </div>
       </div>
+
       <div class="form-group row">
         <label  class="col-sm-2">ملاحظات</label>
         <div class="col-sm-10">
@@ -238,6 +253,7 @@ export default {
       customersCtrl: new CustomersCtrl(),
       transTypesCtrl: new TransTypesCtrl(),
       customer_trans_form: {trans_type:'+', amount: null , notes: null},
+      trans_types_opts : [],
       customer_trans: [],
       daily_out_trans: [],
       self_rest_products: [],
@@ -257,6 +273,7 @@ export default {
       // TODO get trans dynamicly
       this.customer = await this.customersCtrl.findOne(this.customer_id)
       this.customer_trans = await this.customersCtrl.getCustomerTrans({id: this.customer_id})
+      this.trans_types_opts = await this.transTypesCtrl.findAll({category: 'customer_trans', optional: 3 })
     },
     async showOutModal(day = null){
       this.outg_day = day ? day : this.day.iso

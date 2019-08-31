@@ -6,7 +6,7 @@ export class TransTypeDAO {
   ar_name 
   shader_name
   sum
-  in_deduct
+  optional
   category
   map_cashflow
 
