@@ -84,9 +84,10 @@
 
     <section class="row ">
       <div class=" receipt col-4 p-3 "  v-if="show_receipts[1]">
-        <h3>فاتورة 1 
-
+        <h3 :class="{'text-danger': ! recp_1.id}">فاتورة 1 
             {{'recp_status_'+ recp_1.recp_paid | tr_label }}
+            <span v-if="recp_1.printed"> - تم طباعتها    </span>
+            <span v-if="! recp_1.id">( لم يتم الحفظ )</span>
         </h3>
         <draggable
           class="drag-area list-group"
@@ -145,7 +146,11 @@
       </div>
 
       <div class="receipt col-4 p-3" v-if="show_receipts[2]">
-        <h3>فاتورة 2 {{'recp_status_'+ recp_2.recp_paid | tr_label }}</h3>
+        <h3 :class="{'text-danger': ! recp_2.id}">فاتورة 2 
+          {{'recp_status_'+ recp_2.recp_paid | tr_label }}
+          <span v-if="recp_2.printed"> - تم طباعتها    </span>
+          <span v-if="! recp_2.id">( لم يتم الحفظ )</span>
+        </h3>
         <draggable
           class="drag-area list-group " 
           :list="recp_2.details"
@@ -203,7 +208,12 @@
       </div>
 
       <div class="receipt col-4 p-1 pb-3"  v-if="show_receipts[3]">
-        <h3>فاتورة 2 {{'recp_status_'+ recp_3.recp_paid | tr_label }}</h3>
+        <h3 :class="{'text-danger': ! recp_3.id}">فاتورة 3 {{'recp_status_'+ recp_3.recp_paid | tr_label }}
+          <span class="pr-hideme" v-if="recp_3.printed">
+            - تم طباعتها
+          </span>
+          <span v-if="! recp_3.id">( لم يتم الحفظ )</span>
+        </h3>
         <draggable
           class="drag-area list-group " 
           :list="recp_3.details"
@@ -305,20 +315,22 @@
       <tr>
         <th>المبلغ</th>
         <th>الصنف الوارد</th>
-        <th>المبلغ</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="(item, idx) in today_nolons" :key='idx'>
-        <td></td>
         <td>{{item.amount}}</td>
-        <td>{{item.sum_count}}</td>
+        <td><span v-if="item.d_product"> - {{ item.d_product | productsFilter }}</span></td>
+        <td>
+          <input v-model="item.amount" class="form-control"  >
+        </td>
       </tr>
     </tbody>
   </table>
 
   <div class="m-2">
-    <button class="btn btn-success pr-hideme" @click="$bvModal.hide('modal-nolons')" >
+    <button class="btn btn-success pr-hideme" @click="$bvModal.hide('modal-nolons');saveNolons()" >
       <span class="fa fa-check "></span> &nbsp;
       حفظ
     </button>
@@ -331,7 +343,10 @@
   <p v-html="shader_configs['recp_header']"></p>
 </template>
 <h4 class="text-center"> فاتورة 
-  <span class="pr-hideme">({{modal_recp.serial}})</span>
+  <span class="pr-hideme">
+    ({{modal_recp.serial}})
+  </span>
+
 </h4>
 <h4 class="pr-me ">
   تحريراً في {{day.arab }}
@@ -433,7 +448,7 @@
           </button>
           &nbsp;
           <button class="btn btn-printo pr-hideme" 
-            @click="print_co()">
+            @click="modal_recp.printed = 1 ;saveAll();print_co()">
             <span class="fa fa-print"></span> طباعة
           </button>
       </div>
@@ -499,7 +514,7 @@ export default {
         this.show_receipts[receipt.serial] = true        
       })
 
-      let today_nolons 
+      this.today_nolons = await this.cashflowCtrl.findAll({supplier_id: this.supplier_id, day: this.day.iso, state: 'nolon'})
       
     },
     async recp_changed(){
@@ -569,13 +584,21 @@ export default {
 
       this.refresh_all()
     },
+    async saveNolons(){
+      this.today_nolons.forEach(async (nolonCashflow) => {
+        await this.cashflowCtrl.save(nolonCashflow)
+      })
+      this.refresh_all()
+    },
     async addReceipt(num){
       this.show_receipts[num] = true
       if(num == 1) {
         let all = this.outgoings_sums.map( dao => this.clone(dao))
         this.recp_1.details = all
         this.recp_1.total_nolon = this.total_nolon
-        console.log(this.recp_1)
+        // console.log(this.recp_1)
+        this.modal_recp = this['recp_'+ num]
+        this.$bvModal.show('modal-recp')
       }
     },
     async watchit(){

@@ -21,6 +21,7 @@ export class ReceiptDAO {
   details = []
   products_arr
   serial
+  printed
 
   static get INIT_DAO() {
     return { 

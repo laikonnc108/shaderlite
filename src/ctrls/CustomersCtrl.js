@@ -1,4 +1,6 @@
 import { bookshelf, knex } from '../main'
+import { store } from '../store';
+import { TransTypesCtrl } from './TransTypesCtrl';
 
 export class CustomerDAO {
 
@@ -13,7 +15,7 @@ export class CustomerDAO {
   deleted_at
 
   static get INIT_DAO() {
-    return { }
+    return { name: '' }
   }
 
   parseTypes() {
@@ -46,6 +48,7 @@ export class CustomerTransDAO {
   weight
   kg_price
   actual_sale
+  debt_was
 
   constructor(data = {}) {
     Object.assign(this, data)
@@ -85,6 +88,18 @@ export class CustomersCtrl {
   async save(data) {
     data.parseTypes()
     let record = await this.model.forge(data).save()
+    if(! data.id && data.debt >= 0) { // new one with init debt
+      let transDAO = new CustomerTransDAO({
+        customer_id: record.id,
+        amount: data.debt,
+        day: store.state.day.iso
+      })
+
+      let selectedTrans = await new TransTypesCtrl().findOne({name: 'init' , category: 'customer_trans'})
+      transDAO.transType = selectedTrans
+      console.log(transDAO)
+      await this.createCustomerTrans(transDAO)
+    }
     return record.id
     // TODO Add Customer Trans with debt
   }
@@ -124,13 +139,13 @@ export class CustomersCtrl {
   async getCustomerTrans(filter= {id:null , day: ''}) {
 
     let results = await knex.raw(`
-select null as id,day,sum(amount) as amount, 'sum_outgoing' as trans_type  from customer_trans 
+select null as id, day, customer_id,null as cashflow_id,'+' as sum  ,sum(amount) as amount, 'sum_outgoing' as trans_type  from customer_trans 
 where customer_id = ${filter.id} and trans_type ='outgoing' GROUP BY day
 UNION
-select id, day , amount , trans_type  from customer_trans 
+select id, day, customer_id, cashflow_id, sum , amount , trans_type  from customer_trans 
 where customer_id = ${filter.id} and trans_type <> 'outgoing'
-ORDER BY day 
-    `)
+ORDER BY day
+`)
     return results.map(_ => new CustomerTransDAO(_))
   }
 
@@ -157,17 +172,19 @@ ORDER BY day
 
   /**@param {CustomerTransDAO} transDAO */
   async removeCustomerTrans(transDAO) {
-
+    console.log(transDAO)
     /**@type {import('bookshelf').ModelBase} */
     let customerInstance = await this.model.forge('id',transDAO.customer_id).fetch()
     let debt = customerInstance.get('debt')
     let amount = parseFloat(transDAO.amount)
+    console.log(debt,amount)
     // TODO more organized !
     if(transDAO.sum == '+') {
       debt = parseFloat(debt) - amount
     } else {
       debt = parseFloat(debt) + amount
     }
+    console.log(debt)
 
     await customerInstance.save({debt: debt})
     let transInstance = await this.customerTransModel.where('id', transDAO.id).fetch()
@@ -176,10 +193,9 @@ ORDER BY day
   }
 
   async removeTransByOutgoingId(outgoing_id) {
-    /**@type {import('bookshelf').ModelBase} */
-    let customerInstance = await this.customerTransModel.where('outgoing_id', outgoing_id).fetch()
-    if(customerInstance){
-      let transDAO = new CustomerTransDAO(customerInstance.toJSON())
+    let transInstance = await this.customerTransModel.where('outgoing_id', outgoing_id).fetch()
+    if(transInstance){
+      let transDAO = new CustomerTransDAO(transInstance.toJSON())
       await this.removeCustomerTrans(transDAO)
     }
   }

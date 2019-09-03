@@ -12,7 +12,7 @@ export class SupplierDAO {
   deleted_at
 
   static get INIT_DAO() {
-    return { }
+    return { name: '' }
   }
 
   parseTypes() {

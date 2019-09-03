@@ -3,8 +3,11 @@ import App from './App.vue'
 import router from './router'
 import {store, MyStoreMutations} from './store'
 import BootstrapVue from 'bootstrap-vue'
+import vSelect from 'vue-select'
 
 Vue.use(BootstrapVue)
+Vue.component('v-select', vSelect)
+
 
 // Import vue-datetime with specific loader for CSS files
 import Datetime from 'vue-datetime'

@@ -113,16 +113,25 @@ class="btn btn-lg  m-1 btn-block"
   <div class="form-group row">
     <label for="notes1" class="col-sm-3">اسم البياع</label>
     <div class="col-sm-9">
+      <!--
       <select v-model="outgoing_form.customer_id" class="form-control"  >
         <option value="">كاش</option>
       <option v-for="(customer, idx) in active_customers" :key='idx' :value="customer.id">
         {{customer.name}}
       </option>
     </select>
+    -->
+    <v-select class="vselect-styler"  dir="rtl"
+    ref='customerSelect'
+    :options="active_customers" label="name" 
+    :reduce="customer => customer.id"
+    v-model="outgoing_form.customer_id">
+      <div slot="no-options">لا يوجد نتائج بحث</div>
+    </v-select>
     </div>
   </div>
 
-  <div class="form-group row" v-if="outgoing_form.customer_select && outgoing_form.customer_select.id">
+  <div class="form-group row" v-if="false && outgoing_form.customer_id">
     <label  class="col-sm-3">تحصيل جزء</label>
     <div class="col-sm-9">
       <input v-model="outgoing_form.collecting" class="form-control" placeholder="ادخل قيمة التحصيل">
@@ -130,9 +139,11 @@ class="btn btn-lg  m-1 btn-block"
   </div>
   
   <div class="form-group row">
-    <label for="notes1" class="col-sm-3">ملاحظات</label>
+    <label for="notes1" class="col-sm-3">
+      {{'outgoing_notes' | tr_label}}
+    </label>
     <div class="col-sm-9">
-      <input v-model="outgoing_form.notes" class="form-control" id="notes1"  placeholder="ادخال الملاحظات">
+      <input v-model="outgoing_form.notes" class="form-control" id="notes1"  >
     </div>
   </div>
   
@@ -248,6 +259,9 @@ export default {
       discard_success: false,
       search_term_incomings: ''
     }
+  },
+  components: {
+     
   },
   mixins: [MainMixin],
   computed: {

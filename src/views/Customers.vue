@@ -180,12 +180,13 @@ export default {
       try {
         await this.customersCtrl.save(this.customer_form)
       } catch (error) {
+        console.error(error)
+        if(error.toString().includes('UNIQUE constraint'))
         this.$bvToast.show('example-toast')
         return
       }
       
       this.customer_form = new CustomerDAO(CustomerDAO.INIT_DAO)
-      this.customer_form.name = ''
       this.refresh_all()
     },
     async edit(id) {

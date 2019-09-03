@@ -197,7 +197,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             <th> وزن</th>
             <th>سعر </th>
             <th>صنف</th>
-            <th class="pr-hideme"></th>
+            <th>ملاحظات</th>
           </tr>
         </thead>
         <tbody>
@@ -207,8 +207,8 @@ hide-header hide-footer hide-header-close hide-backdrop>
             <td> {{ item.weight | toAR }}</td>
             <td> {{ item.kg_price | toAR(true) }}</td>
             <td>{{item.product_name}} </td>
-            <td class="pr-hideme">
-              <b v-if="shader_configs['pay_arboon']">
+            <td >
+              <b v-if="shader_configs['pay_arboon'] && item.notes">
                 عربون : 
               </b>
               {{item.notes }}

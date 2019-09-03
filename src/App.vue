@@ -157,11 +157,12 @@
 <script>
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'vue-select/dist/vue-select.css'
 import { Settings, DateTime } from 'luxon'
 import { ShaderConfigsCtrl } from './ctrls/ShaderConfigsCtrl'
 import { ProductsCtrl } from './ctrls/ProductsCtrl'
 import { TransTypesCtrl } from './ctrls/TransTypesCtrl'
-import { MyStoreMutations } from './main.js'
+import { MyStoreMutations, knex } from './main.js'
 import { UsersCtrl } from './ctrls/UsersCtrl';
 import { MainMixin } from './mixins/MainMixin';
 
@@ -199,8 +200,10 @@ export default {
   async beforeMount () {
     let custom_labels = null
     try {
+      await knex.raw('PRAGMA integrity_check;')
       custom_labels = await this.shaderConfigsCtrl.getAppLabels()
     } catch (error) {
+      console.error(error)
       window.alert("لم يتم ربط قاعدة البيانات")
       this.$router.push('developer')
       return
@@ -246,6 +249,7 @@ body {
   direction: rtl;
   text-align: right;
   -webkit-print-color-adjust: exact !important;
+  font-size: 1.2em;
 }
 
 h1,h2,h3,h4,h5 {
@@ -423,6 +427,25 @@ pre {
   margin: 0 auto;
   max-width: 90%;
   font-size: 1.2em;
+}
+
+/*Vue Select Style*/
+.vselect-styler .vs__search::placeholder,
+.vselect-styler .vs__dropdown-toggle,
+.vselect-styler .vs__dropdown-menu {
+  background: white;
+  border: none;
+  text-align: right;
+  padding: 5px;
+}
+.vselect-styler .vs__search {
+  text-align: right;
+  direction: rtl;
+}
+
+.vselect-styler .vs__clear,
+.vselect-styler .vs__open-indicator {
+  padding: 5px;
 }
 /*
 #app {

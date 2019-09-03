@@ -70,6 +70,7 @@ npm run postinstall
 **Customer_trans**
 - remove product_name , count also debt_after
 - rename states
+- add debt_was
 
 **Receipts**
 - replace "\" to be valid json string

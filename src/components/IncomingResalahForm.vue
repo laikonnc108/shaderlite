@@ -12,11 +12,20 @@
     <div class="form-group row">
       <label  class="col-sm-2">العميل</label>
       <div class="col-sm-10">
+        <!--
         <select v-model="incomings_data.supplier_id" class="form-control"  >
         <option v-for="(supplier, idx) in active_suppliers" :key='idx' :value='supplier.id'>
           {{supplier.name}}
         </option>
       </select>
+      --> 
+        <v-select class="vselect-styler"  dir="rtl"
+        ref="supplierSelect"
+        :options="active_suppliers" label="name" 
+        :reduce="supplier => supplier.id"
+        v-model="incomings_data.supplier_id">
+          <div slot="no-options">لا يوجد نتائج بحث</div>
+        </v-select>
       </div>
     </div>
 
@@ -24,7 +33,7 @@
       <label class="col-sm-2">الاصناف</label>
       <div class="col-sm-10">
         <div class="product-row p-1" v-for="(product, index) in incomings_data.products_arr" :key='index' >
-           عدد {{product.count}} - {{all_products[product.id]}} 
+           عدد {{product.count}} - {{products_arr[product.id]}} 
         </div>
       </div>
     </div>
@@ -34,21 +43,30 @@
       <div class="col-sm-10 ">
         <div class="row product_area p-3">
           <label class="col-sm-2">الصنف</label>
-          <div class="col-sm-5">
+          <div class="col-sm-6">
+            <!--
             <select v-model="product_data.id" class="form-control" placeholder="اختار الصنف">
-            <option v-for="(product, index) in all_products" :key='index' :value='index'>
-              {{product}}
-            </option>
-          </select>
+              <option v-for="(product, index) in all_products" :key='index' :value='index'>
+                {{product}}
+              </option>
+            </select>
+            -->
+            <v-select class="vselect-styler" dir="rtl"
+            ref='productSelect'
+            :reduce="product => product.id"
+            :options="all_products" label="product_name"
+            v-model="product_data.id">
+              <div slot="no-options">لا يوجد نتائج </div>
+            </v-select>
           </div>
-          <div class="col-sm-5">
+          <div class="col-sm-4">
             <input v-model="product_data.count" class="form-control" placeholder=" العدد">
           </div>
           <div class="p-4">
             <button type="button" class="btn btn-primary" 
             :disabled="! valid_product" @click="add_product" >اضافة الصنف</button>
             &nbsp;
-            <button type="button" @click="product_data= {}" class="btn btn-danger"> الغاء </button>
+            <button type="button" @click="product_data= {};$refs.productSelect.clearSelection()" class="btn btn-danger"> الغاء </button>
           </div>
         </div>
       </div>
@@ -62,7 +80,7 @@
     </div>
 
     <div class="form-group row">
-      <label class="col-sm-2">وهبة</label>
+      <label class="col-sm-2">{{'given' | tr_label}}</label>
       <div class="col-sm-10">
         <input v-model="incomings_data.given" class="form-control">
       </div>
@@ -88,7 +106,12 @@ export default {
       incomings_data: new IncomingsData({day: this.$store.state.day.iso }),
       active_suppliers: [],
       incomingsCtrl: new IncomingsCtrl(),
-      all_products: this.$store.state.products_arr,
+      all_products: Object.keys(this.$store.state.products_arr).map(
+        key => ({
+          id: key,
+          product_name: this.$store.state.products_arr[key]
+        })
+      ),
       product_data: {id: 0 , count: null}
     }
   },
@@ -97,6 +120,7 @@ export default {
     async saveIncomings(evt){
       evt.preventDefault()
       // let ids =
+      // console.log(this.incomings_data)
       let refreshpay = this.shader_configs['refreshpay'] ? parseInt(this.shader_configs['refreshpay']) : null
       const moment = require('moment')
       if(refreshpay && refreshpay < moment(this.incomings_data.day).unix()) {
@@ -107,19 +131,24 @@ export default {
         await this.incomingsCtrl.saveIncomingsData(this.incomings_data)
       this.fresh_form()
       this.$emit('saved')
+
     },
     add_product() {
       if(this.product_data.id && parseInt(this.product_data.count) > 0 )
         this.incomings_data.products_arr.push(this.product_data)
       this.product_data = {id: 0 , count: null}
+      this.$refs.productSelect.clearSelection()
     },
     fresh_form() {
       this.incomings_data = new IncomingsData({day: this.$store.state.day.iso })
       this.product_data = {id: 0 , count: null}
+      this.$refs.productSelect.clearSelection()
+      this.$refs.supplierSelect.clearSelection()
     }
   },
   async mounted () {
     // console.log(this.$store.state.products_arr)
+    console.log(this.all_products)
     let suppliersCtrl = new SuppliersCtrl()
     this.active_suppliers = await suppliersCtrl.findAll({},{softDelete: true})
     this.fresh_form()

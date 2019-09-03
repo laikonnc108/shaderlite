@@ -56,7 +56,8 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
         <td>
           <span v-for="(recp_paid, index) in receiptsSepStatus(row.concat_recp_paid)" :key="index">
             فاتورة {{'recp_status_'+ recp_paid | tr_label }} 
-            <span v-if="index+1 != receiptsSepStatus(row.concat_recp_paid).length">, </span>
+            <span v-if="row.concat_printed"> - {{'printed' | tr_label }} </span>
+            <span v-if="index+1 != receiptsSepStatus(row.concat_recp_paid).length">, <br/></span>
           </span>
         </td>
         <td>{{row.sum_recp_count}}</td>

@@ -27,7 +27,9 @@
               <th>الصنف</th>
               <th>عدد الطرود</th>
               <th v-if="flags.detailed">نولون </th>
-              <th v-if="flags.detailed">وهبة</th>
+              <th v-if="flags.detailed">
+                {{'given' | tr_label}}
+              </th>
               <th v-if="flags.detailed"></th>
             </tr>
           </thead>

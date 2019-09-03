@@ -14,7 +14,8 @@ export const MainMixin = {
       'day',
       'logged_in_user',
       'shader_configs',
-      'custom_labels'
+      'custom_labels',
+      'products_arr'
     ])
   },
   methods: {

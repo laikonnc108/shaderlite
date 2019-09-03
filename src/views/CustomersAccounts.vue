@@ -11,7 +11,8 @@
     
 <router-link  v-for="(outgoing, idx) in fltrd_unique_daily_customers"  :key="idx" 
 :to="{name:'customer_details', params: {id: outgoing.customer_id}}"
-class="btn btn-lg btn-primary m-1 btn-block">
+class="btn btn-lg m-1 btn-block" 
+:class="{ 'btn-danger': ! printed_all[outgoing.customer_id], 'btn-primary': printed_all[outgoing.customer_id]}">
   <span class="fa fa-cash-register"></span> &nbsp; 
   عرض حساب البياع - {{outgoing.customer_name}} 
   <span v-if="printed_all[outgoing.customer_id]" style="float:left">
@@ -52,7 +53,8 @@ export default {
   computed:{
     fltrd_unique_daily_customers: function () {
       return this.unique_daily_customers.filter( item => {
-        return (item.customer_name.includes(this.search_term) )
+        if(item.customer_name)
+          return (item.customer_name.includes(this.search_term) )
       })
     }
   },
