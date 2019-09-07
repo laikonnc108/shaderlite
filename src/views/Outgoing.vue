@@ -147,6 +147,9 @@ class="btn btn-lg  m-1 btn-block"
     </div>
   </div>
   
+  <!-- Prevent implicit submission of the form to solve delay issu-->
+  <button type="submit" disabled style="display: none" aria-hidden="true"></button>
+  
   <button type="submit" class="btn btn-success" :disabled="! valid_form">اضافة</button> 
   &nbsp;&nbsp;
   <button class="btn btn-danger" type="button" @click="refresh_all"> الغاء </button>
@@ -317,7 +320,7 @@ export default {
       this.outgoing_form.product_id = this.selected_inc.product_id
       this.outgoing_form.sell_comm_value = this.outgoing_form.count * this.outgoing_form.sell_comm
       await this.outgoingsCtrl.saveOutgoingData(this.outgoing_form)
-
+      // console.log(this.outgoing_form)
       this.refresh_all()
     },
     async discard(id) {

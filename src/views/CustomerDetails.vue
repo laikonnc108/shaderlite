@@ -187,7 +187,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
   <br/>
   المطلوب من السيد/ {{customer.name}}
 </h4>
-
+<h5 class="text-center" v-if="daily_out_trans[0]"> اجمالي الحساب السابق : {{daily_out_trans[0].debt_was | toAR(true)}}</h5>
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me" >
         <thead>

@@ -69,8 +69,8 @@ export class OutgoingsCtrl {
 
   /**@param {OutgoingDAO} data */
   async saveOutgoingData(data) {
+    data = new OutgoingDAO({...data}) // make sure data is not updated after saving
     let out_id = await this.save(data)
-    // console.log(data)
     if(data.customer_id){
       let outgoingTrans = await this.transTypesCtrl.findOne({name: 'outgoing', category: 'customer_trans'})
       

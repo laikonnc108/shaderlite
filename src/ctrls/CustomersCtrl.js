@@ -67,6 +67,7 @@ export class CustomerTransDAO {
   parseTypes () {
     this.amount = this.amount? parseFloat(this.amount): 0
     this.actual_sale = this.actual_sale? parseFloat(this.actual_sale) : 0
+    this.debt_was = this.debt_was? parseFloat(this.debt_was) : 0
     delete this.weight
     delete this.kg_price
   }
@@ -154,13 +155,15 @@ ORDER BY day
     /**@type {import('bookshelf').ModelBase} */
     let instance = await this.model.forge('id',transDAO.customer_id).fetch()
     let debt = parseFloat(instance.get('debt')) ? parseFloat(instance.get('debt')) : 0
+    transDAO.debt_was = debt
+    await this.createCustomerTrans(transDAO)
+    
     if(transDAO.sum === '+') {
       debt += parseFloat(transDAO.amount)
     } else if(transDAO.sum === '-'){
       debt -= parseFloat(transDAO.amount)
     }
-    await instance.save({debt: debt})
-    return await this.createCustomerTrans(transDAO)
+    return await instance.save({debt: debt})
   }
 
   /**@param {CustomerTransDAO} transDAO */

@@ -1,4 +1,5 @@
 -- 1 / 9 --
+-- rename trans_types.in_deduct to optional
 CREATE VIEW v_daily_sums AS
 SELECT days.day as day,
 recp_sum_net,
@@ -20,9 +21,10 @@ LEFT JOIN
 	ON  days.day = cash_deducts.day;
 
 -- Add ShaderName as primary key to trans_types
--- rename trans_types.in_deduct to optional
+
 UPDATE customer_trans set debt_after = NULL;
 -- rename customer_trans.debt_after to debt_was
+-- remove developer mode in shader_configs
 
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('outgoing_notes', 'ملاحظات', '', 'default', 'label');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('outgoing_notes', 'عربون', '', 'magdy', 'label');
