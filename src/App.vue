@@ -359,6 +359,22 @@ pre {
   border-radius: 0;
 }
 
+input.form-control {
+  direction: ltr;
+  text-align: center;
+  font-weight: bold;
+}
+
+select.form-control {
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.form-control option {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
 .form-control-dark {
   color: #fff;
   background-color: rgba(255, 255, 255, .1);
@@ -414,19 +430,24 @@ pre {
 .pr-only {
   display: none
 }
+.recp-header {
+  font-family: arial;
+  margin: 0 auto;
+}
 .recp-hr {
   border: 0;
   height: 2px;
+  margin: 6px;
   background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
 }
 .h-shadow {
   color: white !important;
-  background-color: #666;
+  background-color: #777;
   border-radius: 5px;
-  padding: 2px;
+  padding: 5px 0;
   margin: 0 auto;
   max-width: 90%;
-  font-size: 1.2em;
+  font-size: 1.4em;
 }
 
 /*Vue Select Style*/
@@ -547,11 +568,15 @@ pre {
   }
   .pr-me {
     color: black !important;
-    font-size: x-large
+    font-size: x-large;
   }
-  .pr-me1 {
+  .pr-me-l {
     color: black !important;
-    font-size: large
+    font-size: large;
+  }
+  .pr-me-xx {
+    color: black !important;
+    font-size: xx-large;
   }
   .pr-hideme {
     display: none

@@ -2,7 +2,7 @@
   <section class="template m-3">
     <h2>المجاميع اليومية</h2>
       <div class="table-responsive">
-        <table class="table table-striped table-sm pr-me1">
+        <table class="table table-striped table-sm pr-me-l">
           <thead>
             <tr>
               <th>اليوم</th>

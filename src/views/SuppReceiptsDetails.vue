@@ -340,7 +340,7 @@
 <b-modal id="modal-recp" size="xl" class="col-print-12" hide-header
  hide-footer hide-header-close hide-backdrop>
 <template v-if="true || print_mode">
-  <p v-html="shader_configs['recp_header']"></p>
+  <p class="recp-header" v-html="shader_configs['recp_header']"></p>
 </template>
 <h4 class="text-center"> فاتورة 
   <span class="pr-hideme">
@@ -348,14 +348,16 @@
   </span>
 
 </h4>
-<h4 class="pr-me ">
+<h4 >
   تحريراً في {{day.arab }}
-  <br/>
-  المطلوب من السيد/ {{supplier.name}}
+</h4>
+<h4>
+  <span style="font-size: .6em;">المطلوب من السيد/ </span> 
+  <span style="font-size: 1.1em;">{{supplier.name}}</span>
 </h4>
 
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
-      <table class="table table-bordered table-sm pr-me" >
+      <table class="table table-bordered table-sm pr-me-xx" >
         <thead>
           <tr>
             <th>الاجمالي</th>
@@ -384,7 +386,7 @@
             <td>X</td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" v-model="item.kg_price" class="form-control"  >
-              <span v-else> {{item.kg_price | toAR }}</span>
+              <span v-else> {{item.kg_price | toAR(true) }}</span>
             </td>
             <td >{{item.product_name}} </td>
             <td>
@@ -404,15 +406,15 @@
             <td></td>
             <th>
               <span class="pr-hideme">
-               نسبة العمولة {{modal_recp.comm_rate }}%  
+                {{modal_recp.comm_rate }}%  
                </span>
             </th>
-            <td>( {{modal_recp.recp_comm | round2 | toAR }} )</td>
+            <td>( {{modal_recp.recp_comm | round2 | toAR(true) }} )</td>
             <th style="border: none !important;">عمولة</th>
           </tr>
           <tr v-if="modal_recp.total_nolon">
             <td colspan="5" style="border: none !important;"></td>
-            <td ><b >( {{modal_recp.total_nolon | round2 | toAR }} )</b></td>
+            <td ><b >( {{modal_recp.total_nolon | round2 | toAR(true) }} )</b></td>
             <td  style="border: none !important;">نولون</td>
           </tr>
           <tr v-if="modal_recp.recp_expenses">
@@ -428,7 +430,7 @@
             </td>
             <td></td>
             <td></td>
-            <td>( {{modal_recp.recp_given | round2 | toAR }} )</td>
+            <td>( {{modal_recp.recp_given | round2 | toAR(true) }} )</td>
             <th style="border: none !important;">مشال</th>
           </tr>
 
@@ -442,17 +444,22 @@
       </table>
 
       <div class="m-2">
-          <button class="btn btn-primary pr-hideme" @click="$bvModal.hide('modal-recp')" >
+          <button class="btn btn-primary pr-hideme" @click="print_mode=false;$bvModal.hide('modal-recp')" >
             <span class="fa fa-check "></span> &nbsp;
             موافق
           </button>
           &nbsp;
           <button class="btn btn-printo pr-hideme" 
-            @click="modal_recp.printed = 1 ;saveAll();print_co()">
+            @click="modal_recp.printed = 1 ;print_mode=true;saveAll();print_co()">
             <span class="fa fa-print"></span> طباعة
           </button>
       </div>
+
   </div>
+        <span>
+        {{modal_recp.recp_paid}}
+        ({{modal_recp.serial}})
+      </span>
 </b-modal>
 
   </section>
@@ -496,7 +503,6 @@ export default {
   mixins: [MainMixin],
   methods: {
     async refresh_all(){
-      let recp_default_comm_rate = this.shader_configs['recp_comm'] ? parseFloat(this.shader_configs['recp_comm']) : 0 
       this.recp_1 = new ReceiptDAO({serial: 1, comm_rate: this.recp_default_comm_rate, ...ReceiptDAO.INIT_DAO})
       this.recp_2 = new ReceiptDAO({serial: 2, comm_rate: this.recp_default_comm_rate, ...ReceiptDAO.INIT_DAO})
       this.recp_3 = new ReceiptDAO({serial: 3, comm_rate: this.recp_default_comm_rate, ...ReceiptDAO.INIT_DAO})

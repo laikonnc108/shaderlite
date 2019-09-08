@@ -179,17 +179,19 @@
 <b-modal id="modal-daily" size="xl" class="col-print-12"
 hide-header hide-footer hide-header-close hide-backdrop>
 <template>
-  <p v-html="shader_configs['recp_header']"></p>
+  <p class="recp-header" v-html="shader_configs['recp_header']"></p>
 </template>
 <h4 class="text-center"> كشف حساب </h4>
-<h4 class="pr-me ">
+<h4>
   تحريراً في {{outg_day | arDate }}
-  <br/>
-  المطلوب من السيد/ {{customer.name}}
 </h4>
-<h5 class="text-center" v-if="daily_out_trans[0]"> اجمالي الحساب السابق : {{daily_out_trans[0].debt_was | toAR(true)}}</h5>
+<h4>
+  <span style="font-size: .6em;">المطلوب من السيد/ </span> 
+  <span style="font-size: 1.1em;">{{customer.name}}</span>
+</h4>
+<h4 class="text-center" v-if="daily_out_trans[0]"> اجمالي الحساب السابق : {{daily_out_trans[0].debt_was | toAR(true)}}</h4>
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
-      <table class="table table-bordered table-sm pr-me" >
+      <table class="table table-bordered table-sm pr-me-xx" >
         <thead>
           <tr>
             <th>المبلغ</th>
@@ -197,7 +199,14 @@ hide-header hide-footer hide-header-close hide-backdrop>
             <th> وزن</th>
             <th>سعر </th>
             <th>صنف</th>
-            <th>ملاحظات</th>
+            <th>
+              <span v-if="shader_configs['pay_arboon']">
+              عربون
+              </span>
+              <span v-else>
+                ملاحظات
+              </span>
+              </th>
           </tr>
         </thead>
         <tbody>
@@ -221,6 +230,9 @@ hide-header hide-footer hide-header-close hide-backdrop>
           </tr>
         </tbody>
       </table>
+      <span>
+        
+      </span>
 
       <div class="m-2">
           <button class="btn btn-primary pr-hideme" @click="$bvModal.hide('modal-daily')" >
@@ -252,7 +264,7 @@ export default {
       customer: {},
       customersCtrl: new CustomersCtrl(),
       transTypesCtrl: new TransTypesCtrl(),
-      customer_trans_form: {trans_type:'+', amount: null , notes: null},
+      customer_trans_form: {trans_type:'cust_collecting', amount: null , notes: null},
       trans_types_opts : [],
       customer_trans: [],
       daily_out_trans: [],

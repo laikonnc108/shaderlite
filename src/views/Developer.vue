@@ -22,14 +22,17 @@
         {{db_file.filename}}
         {{ $store.state.electron_data.user_data_path }}
       </pre>
-        <button v-if="removed_exists" class="btn btn-danger btn-lg" @click="restore_removed()" >
-        <span class="fa fa-database "></span> &nbsp;
-        استعادة ملف قاعدة البيانات الذي تم حذفه
-      </button> &nbsp;
+
       <button :disabled="! db_file.found" class="btn btn-primary btn-lg" @click="import_db()" >
         <span class="fa fa-database "></span> &nbsp;
         استيراد قاعدة البيانات
       </button>
+      <br/>
+      <button v-if="removed_exists" class="btn btn-danger btn-lg" @click="restore_removed()" >
+        <span class="fa fa-database "></span> &nbsp;
+        استعادة ملف قاعدة البيانات الذي تم حذفه
+      </button> &nbsp;
+
 
     </section>
      <br/>
@@ -96,7 +99,7 @@ export default {
     try {
       let results = await knex.raw('PRAGMA integrity_check;')
       console.log("integrity_check : ",results)
-      let products = await new ProductsCtrl().findAll()
+      await new ProductsCtrl().findAll()
       this.working_db = true
     } catch (error) {
       let if_exists_outp = await sync_exec(`IF exist ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db echo file_exists`)
@@ -142,6 +145,7 @@ export default {
         await knex.destroy()
         await sync_exec(`del ${this.$store.state.electron_data.user_data_path}\\db\\_shaderlite.db`)
         let output = await sync_exec(`rename ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db _shaderlite.db `)
+        console.log('output', output)
         this.reload_electron()
       }
     },

@@ -20,7 +20,7 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
   </span>
 </router-link>
 -->
-  <table class="table table-striped table-sm pr-me1">
+  <table class="table table-striped table-sm pr-me-l">
     <thead>
       <tr>
         <th>اسم العميل</th>

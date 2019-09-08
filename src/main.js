@@ -70,7 +70,7 @@ String.prototype.toAR= function() {
 Vue.filter('toAR' , function(number, fixed) {
   let num = ( number || number === 0 ) ? parseFloat(number) : '--'
   let minmax = fixed ? {minimumFractionDigits: 2, maximumFractionDigits: 2} : {}
-  return num.toLocaleString('ar-EG', minmax)
+  return num.toLocaleString('ar-EG', {useGrouping: false, ...minmax})
 })
 
 function roundOf(n, p) {
