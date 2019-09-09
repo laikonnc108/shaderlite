@@ -41,7 +41,7 @@
         اعادة تشغيل البرنامج
       </button>
   </div>
-  <div v-if="shader_configs['logged_in_user'] && shader_configs['logged_in_user'].user_type =='developer'">
+  <div v-if="$store.state.electron_data.env.NODE_ENV == 'development' || (shader_configs['logged_in_user'] && shader_configs['logged_in_user'].user_type =='developer')">
     
     <!-- <img alt="Vue logo" src="../assets/logo.png"> 
     <HelloWorld msg="Welcome to Your Vue.js App"/>
@@ -50,17 +50,15 @@
     
 
     <pre>{{ $store.state.electron_data }}</pre>
-  <div class="card" style="width: 18rem;">
-    <div class="card-body">
+
       <h5 class="card-title">System printers </h5>
       <p class="card-text">{{printers}}</p>
-      <a href="#" @click="check7z()" class="btn btn-primary">Go somewhere</a> 
+      <a href="#" @click="check7z()" class="btn btn-primary">Go check7z</a> 
       <span>&nbsp;</span>
-      <a href="#" @click="reload_electron()" class="btn btn-primary">Reload</a>
       <a href="#" @click="print_co()" class="btn btn-primary">print</a>
+      <span>&nbsp;</span>
       <a href="#" @click="backup()" class="btn btn-primary">backup</a>
-    </div>
-  </div>
+
   </div>
 </section>
 </template>

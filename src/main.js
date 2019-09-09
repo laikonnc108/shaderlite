@@ -98,8 +98,13 @@ Vue.filter('round2' , function(number) {
   return roundOf(rounded,2).toFixed(2)
 })
 
+Vue.filter('ceil5' , function(number) {
+  number = number? parseFloat(number) : 0
+  return Math.ceil(number/5)*5
+})
+
+
 Vue.filter('default0' , function(number) {
-  
   return parseInt(number)? parseInt(number) : 0
 })
 

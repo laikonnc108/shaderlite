@@ -189,7 +189,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
   <span style="font-size: .6em;">المطلوب من السيد/ </span> 
   <span style="font-size: 1.1em;">{{customer.name}}</span>
 </h4>
-<h4 class="text-center" v-if="daily_out_trans[0]"> اجمالي الحساب السابق : {{daily_out_trans[0].debt_was | toAR(true)}}</h4>
+<h4 class="text-center" v-if="daily_out_trans[0]"> حساب سابق : {{ daily_out_trans[0].debt_was | toAR }}</h4>
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me-xx" >
         <thead>
@@ -224,9 +224,8 @@ hide-header hide-footer hide-header-close hide-backdrop>
             </td>
           </tr>
           <tr>
-            <td ><b class="border-top border-primary">{{ sum_outgoings_val | toAR(true) }} </b></td>
+            <td ><b class="border-top border-primary">{{ sum_outgoings_val | ceil5 | toAR }} </b></td>
             <td style="border: none !important;"> اجمالي </td>
-            
           </tr>
         </tbody>
       </table>

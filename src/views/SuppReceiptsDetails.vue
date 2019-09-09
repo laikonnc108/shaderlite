@@ -1,6 +1,10 @@
 <template>
   <section class="supp-receipts-details m-3">
   <section class="data-play pr-hideme">
+    <button class="btn btn-primary d-print-none pr-hideme" @click="$router.go(-1)">
+        <span class="fa fa-arrow-right"></span> &nbsp;   العودة
+    </button>
+    <br>
     <h1>شاشة فواتير {{supplier.name}} لليوم</h1>
     <hr>
     <section class="row ">
@@ -456,9 +460,9 @@
       </div>
 
   </div>
-        <span>
+        <span> ف
         {{modal_recp.recp_paid}}
-        ({{modal_recp.serial}})
+        (م {{modal_recp.serial}})
       </span>
 </b-modal>
 
@@ -669,8 +673,9 @@ export default {
       dao.recp_comm = ( dao.comm_rate / 100 ) * sale_value
       dao.recp_expenses = dao.recp_expenses ? dao.recp_expenses : 0
       dao.recp_given = dao.recp_given ? dao.recp_given : 0 
+      dao.total_nolon = dao.total_nolon ? dao.total_nolon : 0
       dao.net_value = sale_value - dao.recp_comm - dao.recp_given - dao.recp_expenses - dao.total_nolon
-      // console.log("dao after ",sale_value , dao.recp_comm , dao.recp_given , dao.recp_expenses - dao.total_nolon)
+      //console.log("dao after ",sale_value , dao.recp_comm , dao.recp_given , dao.recp_expenses - dao.total_nolon)
     }
   },
   async mounted(){

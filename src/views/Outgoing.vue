@@ -337,7 +337,8 @@ export default {
     },
     async setSelectedInc(incom){
       this.selected_inc = incom
-      this.outgoing_form.kg_price = await this.outgoingsCtrl.getLastKgPrice(incom.product_id)
+      // remove getLastKgPrice
+      //this.outgoing_form.kg_price = await this.outgoingsCtrl.getLastKgPrice(incom.product_id)
       this.outgoing_form.sell_comm = incom.product_sell_comm
     },
     async refresh_all() {

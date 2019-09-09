@@ -41,7 +41,7 @@
                   {{ custom_labels['outgoings'] }}  <span class="sr-only">(current)</span>
                 </router-link>
               </li>
-              <li class="nav-item bg-dailymoves">
+              <li class="nav-item bg-dailymoves" v-if="logged_in_user.user_type != 'editor'">
                 <router-link class="nav-link active" to="/daily_moves">
                   <span class="fa fa-dolly"></span>
                   {{ custom_labels['daily_moves'] }} <span class="sr-only">(current)</span>
@@ -111,13 +111,6 @@
                    {{ custom_labels['manage_users'] }} 
                 </router-link>
               </li>
-
-              <li class="nav-item" v-if="logged_in_user.user_type === 'developer' || shader_configs['curr_dev']">
-                <router-link class="nav-link active" to="/developer">
-                  <span class="fa fa-code"></span>
-                    Developer<span class="sr-only">(current)</span>
-                </router-link>
-              </li>
               
               <li class="nav-item" v-if="logged_in_user.user_type != 'editor'">
                 <router-link class="nav-link active" to="/developer">
@@ -169,6 +162,8 @@ import { MainMixin } from './mixins/MainMixin';
 Settings.defaultLocale = 'ar'
 Settings.defaultZoneName = 'UTC'
 
+const moment = require('moment')
+
 export default {
   data() {
     return {
@@ -195,7 +190,11 @@ export default {
     },
   },
   async mounted(){
+    let products_arr = await new ProductsCtrl().getProductsArr()
+    this.$store.commit(MyStoreMutations.setProductsArr, products_arr)
 
+    let transNames = await new TransTypesCtrl().getTranstypesArr()
+    this.$store.commit(MyStoreMutations.setTranstypesArr, transNames)
   },
   async beforeMount () {
     let custom_labels = null
@@ -217,13 +216,6 @@ export default {
       this.$bvModal.show('login-modal')
     }
 
-    let products_arr = await new ProductsCtrl().getProductsArr()
-    this.$store.commit(MyStoreMutations.setProductsArr, products_arr)
-
-    let transNames = await new TransTypesCtrl().getTranstypesArr()
-    this.$store.commit(MyStoreMutations.setTranstypesArr, transNames)
-
-    const moment = require('moment')
     // to get current local time correctly
     moment.locale('en')
     let dateTime = DateTime.fromISO(moment().format('YYYY-MM-DD'))

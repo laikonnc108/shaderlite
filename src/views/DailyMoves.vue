@@ -9,7 +9,8 @@
       <br>
     </div>
     
-          <h2>فواتير اليومية</h2>
+      <h2>فواتير يومية {{day.arab}}</h2>
+      
       <div class="table-responsive">
         <table class="table table-striped table-sm pr-me-l">
           <thead>

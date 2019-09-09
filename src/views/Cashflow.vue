@@ -1,57 +1,61 @@
 <template>
-  <section class="cashflow m-3">
-    <h1 v-if="this.$route.name == 'in_cashflow'"> 
-      تحصيلات اليوم
-    </h1>
-    <h1 v-if="this.$route.name == 'out_cashflow'"> 
-      مصروفات اليوم
-    </h1>
-    <br/>
-    <CashflowTable :cashflow_arr="cashflow_arr" 
-    :flags="{can_remove: true,type: $route.name}"
-    @refresh="refresh_all"></CashflowTable>
+  <section class="cashflow m-3 row">
+  <div class="col-5">
     <button class="btn btn-success" v-b-toggle.collapse_cash >اضافة جديد </button>
-
-      <!-- Element to collapse  <div class="m-2"></div>-->
-  <b-collapse id="collapse_cash" class="m-5">
-    <div class="entry-form">
-    <form  @submit="addCashflow">
-      <div class="form-group row" v-if="$route.name == 'out_cashflow'"> 
-        <label class="col-sm-2" >نوع المصروف</label>
-        <div class="col-sm-10">
-        <select class="form-control " v-model="cashflow_form.state">
-          <option value="expenses">مصروفات يومية</option>
-          <option value="men_account">حساب الرجالة</option>
-          <option value="act_pymnt">دفعات لا تخصم من الايراد</option>
-        </select>
-        </div>
-      </div>
-
-
-      <div class="form-group row">
-        <label  class="col-sm-2">مبلغ ال{{ $route.name | tr_label }}</label>
-        <div class="col-sm-10">
-          <div v-if="cashflow_form.state === 'men_account'" class="m-1">
-            عدد الطرود المباعة اليوم {{day_count}} X 
-            <input v-model="men_rate" class=""  placeholder="بياعة الرجالة">
-            <br>
+    <br/>
+    <br/>
+      <b-collapse id="collapse_cash" class="m-1">
+        <div class="entry-form">
+        <form  @submit="addCashflow">
+          <div class="form-group row" v-if="$route.name == 'out_cashflow'"> 
+            <label class="col-sm-2" >نوع المصروف</label>
+            <div class="col-sm-10">
+            <select class="form-control " v-model="cashflow_form.state">
+              <option value="expenses">مصروفات يومية</option>
+              <option value="men_account">حساب الرجالة</option>
+              <option value="act_pymnt">دفعات لا تخصم من الايراد</option>
+            </select>
+            </div>
           </div>
-          <input v-model="cashflow_form.amount" class="form-control "  placeholder="ادخل المبلغ ">
-        </div>
-      </div>
 
-      <div class="form-group row">
-        <label  class="col-sm-2">ملاحظات</label>
-        <div class="col-sm-10">
-          <input v-model="cashflow_form.notes" class="form-control " placeholder="ادخال الملاحظات">
-        </div>
-      </div>     
+          <div class="form-group row">
+            <label  class="col-sm-2">مبلغ ال{{ $route.name | tr_label }}</label>
+            <div class="col-sm-10">
+              <div v-if="cashflow_form.state === 'men_account'" class="m-1">
+                عدد الطرود المباعة اليوم {{day_count}} X 
+                <input v-model="men_rate" class=""  placeholder="بياعة الرجالة">
+                <br>
+              </div>
+              <input v-model="cashflow_form.amount" class="form-control "  placeholder="ادخل المبلغ ">
+            </div>
+          </div>
 
-      <button type="submit" class="btn btn-success" :disabled="! valid_form" >اضافة</button>
-      <button type="button" class="btn btn-danger mr-1"  v-b-toggle.collapse_pay >  اغلاق</button>
-    </form>
+          <div class="form-group row">
+            <label  class="col-sm-2">ملاحظات</label>
+            <div class="col-sm-10">
+              <input v-model="cashflow_form.notes" class="form-control " placeholder="ادخال الملاحظات">
+            </div>
+          </div>     
+
+          <button type="submit" class="btn btn-success" :disabled="! valid_form" >اضافة</button>
+          &nbsp;
+          <button type="button" @click="refresh_all()" class="btn btn-danger"> الغاء </button>
+        </form>
+        </div>
+      </b-collapse>
     </div>
-  </b-collapse>
+    <div class="col-7 p-0">
+      <h1 v-if="this.$route.name == 'in_cashflow'"> 
+        تحصيلات اليوم {{day.arab}}
+      </h1>
+      <h1 v-if="this.$route.name == 'out_cashflow'"> 
+        مصروفات اليوم {{day.arab}}
+      </h1>
+      <br/>
+      <CashflowTable :cashflow_arr="cashflow_arr" 
+      :flags="{can_remove: true,type: $route.name}"
+      @refresh="refresh_all"></CashflowTable>
+    </div>
   </section>
 </template>
 
@@ -59,6 +63,7 @@
 import { CashflowCtrl , CashflowDAO } from '../ctrls/CashflowCtrl'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl';
 import CashflowTable from '@/components/CashflowTable.vue'
+import { MainMixin } from '../mixins/MainMixin'
 
 export default {
   name: 'cashflow',
@@ -72,6 +77,7 @@ export default {
       men_rate : 1.5,
     }
   },
+  mixins:[MainMixin],
   methods: {
     async refresh_all() {
       this.cashflow_form = new CashflowDAO(CashflowDAO.INIT_DAO)

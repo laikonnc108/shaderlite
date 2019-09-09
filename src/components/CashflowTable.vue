@@ -1,10 +1,16 @@
 <template>
   <section class="cashflow-table">
+    <div class="pr-hideme">
+      <h3 class="text-danger fa fa-eraser larger"
+      @click="search_term = ''" v-if="search_term"></h3>
+      <input v-model="search_term" class="form-control" placeholder="بحث في حركات النقدية">
+    </div>
+    <br>
       <div class="table-responsive">
         <table class="table table-striped table-sm">
           <thead>
             <tr>
-              <th>التاريخ</th>
+
               <th>المبلغ</th>
               <th>
                 <span v-if="flags.type =='out_cashflow'">الي </span>
@@ -16,8 +22,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, idx) in cashflow_arr" :key='idx'>
+            <tr v-for="(item, idx) in fltrd_cashflow_arr" :key='idx'>
+              <!--
               <td>{{item.day | arDate }}</td>
+              -->
               <td>{{item.amount | toAR }}</td>
               <td>
                 {{item.customer_name}}
@@ -36,7 +44,7 @@
               <td v-if="flags.can_remove">
                 <button class="btn text-danger" @click="removeCashflow(item.id)" >
                   <span class="fa fa-archive "></span> 
-                  <template v-if="! confirm_step[item.id]"> حذف الحركة</template>
+                  <template v-if="! confirm_step[item.id]"> </template>
                   <template v-if="confirm_step[item.id]"> تأكيد </template>
                 </button>
               </td>
@@ -52,6 +60,7 @@
 </template>
 <script>
 import { CashflowCtrl } from '../ctrls/CashflowCtrl'
+import { MainMixin } from '../mixins/MainMixin'
 
 export default {
   name: 'CashflowTable',
@@ -64,6 +73,7 @@ export default {
       }
     }
   },
+  mixins:[MainMixin],
   data(){
     return {
       confirm_step:[],
@@ -93,6 +103,15 @@ export default {
       })
       return sum
     },
+    fltrd_cashflow_arr: function() {
+      return this.cashflow_arr.filter( item => {
+        return (
+          (item.supplier_name && item.supplier_name.includes(this.search_term)) ||
+          (item.customer_name && item.customer_name.includes(this.search_term)) ||
+          (! item.supplier_name && ! item.customer_name)
+        )
+      })
+    }
   },
 }
 </script>
