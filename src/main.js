@@ -100,7 +100,9 @@ Vue.filter('round2' , function(number) {
 
 Vue.filter('ceil5' , function(number) {
   number = number? parseFloat(number) : 0
-  return Math.ceil(number/5)*5
+  let ceil_5 = Math.ceil(number/5)*5
+  let last_res = (ceil_5 - number) <= 2 ?  ceil_5 : Math.ceil(number)
+  return last_res
 })
 
 

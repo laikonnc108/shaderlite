@@ -356,7 +356,7 @@
   تحريراً في {{day.arab }}
 </h4>
 <h4>
-  <span style="font-size: .6em;">المطلوب من السيد/ </span> 
+  <span style="font-size: .7em;">اسم العميل/ </span> 
   <span style="font-size: 1.1em;">{{supplier.name}}</span>
 </h4>
 
@@ -410,7 +410,7 @@
             <td></td>
             <th>
               <span class="pr-hideme">
-                {{modal_recp.comm_rate }}%  
+                {{modal_recp.comm_rate }}  
                </span>
             </th>
             <td>( {{modal_recp.recp_comm | round2 | toAR(true) }} )</td>

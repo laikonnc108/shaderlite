@@ -9,21 +9,25 @@
       <div class="row" style="max-width: 100%;">
         <nav class="col-md-2 d-none d-md-block bg-light sidebar d-print-none" >
           <div class="sidebar-sticky mt-3" v-if="! require_login">
-            <div class="pl-2 pr-2">
+            <div class="pl-2 pr-2" v-if="false">
               مرحباً {{logged_in_user.username}}
             </div>
-            <b class=" text-muted p-2">
-              {{ day.d_week }}
-            </b>
             <h4 class="d-flex justify-content-between align-items-center px-3  mb-1 text-muted">
               <router-link to="/daily" > {{ day.arab }} </router-link>
             </h4>
-            <b class="m-3 ">
-              <router-link class="text-danger" to="/daily" style="float:left;padding: 0 10px;">
+            <div class="p-3">
+            <b >
+              {{ day.d_week }}
+            </b>
+            <b >
+              <router-link class="text-danger" to="/daily" style="float:left;padding: 0 5px;">
               تغيير اليوم
               </router-link>
             </b>
-            <div><br></div>
+            </div>
+
+
+            <div class="p-2"></div>
             <!--
             <datetime v-model="luxon_date" @close="change_luxon_date"></datetime>
             -->
@@ -72,15 +76,9 @@
                   {{ custom_labels['collecting'] }} 
                 </router-link>
               </li>
-              <li class="nav-item">
-                <router-link class="nav-link active" to="/daily_totals">
-                  <span class="fa fa-calendar-alt"></span>
-                  المجمعات اليومية
-                </router-link>
-              </li>
             </ul>
 
-            <h3 class="d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <h3 class="d-flex justify-content-between align-items-center px-3 mt-2 mb-1 text-muted">
               <span>مدير النظام</span>
               <a class="d-flex align-items-center text-muted" href="#">
                 <span data-feather="plus-circle"></span>
@@ -111,7 +109,14 @@
                    {{ custom_labels['manage_users'] }} 
                 </router-link>
               </li>
-              
+
+              <li class="nav-item">
+                <router-link class="nav-link active" to="/daily_totals">
+                  <span class="fa fa-calendar-alt"></span>
+                  المجمعات اليومية
+                </router-link>
+              </li>
+
               <li class="nav-item" v-if="logged_in_user.user_type != 'editor'">
                 <router-link class="nav-link active" to="/developer">
                   <span class="fa fa-database"></span>
