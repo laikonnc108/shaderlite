@@ -55,6 +55,7 @@ export class OutgoingsCtrl {
   /**@type {TransTypesCtrl} */
   transTypesCtrl
 
+
   constructor() {
     this.model = require('../models/OutgoingsModel')(bookshelf)
     this.transTypesCtrl = new TransTypesCtrl()
@@ -96,8 +97,7 @@ export class OutgoingsCtrl {
       cashDAO.outgoing_id = out_id
       cashDAO.amount = parseFloat(data.value_calc)
 
-      let cashflowCtrl = new CashflowCtrl()
-      await cashflowCtrl.save(cashDAO)
+      await new CashflowCtrl().save(cashDAO)
     }
 
     return out_id
@@ -145,7 +145,7 @@ export class OutgoingsCtrl {
     let instance = await this.model.where('id',id).fetch()
     if(instance){
       await new CustomersCtrl().removeTransByOutgoingId(id)
-      await knex.raw('delete from cashflow where outgoing_id = '+ id)
+      await new CashflowCtrl().rawDelete({outgoing_id: id})
       return await instance.destroy()
     }
     else

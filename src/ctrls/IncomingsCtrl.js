@@ -1,4 +1,4 @@
-import { bookshelf, knex } from '../main'
+import { bookshelf } from '../main'
 import { CashflowDAO , CashflowCtrl} from './CashflowCtrl';
 import { TransTypesCtrl } from './TransTypesCtrl';
 import { InoutHeadCtrl } from './InoutHeadCtrl';
@@ -145,7 +145,7 @@ export class IncomingsCtrl {
     if(parseInt(instance.get('count')) <= inoutHeadRecord.diff) {
       // Save to remove
       await instance.destroy()
-      await knex.raw('delete from cashflow where incoming_id = '+ id)
+      await this.cashflowCtrl.rawDelete({incoming_id: id})
       return true
     }
     else {

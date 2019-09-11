@@ -60,7 +60,6 @@ export class CashflowCtrl {
     return record.id
   }
 
-
   async findAll(filter = {}) {
       // {withRelated: ['supplier','product','customer']}
     let all = await this.model.where(filter).fetchAll({withRelated: ['outgoing','customer','supplier']})
@@ -92,7 +91,17 @@ export class CashflowCtrl {
     return recp_expenses
   }
   // async removeByOutgoingId(outgoing_id) { }
-
+  async rawDelete(filter= {}){
+    //console.log('rawDelete filter', filter)
+    if(filter.incoming_id)
+      await knex.raw(`delete from cashflow where incoming_id = ${filter.incoming_id}`)
+    else if(filter.outgoing_id)
+      await knex.raw(`delete from cashflow where outgoing_id = ${filter.outgoing_id}`)
+    else if(filter.state == 'recp_paid' && filter.supplier_id && filter.day){
+      await knex.raw(`delete from cashflow where state= 'recp_paid' and day='${filter.day}' and supplier_id= ${filter.supplier_id}`)
+    }
+      
+  }
   async deleteById(id){
     let instance = await this.model.where('id',id).fetch()
     if(instance)

@@ -141,11 +141,10 @@
           <span class="fa fa-money-check"></span>
         رصد    
         </button>&nbsp;
-        <button  class="btn btn-primary" v-if="! recp_1.recp_paid" @click="setRecpPaid(recp_1, 2)">
+        <button  class="btn btn-primary" v-if=" recp_1.recp_paid != 2" @click="setRecpPaid(recp_1, 2)">
           <span class="fa fa-money-bill"></span>
         صرف    
         </button> &nbsp;
-
 
       </div>
 
@@ -204,7 +203,7 @@
           <span class="fa fa-money-check"></span>
         رصد    
         </button>&nbsp;
-        <button  class="btn btn-primary" v-if="! recp_2.recp_paid" @click="setRecpPaid(recp_2, 2)">
+        <button  class="btn btn-primary" v-if="recp_2.recp_paid != 2" @click="setRecpPaid(recp_2, 2)">
           <span class="fa fa-money-bill"></span>
         صرف   
         </button> &nbsp;
@@ -267,7 +266,7 @@
           <span class="fa fa-money-check"></span>
         رصد    
         </button>&nbsp;
-        <button  class="btn btn-primary" v-if="! recp_3.recp_paid" @click="setRecpPaid(recp_3, 2)">
+        <button  class="btn btn-primary" v-if="recp_3.recp_paid != 2" @click="setRecpPaid(recp_3, 2)">
           <span class="fa fa-money-bill"></span>
         صرف   
         </button> &nbsp;
@@ -541,6 +540,7 @@ export default {
       if(this.recp_3.id)
         await this.receiptsCtrl.deleteById(this.recp_3.id)
 
+      await this.cashflowCtrl.rawDelete({day: this.day.iso, supplier_id: this.supplier_id, state: 'recp_paid'})
       this.refresh_all()
     },
     async setRecpPaid( receipt, recp_paid ) {
