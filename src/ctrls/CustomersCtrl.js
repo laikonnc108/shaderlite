@@ -111,13 +111,13 @@ export class CustomersCtrl {
   }
 
   async getCustomerDetails(id){
-    let one = await this.model.forge('id',id).fetch({withRelated:['trans']})
+    let one = await this.model.forge('id',id).fetch({withRelated:['trans'],softDelete: false})
     let trans = one.related('trans').map( _=> new CustomerTransDAO(_.attributes))
     return {dao: new CustomerDAO(one.toJSON()), trans: trans}
   }
 
   async findOne(id) {
-    let one = await this.model.forge('id',id).fetch()
+    let one = await this.model.forge('id',id).fetch({softDelete: false})
     return new CustomerDAO(one.toJSON())
   }
 

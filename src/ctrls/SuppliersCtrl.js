@@ -111,12 +111,12 @@ export class SuppliersCtrl {
 
   
   async findById(id) {
-    let instance = await this.model.where('id',id).fetch({withRelated:['trans']})
+    let instance = await this.model.where('id',id).fetch({withRelated:['trans'],softDelete: false})
     return new SupplierDAO(instance.attributes)
   }
 
   async getSupplierDetails(id){
-    let one = await this.model.forge('id',id).fetch({withRelated:['trans']})
+    let one = await this.model.forge('id',id).fetch({withRelated:['trans'],softDelete: false})
     let trans = one.related('trans').map( _=> new SupplierTransDAO(_.attributes))
     return {dao: new SupplierDAO(one.toJSON()), trans: trans}
   }

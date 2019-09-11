@@ -493,6 +493,7 @@ export default {
       cashflowCtrl: new CashflowCtrl(),
       outgoings_sums:[],
       total_nolon: 0,
+      recp_expenses: 0,
       inc_headers: [],
       today_nolons: [],
       recp_in_sums: {},
@@ -512,8 +513,8 @@ export default {
       this.recp_3 = new ReceiptDAO({serial: 3, comm_rate: this.recp_default_comm_rate, ...ReceiptDAO.INIT_DAO})
 
       this.show_receipts= {1: false, 2: false, 3: false}
-      let {total_nolon} = await this.cashflowCtrl.getSupplierNolons({supplier_id: this.supplier_id, day: this.store_day.iso})
-      this.total_nolon = total_nolon
+      this.total_nolon = await this.cashflowCtrl.getSupplierNolons({supplier_id: this.supplier_id, day: this.store_day.iso})
+      this.recp_expenses = await this.cashflowCtrl.getSupplierRecpExpenses({supplier_id: this.supplier_id, day: this.store_day.iso})
       this.outgoings_sums = await this.outgoingsCtrl.findSuppDaySums({supplier_id: this.supplier_id, day: this.store_day.iso})
       this.inc_headers = await this.inoutHeadCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
       let receipts = await this.receiptsCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
@@ -606,6 +607,7 @@ export default {
         let all = this.outgoings_sums.map( dao => this.clone(dao))
         this.recp_1.details = all
         this.recp_1.total_nolon = this.total_nolon
+        this.recp_1.recp_expenses = this.recp_expenses
         // console.log(this.recp_1)
         this.modal_recp = this['recp_'+ num]
         this.$bvModal.show('modal-recp')

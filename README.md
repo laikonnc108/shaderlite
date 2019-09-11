@@ -60,6 +60,9 @@ npm run postinstall
 - update active NULL where = 1 / 1 where = 0 (Reverse)
 - rename active to deleted_at
 
+**Products**
+- add comm
+
 **Supplier_trans**
 - export sql
 - remove all bluff

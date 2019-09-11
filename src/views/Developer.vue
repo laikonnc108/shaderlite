@@ -1,9 +1,8 @@
 <template>
 <section class="home p-3">
   <div class="m-3">
-    <h1 class="m-3">نظام مدير يومية الشادر</h1>
+    <h1 class="m-1 text-center">نظام وكالة الخضار والفاكهة</h1>
     <h2 class="text-danger"> اصدار رقم {{app_version}}</h2>
-    <br/>
     <h3 class="text-danger" v-if="demo_till">* نسخة تجريبية حتي {{demo_till}}</h3>
     <h3 class="text-success" v-if="! demo_till">* نسخة مرخصة</h3>
 
@@ -18,15 +17,14 @@
         تم قراءة ملف نسخة قاعدة بيانات, تاريخ اخر تحديث له
         {{db_file.time_updated}}
       </h3>
-      <pre>
-        {{db_file.filename}}
-        {{ $store.state.electron_data.user_data_path }}
-      </pre>
-
       <button :disabled="! db_file.found" class="btn btn-primary btn-lg" @click="import_db()" >
         <span class="fa fa-database "></span> &nbsp;
         استيراد قاعدة البيانات
       </button>
+      <pre>
+        File: {{db_file.filename}}
+        TO: {{ $store.state.electron_data.user_data_path }}
+      </pre>
       <br/>
       <button v-if="removed_exists" class="btn btn-danger btn-lg" @click="restore_removed()" >
         <span class="fa fa-database "></span> &nbsp;
@@ -58,14 +56,17 @@
       <a href="#" @click="print_co()" class="btn btn-primary">print</a>
       <span>&nbsp;</span>
       <a href="#" @click="backup()" class="btn btn-primary">backup</a>
-
+      <span>&nbsp;</span>
+      <a href="#" @click="wb_backup()" class="btn btn-primary">wb backup</a>
+      <span>&nbsp;</span>
+      <a href="#" @click="wb_restore()" class="btn btn-primary">استيراد من الويب</a>
   </div>
 </section>
 </template>
 
 <script >
 import { sync_exec, knex } from '../main'
-import { remote } from 'electron'
+import { remote, clipboard } from 'electron'
 import { MainMixin } from '../mixins/MainMixin'
 import { ProductsCtrl } from '../ctrls/ProductsCtrl';
 const fs = require('fs')
@@ -128,8 +129,22 @@ export default {
   methods: {
     async backup(){
       //const out = await sync_exec(`C:\\PROGRA~1\\7-Zip\\7z a D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.7z C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db`)
-      const out = await sync_exec(`copy C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.db`)
+      const out = await sync_exec(`copy ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.db`)
+      
       console.log(out)
+    },
+    async wb_backup(){
+      // await knex.destroy()
+      const {stdout} = await sync_exec(`curl --upload-file ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db https://transfer.sh/shaderlite.db`)
+      clipboard.writeText(stdout)
+      window.alert('تم نسخ رابط قاعدة البيانات '+stdout)
+    },
+    async wb_restore(){
+      // await knex.destroy()
+      let url = clipboard.readText()
+      console.log(url)
+      const {stdout,stderr} = await sync_exec(`curl ${url} --output ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db`)
+      this.reload_electron()
     },
     async import_db(){
       await sync_exec(`IF not exist ${this.$store.state.electron_data.user_data_path}\\db mkdir ${this.$store.state.electron_data.user_data_path}\\db NUL`)

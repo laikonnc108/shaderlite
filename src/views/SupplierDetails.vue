@@ -17,66 +17,71 @@
 
       </table>
     </section>
-    <button v-b-toggle.collapse_pay class=" btn btn-success ml-3 mr-3" >
-      <span class="fa fa-money-bill-wave"></span> &nbsp; 
-    اضافة فواتير سابقة / دفعات / تحصيلات
-    </button>
-    <!-- Element to collapse  <div class="m-2"></div>-->
-  <b-collapse id="collapse_pay" style="padding:25px;" class="pr-hideme">
-    <div class="entry-form">
-    <form  @submit="addPayments">
-      <b-form-group label="نوع الحركة">
-        <b-form-radio-group  v-model="trans_form.trans_type">
-          <b-form-radio value="supp_pre_payment">دفعة سابقة</b-form-radio>
-          <b-form-radio value="supp_pre_recp">فاتورة سابقة</b-form-radio>
-          <b-form-radio value="supp_collect">تحصيل</b-form-radio>
-          <b-form-radio value="supp_payment">دفعة اليوم</b-form-radio>
-          <b-form-radio value="supp_recp_expensess">(مبالغ اخري (للفاتورة</b-form-radio>
-        </b-form-radio-group>
-      </b-form-group>
+    <section class="row">
+      <div class="col-5">
+        <router-link class="btn btn-primary mr-3" :to="{name:'supp_recp_details', params: {supplier_id: supplier.id}}">
+         فواتير اليوم
+        </router-link>
+        <button v-b-toggle.collapse_pay class=" btn btn-success mr-2" >
+          <span class="fa fa-money-bill-wave"></span> &nbsp; 
+        اضافة فواتير سابقة / دفعات / تحصيلات
+        </button>
+        <!-- Element to collapse  <div class="m-2"></div>-->
+      <b-collapse id="collapse_pay" style="padding:25px;" class="pr-hideme">
+        <div class="entry-form">
+        <form  @submit="addPayments">
+          <b-form-group label="نوع الحركة">
+            <b-form-radio-group  v-model="trans_form.trans_type">
+              <b-form-radio value="supp_pre_payment">دفعة سابقة</b-form-radio>
+              <b-form-radio value="supp_pre_recp">فاتورة سابقة</b-form-radio>
+              <b-form-radio value="supp_collect">تحصيل</b-form-radio>
+              <b-form-radio value="supp_payment">دفعة اليوم</b-form-radio>
+              <b-form-radio value="supp_recp_expenses">مصروف فاتورة</b-form-radio>
+            </b-form-radio-group>
+          </b-form-group>
 
-      <div class="form-group row">
-        <label  class="col-sm-2">المبلغ</label>
-        <div class="col-sm-10">
-          <input v-model="trans_form.amount" class="form-control "  placeholder="ادخل المبلغ">
-        </div>
-      </div>
-      <div class="form-group row" v-if="trans_form.trans_type === 'supp_pre_payment' || trans_form.trans_type === 'supp_pre_recp'">
-        <label  class="col-sm-2">تاريخ</label>
-        <div class="col-sm-10">
-          <datetime v-model="trans_form.day" :auto="true" class="datetime" min-datetime="2018-01-01"></datetime>
-        </div>
-      </div>
-      <div class="form-group row" >
-        <label  class="col-sm-2">ملاحظات</label>
-        <div class="col-sm-10">
-          <input v-model="trans_form.notes" class="form-control " placeholder="ادخال الملاحظات">
-        </div>
-      </div>     
-      <div class="form-group row" v-if=" trans_form.trans_type == 'supp_pre_recp'">
-        <label  class="col-sm-2">عدد الطرود</label>
-        <div class="col-sm-10">
-          <input v-model="trans_form.count" class="form-control " placeholder="ادخال العدد">
-        </div>
-      </div>     
-      <div class="form-group row" v-if=" trans_form.trans_type == 'supp_pre_recp'">
-        <label  class="col-sm-2">الاصناف</label>
-        <div class="col-sm-10">
-          <input v-model="trans_form.products" class="form-control " placeholder=" ادخال اسماء الاصناف">
-        </div>
-      </div>     
+          <div class="form-group row">
+            <label  class="col-sm-2">المبلغ</label>
+            <div class="col-sm-10">
+              <input v-model="trans_form.amount" class="form-control "  placeholder="ادخل المبلغ">
+            </div>
+          </div>
+          <div class="form-group row" v-if="trans_form.trans_type === 'supp_pre_payment' || trans_form.trans_type === 'supp_pre_recp'">
+            <label  class="col-sm-2">تاريخ</label>
+            <div class="col-sm-10">
+              <datetime v-model="trans_form.day" :auto="true" class="datetime" min-datetime="2018-01-01"></datetime>
+            </div>
+          </div>
+          <div class="form-group row" >
+            <label  class="col-sm-2">ملاحظات</label>
+            <div class="col-sm-10">
+              <input v-model="trans_form.notes" class="form-control " placeholder="ادخال الملاحظات">
+            </div>
+          </div>     
+          <div class="form-group row" v-if=" trans_form.trans_type == 'supp_pre_recp'">
+            <label  class="col-sm-2">عدد الطرود</label>
+            <div class="col-sm-10">
+              <input v-model="trans_form.count" class="form-control " placeholder="ادخال العدد">
+            </div>
+          </div>     
+          <div class="form-group row" v-if=" trans_form.trans_type == 'supp_pre_recp'">
+            <label  class="col-sm-2">الاصناف</label>
+            <div class="col-sm-10">
+              <input v-model="trans_form.products" class="form-control " placeholder=" ادخال اسماء الاصناف">
+            </div>
+          </div>     
 
-      <button type="submit" class="btn btn-success" :disabled="! valid_payments_form ">
-        <span v-if="trans_form.trans_type === 'supp_pre_payment' || trans_form.trans_type === 'supp_payment' || trans_form.trans_type === 'supp_recp_expensess'">اضافة دفعة</span>
-        <span v-if="trans_form.trans_type === 'supp_pre_recp' ">اضافة الفاتورة</span>
-        <span v-if=" trans_form.trans_type == 'supp_collect'">تحصيل مبلغ</span>
-      </button>
-      <button type="button" class="btn btn-danger mr-1"  v-b-toggle.collapse_pay >  اغلاق</button>
-    </form>
+          <button type="submit" class="btn btn-success" :disabled="! valid_payments_form ">
+            <span v-if="trans_form.trans_type === 'supp_pre_payment' || trans_form.trans_type === 'supp_payment' || trans_form.trans_type === 'supp_recp_expensess'">اضافة دفعة</span>
+            <span v-if="trans_form.trans_type === 'supp_pre_recp' ">اضافة الفاتورة</span>
+            <span v-if=" trans_form.trans_type == 'supp_collect'">تحصيل مبلغ</span>
+          </button>
+          <button type="button" class="btn btn-danger mr-1"  v-b-toggle.collapse_pay >  اغلاق</button>
+        </form>
+        </div>
+      </b-collapse>
     </div>
-  </b-collapse>
-
-    <div class="table-responsive" >
+    <div class="col-7 table-responsive" >
       <h3 class="m-3">سجل دفعات العميل </h3>
         <table class="table table-striped pr-me">
           <thead>
@@ -110,7 +115,8 @@
             </tr>
           </tbody>
         </table>
-
+      </div>
+      </section>
       <h3 class="m-3">سجل فواتير العميل </h3>
         <table class="table table-striped pr-me">
           <thead>
@@ -154,7 +160,6 @@
             <span class="fa fa-print"></span> طباعة 
           </button>
         </div>
-    </div>
 
   </section>
 </template>
@@ -189,7 +194,7 @@ export default {
       console.log(trans)
       this.supplier = dao
       this.supplier_trans = trans
-      this.supplier_receipts = await new ReceiptsCtrl().findAll({supplier_id: this.supplier_id})
+      this.supplier_receipts = await new ReceiptsCtrl().findAll({supplier_id: this.supplier.id})
     },
     async addPayments(evt){
       evt.preventDefault()

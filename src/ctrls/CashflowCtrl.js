@@ -77,16 +77,20 @@ export class CashflowCtrl {
   }
 
   async getSupplierNolons(filter = {day: '' , supplier_id : 0 }){
-    let query = `
-SELECT supplier_id, day, sum(amount) as total_nolon from cashflow 
-WHERE 
-  state= 'nolon' and supplier_id = '${filter.supplier_id}' and day = '${filter.day}'
-`
+    let query = `SELECT supplier_id, day, sum(amount) as total_nolon from cashflow WHERE 
+    state= 'nolon' and supplier_id = '${filter.supplier_id}' and day = '${filter.day}'`
     let results = await knex.raw(query)
-    if(results && results.length > 0)
-    return results[0]
+    let total_nolon = (results && results.length > 0) ? results[0].total_nolon : 0
+    return total_nolon
   }
 
+  async getSupplierRecpExpenses(filter = {day: '' , supplier_id : 0 }){
+    let query = `SELECT supplier_id, day, amount as recp_expenses from cashflow WHERE 
+    state= 'supp_recp_expenses' and supplier_id = '${filter.supplier_id}' and day = '${filter.day}'`
+    let results = await knex.raw(query)
+    let recp_expenses = (results && results.length > 0) ? results[0].recp_expenses : 0
+    return recp_expenses
+  }
   // async removeByOutgoingId(outgoing_id) { }
 
   async deleteById(id){
