@@ -24,6 +24,13 @@ export class CashflowDAO {
     return { }
   }
 
+  static get RECP_EXPENSES() {
+    return {
+      state : 'supp_recp_expenses',
+      sum : '-'
+    }
+  }
+
   /**@param {import('./TransTypesCtrl').TransTypeDAO} transDAO */
   set transType(transDAO) {
     this.state = transDAO.name
@@ -84,10 +91,10 @@ export class CashflowCtrl {
   }
 
   async getSupplierRecpExpenses(filter = {day: '' , supplier_id : 0 }){
-    let query = `SELECT supplier_id, day, amount as recp_expenses from cashflow WHERE 
+    let query = `SELECT id,supplier_id, day, amount from cashflow WHERE 
     state= 'supp_recp_expenses' and supplier_id = '${filter.supplier_id}' and day = '${filter.day}'`
     let results = await knex.raw(query)
-    let recp_expenses = (results && results.length > 0) ? results[0].recp_expenses : 0
+    let recp_expenses = (results && results.length > 0) ? new CashflowDAO( results[0] ): null
     return recp_expenses
   }
   // async removeByOutgoingId(outgoing_id) { }

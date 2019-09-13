@@ -8,7 +8,7 @@
     <h1>شاشة فواتير {{supplier.name}} لليوم</h1>
     <hr>
     <section class="row ">
-      <div class=" col-6 " >
+      <div class=" col-5 " >
         <h3>اجماليات وارد اليوم {{store_day.arab}}</h3>
         <table class="table table-striped table-sm pr-me">
           <thead>
@@ -43,8 +43,23 @@
             عرض النوالين
           </div>
         </div>
+
+        <div class="row detailed" v-b-modal.modal-expenses>
+          <div class="col-6">
+            <span class="btn text-primary">
+            خصم من فاتورة الفلاح
+            </span>
+          </div>
+          <div class="col-6 btn text-primary">
+            <span >
+            {{ recp_expenses | round2 }}
+            </span>
+            <span class="fa fa-table"></span>
+            عرض الخصم
+          </div>
+        </div>
       </div>
-      <div class=" col-6" >
+      <div class=" col-7" >
         <h3>اجماليات البيع من وارد اليوم </h3>
         <table class="table table-striped table-sm pr-me">
           <thead>
@@ -339,7 +354,39 @@
     </button>
   </div>
 </b-modal>
-    <!-- Modal -->
+
+<!-- Nolons Modal -->
+<b-modal id="modal-expenses"  
+ hide-footer hide-header-close hide-backdrop>
+  <template slot="modal-title">
+    عرض خصم من فواتير اليوم للفلاح
+  </template>
+  <table class="table table-striped table-sm pr-me">
+    <thead>
+      <tr>
+        <th>المبلغ</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-if="recp_expenses_dao">
+        <td>{{recp_expenses_dao.amount}}</td>
+        <td>
+          <input v-model="recp_expenses_dao.amount" class="form-control"  >
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="m-2">
+    <button class="btn btn-success pr-hideme" @click="$bvModal.hide('modal-expenses');saveExpenses()" >
+      <span class="fa fa-check "></span> &nbsp;
+      حفظ
+    </button>
+  </div>
+</b-modal>
+
+<!-- modal_recp Modal -->
 <b-modal id="modal-recp" size="xl" class="col-print-12" hide-header
  hide-footer hide-header-close hide-backdrop>
 <template v-if="true || print_mode">
@@ -423,7 +470,7 @@
           <tr v-if="modal_recp.recp_expenses">
             <td colspan="5" style="border: none !important;"></td>
             <td ><b >( {{modal_recp.recp_expenses | round2 | toAR }} )</b></td>
-            <td  style="border: none !important;">مبالغ اخري</td>
+            <td  style="border: none !important;">خصم الفاتورة</td>
           </tr>
           <tr>
             <td colspan="2" style="border: none !important;"></td>
@@ -493,6 +540,7 @@ export default {
       outgoings_sums:[],
       total_nolon: 0,
       recp_expenses: 0,
+      recp_expenses_dao: new CashflowDAO({}),
       inc_headers: [],
       today_nolons: [],
       recp_in_sums: {},
@@ -513,7 +561,9 @@ export default {
 
       this.show_receipts= {1: false, 2: false, 3: false}
       this.total_nolon = await this.cashflowCtrl.getSupplierNolons({supplier_id: this.supplier_id, day: this.store_day.iso})
-      this.recp_expenses = await this.cashflowCtrl.getSupplierRecpExpenses({supplier_id: this.supplier_id, day: this.store_day.iso})
+      this.recp_expenses_dao = await this.cashflowCtrl.getSupplierRecpExpenses({supplier_id: this.supplier_id, day: this.store_day.iso})
+      this.recp_expenses_dao = this.recp_expenses_dao ? this.recp_expenses_dao : new CashflowDAO(CashflowDAO.RECP_EXPENSES)
+      this.recp_expenses = this.recp_expenses_dao.amount ? this.recp_expenses_dao.amount : 0
       this.outgoings_sums = await this.outgoingsCtrl.findSuppDaySums({supplier_id: this.supplier_id, day: this.store_day.iso})
       this.inc_headers = await this.inoutHeadCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
       let receipts = await this.receiptsCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
@@ -599,6 +649,12 @@ export default {
       this.today_nolons.forEach(async (nolonCashflow) => {
         await this.cashflowCtrl.save(nolonCashflow)
       })
+      this.refresh_all()
+    },
+    async saveExpenses(){
+      this.recp_expenses_dao.day =  this.day.iso
+      this.recp_expenses_dao.supplier_id = this.supplier_id
+      await this.cashflowCtrl.save(this.recp_expenses_dao)
       this.refresh_all()
     },
     async addReceipt(num){
