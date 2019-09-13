@@ -1,7 +1,7 @@
 -- 11/9 --
 --change supp_recp_expensess to supp_recp_expenses
 -- تعديل اسم supp_recp_expensess لمجدي
--- https://transfer.sh/6Ab9P/shaderlite.db
+-- https://transfer.sh/kiduO/shaderlite.db
 
 --==============================================================--
 
