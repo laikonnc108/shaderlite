@@ -95,7 +95,7 @@
           </thead>
           <tbody>
             <template v-for="(payment, idx) in supplier_trans" >
-            <tr :key='idx' v-if="payment.trans_type == 'supp_payment'">
+            <tr :key='idx' v-if="true || payment.trans_type == 'supp_payment'">
               <th>{{idx +1 | toAR }} </th>
               <td>{{payment.day | arDate }}</td>
               <td>

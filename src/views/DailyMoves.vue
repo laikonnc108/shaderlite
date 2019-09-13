@@ -23,7 +23,7 @@
               <th>بياعة + عمولة</th>
               <th>فرق فواتير</th>
               <th>نوالين</th>
-              <th>مصاريف فواتير</th>
+              <th>خصم</th>
               <th>وهبة الكاتب</th>
               <th>صافي فواتير</th>
             </tr>
@@ -57,7 +57,7 @@
               </td>
               
               <td>{{item.sum_total_nolon | round2 }}</td>
-              <td>{{item.sum_recp_expenses | round2 }}</td>
+              <td>{{item.sum_recp_deducts | round2 }}</td>
               <td>{{item.sum_recp_given | round2 }}</td>
               <td>{{item.sum_net_value | round2 }}</td>
             </tr>

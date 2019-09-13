@@ -18,6 +18,7 @@ export class ReceiptDAO {
   recp_comm
   out_sale_value
   recp_expenses
+  recp_deducts
   details = []
   products_arr
   serial

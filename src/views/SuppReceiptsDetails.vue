@@ -44,10 +44,10 @@
           </div>
         </div>
 
-        <div class="row detailed" v-b-modal.modal-expenses>
+        <div v-if="false" class="row detailed" v-b-modal.modal-expenses>
           <div class="col-6">
             <span class="btn text-primary">
-            خصم من فاتورة الفلاح
+            مصاريف الفاتورة
             </span>
           </div>
           <div class="col-6 btn text-primary">
@@ -128,6 +128,10 @@
         </draggable>
         <hr>
         <div class="row-detail">
+          <label> عمولة الفاتورة</label>
+          <span> {{recp_1.recp_comm | default0}} -<label> نسبة العمولة </label> ({{recp_1.comm_rate | default0}} % )</span>
+        </div>
+        <div class="row-detail">
           <label> النولون</label>
           <span> {{recp_1.total_nolon | default0}} </span>
         </div>
@@ -135,9 +139,9 @@
           <label> مصاريف الفاتورة</label>
           <span> {{recp_1.recp_expenses | default0}} </span>
         </div>
-        <div class="row-detail">
-          <label> عمولة الفاتورة</label>
-          <span> {{recp_1.recp_comm | default0}} -<label> نسبة العمولة </label> ({{recp_1.comm_rate | default0}} % )</span>
+        <div class="row-detail" v-if="recp_1.recp_deducts">
+          <label> خصم الفاتورة</label>
+          <span> {{recp_1.recp_deducts | default0}} </span>
         </div>
         <div class="row-detail">
           <label> وهبة الفاتورة</label>
@@ -472,6 +476,19 @@
             <td ><b >( {{modal_recp.recp_expenses | round2 | toAR }} )</b></td>
             <td  style="border: none !important;">خصم الفاتورة</td>
           </tr>
+
+          <tr>
+            <td colspan="2" style="border: none !important;"></td>
+            <td >
+              <input v-if="! print_mode && ! modal_recp.recp_paid" 
+              v-model="modal_recp.recp_deducts" class="form-control" placeholder="ادخل مبلغ الخصم" >
+            </td>
+            <td></td>
+            <td></td>
+            <td>( {{modal_recp.recp_deducts | round2 | toAR(true) }} )</td>
+            <th style="border: none !important;">خصم</th>
+          </tr>
+
           <tr>
             <td colspan="2" style="border: none !important;"></td>
             <td >
@@ -494,7 +511,7 @@
       </table>
 
       <div class="m-2">
-          <button class="btn btn-primary pr-hideme" @click="print_mode=false;$bvModal.hide('modal-recp')" >
+          <button class="btn btn-primary pr-hideme" @click="print_mode=false;$bvModal.hide('modal-recp');saveAll();" >
             <span class="fa fa-check "></span> &nbsp;
             موافق
           </button>
@@ -541,6 +558,7 @@ export default {
       total_nolon: 0,
       recp_expenses: 0,
       recp_expenses_dao: new CashflowDAO({}),
+      recp_deducts: 0,
       inc_headers: [],
       today_nolons: [],
       recp_in_sums: {},
@@ -664,6 +682,7 @@ export default {
         this.recp_1.details = all
         this.recp_1.total_nolon = this.total_nolon
         this.recp_1.recp_expenses = this.recp_expenses
+        this.recp_1.recp_deducts = this.recp_1.recp_deducts? this.recp_1.recp_deducts : this.recp_deducts
         // console.log(this.recp_1)
         this.modal_recp = this['recp_'+ num]
         this.$bvModal.show('modal-recp')
@@ -730,9 +749,10 @@ export default {
       dao.comm_rate = dao.comm_rate ? dao.comm_rate : 0
       dao.recp_comm = ( dao.comm_rate / 100 ) * sale_value
       dao.recp_expenses = dao.recp_expenses ? dao.recp_expenses : 0
+      dao.recp_deducts = dao.recp_deducts ? dao.recp_deducts : 0
       dao.recp_given = dao.recp_given ? dao.recp_given : 0 
       dao.total_nolon = dao.total_nolon ? dao.total_nolon : 0
-      dao.net_value = sale_value - dao.recp_comm - dao.recp_given - dao.recp_expenses - dao.total_nolon
+      dao.net_value = sale_value - dao.recp_comm - dao.recp_given - dao.recp_expenses - dao.recp_deducts -  dao.total_nolon
       //console.log("dao after ",sale_value , dao.recp_comm , dao.recp_given , dao.recp_expenses - dao.total_nolon)
     }
   },
