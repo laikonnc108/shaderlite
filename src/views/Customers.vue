@@ -137,18 +137,53 @@
                 <button class="btn text-primary" @click="edit(item.id)" v-if="! item.deleted_at">
                   تعديل
                 </button>
+                <button class="btn text-primary" @click="initCollect(item);$bvModal.show('modal-collect')" v-if="! item.deleted_at">
+                  تحصيل
+                </button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+    <!-- Nolons Modal -->
+<b-modal id="modal-collect"  
+ hide-footer hide-header-close hide-backdrop>
+  <template slot="modal-title">
+    تحصيل من البياع {{collect_dao.customer_name}}
+  </template>
+  <table class="table table-striped table-sm pr-me">
+    <thead>
+      <tr>
+        <th>مبلغ التحصيل</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-if="collect_dao">
+        <td>{{collect_dao.amount}}</td>
+        <td>
+          <input v-model="collect_dao.amount" class="form-control"  >
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="m-2">
+    <button class="btn btn-success pr-hideme" @click="$bvModal.hide('modal-collect');doCollect()" >
+      <span class="fa fa-check "></span> &nbsp;
+      تحصيل
+    </button>
+  </div>
+</b-modal>
   </section>
 </template>
 
 <script >
-import { CustomerDAO, CustomersCtrl} from '../ctrls/CustomersCtrl'
+import { CustomerTransDAO, CustomerDAO, CustomersCtrl} from '../ctrls/CustomersCtrl'
 import { moment } from '../main'
+import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl'
+import { TransTypesCtrl } from '../ctrls/TransTypesCtrl'
 
 export default {
   name: 'customers',
@@ -156,6 +191,7 @@ export default {
     return {
       customer_form: new CustomerDAO(CustomerDAO.INIT_DAO),
       customersCtrl: new CustomersCtrl(),
+      collect_dao: new CashflowDAO(),
       customers_arr: [],
       flags: {show_active: true, zm_mode: false, form_collabsed: true,},
       confirm_step: [],
@@ -170,6 +206,7 @@ export default {
     async refresh_all() {
       let soft_delete = this.flags.show_active
       this.customers_arr = await this.customersCtrl.findAll({},{softDelete: soft_delete})
+      this.collect_dao = new CashflowDAO()
     },
     fresh_form(){
       this.customer_form = new CustomerDAO(CustomerDAO.INIT_DAO)
@@ -187,6 +224,40 @@ export default {
       }
       
       this.customer_form = new CustomerDAO(CustomerDAO.INIT_DAO)
+      this.refresh_all()
+    },
+    async initCollect(customerDAO){
+      this.collect_dao.customer_id = customerDAO.id
+      this.collect_dao.customer_name = customerDAO.name
+    },
+    async doCollect(){
+
+      let selectedTrans = await new TransTypesCtrl().findOne({name: 'cust_collecting' , category: 'customer_trans'})
+      // create customer trans
+      if(selectedTrans) {
+        let cashflow_id = null
+        if(selectedTrans.map_cashflow){
+          // Create cashflow with trans
+          let cashflowTrans = await new TransTypesCtrl().findOne({name: selectedTrans.map_cashflow , category: 'cashflow'})
+          
+          let newCashflow = new CashflowDAO({
+            amount: this.collect_dao.amount,
+            day: this.$store.state.day.iso,
+            customer_id: this.collect_dao.customer_id,
+          })
+
+          newCashflow.transType = cashflowTrans
+          cashflow_id = await new CashflowCtrl().save(newCashflow)
+        }
+
+        let custtransDAO = new CustomerTransDAO()
+        custtransDAO.day = this.$store.state.day.iso
+        custtransDAO.amount = parseFloat(this.collect_dao.amount)
+        custtransDAO.customer_id = this.collect_dao.customer_id
+        custtransDAO.cashflow_id = cashflow_id
+        custtransDAO.transType = selectedTrans
+        await this.customersCtrl.updateDebtByTrans(custtransDAO)
+      }
       this.refresh_all()
     },
     async edit(id) {

@@ -31,6 +31,7 @@ export class CashflowDAO {
     }
   }
 
+
   /**@param {import('./TransTypesCtrl').TransTypeDAO} transDAO */
   set transType(transDAO) {
     this.state = transDAO.name
