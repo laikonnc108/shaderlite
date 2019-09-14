@@ -37,7 +37,9 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
     <tbody>
       <tr v-for="(row, idx) in fltrd_today_suppliers_arr" :key='idx'>
         <td>
-          {{row.supplier_name}}
+          <router-link class="nav-link " :to="{name:'supplier_details', params: {id: row.supplier_id}}">
+            {{row.supplier_name}}
+          </router-link>
         </td>
 
         <!--

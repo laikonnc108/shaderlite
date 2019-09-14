@@ -1,4 +1,5 @@
 import { bookshelf, knex } from '../main'
+import { SuppliersCtrl, SupplierTransDAO } from './SuppliersCtrl'
 
 export class ReceiptDAO {
   
@@ -82,6 +83,18 @@ export class ReceiptsCtrl {
     }
     let record = await this.model.forge(data).save()
 
+    if(data.recp_deducts) {
+      let transDAO = new SupplierTransDAO()
+      transDAO.amount = parseFloat(data.recp_deducts)
+      // TODO DYNAMIC
+      transDAO.trans_type = 'recp_deducts'
+      transDAO.sum = '-'
+      transDAO.receipt_id = record.id
+      transDAO.day = data.day
+      transDAO.supplier_id = data.supplier_id
+      await new SuppliersCtrl().saveSupplierTrans(transDAO)
+    }
+
     details_arr.forEach(item => {
       delete item.id
       item.receipt_id = record.id
@@ -117,6 +130,8 @@ export class ReceiptsCtrl {
     let instance = await this.model.where('id',id).fetch({withRelated:['details']})
     if(instance) {
       await instance.details().invokeThen('destroy')
+      // TODO from suppliers Ctrl
+      await knex.raw('delete from supplier_trans where receipt_id = ' + id)
       return await instance.destroy()
     }
     else

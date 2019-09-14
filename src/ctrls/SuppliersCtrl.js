@@ -34,6 +34,7 @@ export class SupplierTransDAO {
   trans_type
   sum
   balance_after
+  receipt_id
   notes
 
   static get INIT_DAO() {
@@ -95,13 +96,35 @@ export class SuppliersCtrl {
   async createSupplierTrans(transDAO) {
     transDAO.parseTypes()
 
-    if(transDAO.trans_type == 'supp_pre_payment')
-      transDAO.trans_type == 'supp_payment'
+    if(transDAO.trans_type == 'supp_pre_payment') {
+      transDAO.trans_type = 'supp_payment'
+    }
 
     let trans_record = await this.supplierTransModel.forge(transDAO).save()
     return trans_record.id
   }
 
+  /**@param {SupplierTransDAO} transDAO */
+  async saveSupplierTrans(transDAO) {
+    transDAO.parseTypes()
+    let trans_record
+    if(transDAO.trans_type == 'supp_pre_payment') {
+      transDAO.trans_type = 'supp_payment'
+    }
+    if(transDAO.receipt_id) {
+      let foundTrans = await this.supplierTransModel.where('receipt_id',transDAO.receipt_id).fetch()
+      if(foundTrans) {
+        trans_record = await foundTrans.save({amount: transDAO.amount})
+      } else {
+        trans_record = await this.supplierTransModel.forge(transDAO).save()
+      }
+
+    } else {
+      trans_record = await this.supplierTransModel.forge(transDAO).save()
+    }
+
+    return trans_record.id
+  }
 
   async findAll(filter = {}, options = {}) {
     let all = await this.model.where(filter).fetchAll(options)
@@ -111,12 +134,20 @@ export class SuppliersCtrl {
 
   
   async findById(id) {
-    let instance = await this.model.where('id',id).fetch({withRelated:['trans'],softDelete: false})
+    let instance = await this.model.where('id',id).fetch({withRelated:[
+    {'trans': function(qb){
+      qb.orderBy('day','desc')
+    }}
+    ],softDelete: false})
     return new SupplierDAO(instance.attributes)
   }
 
   async getSupplierDetails(id){
-    let one = await this.model.forge('id',id).fetch({withRelated:['trans'],softDelete: false})
+    let one = await this.model.forge('id',id).fetch({withRelated:[
+      {'trans': function(qb){
+        qb.orderBy('day')
+      }}
+      ],softDelete: false})
     let trans = one.related('trans').map( _=> new SupplierTransDAO(_.attributes))
     return {dao: new SupplierDAO(one.toJSON()), trans: trans}
   }

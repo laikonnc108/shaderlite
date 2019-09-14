@@ -175,7 +175,7 @@
         </button>
       </div>
       
-    <!-- Modal -->
+    <!-- Modal TODO No dublicate -->
 <b-modal id="modal-daily" size="xl" class="col-print-12"
 hide-header hide-footer hide-header-close hide-backdrop>
 <template>

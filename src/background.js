@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, globalShortcut } from 'electron'
 import * as path from 'path'
 import { sync_exec } from'./tools'
 import { format as formatUrl } from 'url'
@@ -85,5 +85,12 @@ app.on('ready', async () => {
     // TODO get dirs programaticly and do in one place
     let sout = await sync_exec(`copy ${dbFile} D:\\00_db\\shaderlite-${isoDay}.db`)
     console.log(sout.stdout ,dbFile, e)
+  })
+})
+
+app.on('ready', () => {
+  globalShortcut.register('CmdOrCtrl+1', () => {
+    console.log('CmdOrCtrl+1 is pressed')
+    mainWindow.webContents.send('shortcut_pressed','CmdOrCtrl+1')
   })
 })

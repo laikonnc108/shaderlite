@@ -4,6 +4,10 @@
     <button class="btn btn-primary d-print-none pr-hideme" @click="$router.go(-1)">
         <span class="fa fa-arrow-right"></span> &nbsp;   العودة
     </button>
+
+    <router-link class="mr-3 btn btn-primary d-print-none pr-hideme" :to="{name:'supplier_details', params: {id: supplier.id}}">
+        <span class="fa fa-file-import"></span> &nbsp;   ملف العميل
+    </router-link>
     <br>
     <h1>شاشة فواتير {{supplier.name}} لليوم</h1>
     <hr>
@@ -320,9 +324,13 @@
       <button  class="btn btn-primary" @click="saveAll()"> <span class="fa fa-save"></span> &nbsp;
       حفظ الفواتير   
       </button> &nbsp;
-      <button  class="btn btn-danger" @click="removeAll()"> <span class="fa fa-trash-alt"></span> &nbsp;
+      <button  class="btn btn-danger" @click="redoReceipt()"> <span class="fa fa-undo"></span> &nbsp;
+      اعادة انشاء فاتورة   
+      </button> &nbsp;
+      <button  class="btn btn-danger" @click="removeAll()"> <span class="fa fa-trash-alt"></span> 
       حذف الفواتير   
       </button>
+
     </div>
   </section>
 
@@ -539,8 +547,10 @@ import { ReceiptDAO, ReceiptsCtrl } from '../ctrls/ReceiptsCtrl'
 import { OutgoingsCtrl } from '../ctrls/OutgoingsCtrl'
 import { SupplierDAO, SuppliersCtrl } from '../ctrls/SuppliersCtrl'
 import draggable  from 'vuedraggable'
-import { MainMixin } from '../mixins/MainMixin';
-import { TransTypesCtrl } from '../ctrls/TransTypesCtrl';
+import { MainMixin } from '../mixins/MainMixin'
+import { TransTypesCtrl } from '../ctrls/TransTypesCtrl'
+
+const { ipcRenderer } = require('electron')
 
 export default {
   name: 'supp-receipts-details',
@@ -598,6 +608,10 @@ export default {
     async recp_changed(){
 
     },
+    async redoReceipt(){
+      await this.removeAll()
+      await this.addReceipt(1)
+    },
     async removeAll(){
       if(this.recp_1.id)
         await this.receiptsCtrl.deleteById(this.recp_1.id)
@@ -609,7 +623,7 @@ export default {
         await this.receiptsCtrl.deleteById(this.recp_3.id)
 
       await this.cashflowCtrl.rawDelete({day: this.day.iso, supplier_id: this.supplier_id, state: 'recp_paid'})
-      this.refresh_all()
+      await this.refresh_all()
     },
     async setRecpPaid( receipt, recp_paid ) {
       receipt.recp_paid = recp_paid
@@ -759,6 +773,9 @@ export default {
   async mounted(){
     console.log('shader_configs', this.$store.state.shader_configs)
     this.refresh_all()
+    ipcRenderer.on('shortcut_pressed',(event, message)=>{
+      console.log(message)
+    })
     let suppliersCtrl = new SuppliersCtrl()
     this.supplier = await suppliersCtrl.findById(this.supplier_id)
   },

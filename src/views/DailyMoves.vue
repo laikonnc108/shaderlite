@@ -31,14 +31,15 @@
           <tbody>
             <tr v-for="(item, idx) in fltrd_daily_receipts" :key='idx'>
               <td>
-                <router-link class=" " :to="{name:'supp_recp_details', params: {supplier_id: item.supplier_id}}">
-                {{item.supplier_name}}
+                <router-link  :to="{name:'supplier_details', params: {id: item.supplier_id}}">
+                <b>{{item.supplier_name}}</b>
                 </router-link>
                 <br/>
-                <span style="color:#456" v-for="(recp_paid, index) in receiptsSepStatus(item.concat_recp_paid)" :key="index">
+                <router-link :to="{name:'supp_recp_details', params: {supplier_id: item.supplier_id}}"
+                v-for="(recp_paid, index) in receiptsSepStatus(item.concat_recp_paid)" :key="index">
                 فاتورة {{'recp_status_'+ recp_paid | tr_label }} 
                   <span v-if="index+1 != receiptsSepStatus(item.concat_recp_paid).length"><br/></span>
-                </span>
+                </router-link>
               </td>
               <td v-html="$options.filters.productsFilter(item.products_concat,'<br/> ')"></td>
               

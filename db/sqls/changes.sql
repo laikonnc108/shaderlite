@@ -1,3 +1,6 @@
+-- 0.1.9 --
+add receipt_id to supplier_trans
+INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category") VALUES ('recp_deducts', 'خصم الفلاح', 'default', '-', '', 'supplier_trans');
 -- 0.1.8
 CREATE VIEW v_recp_sums AS SELECT 
 day,

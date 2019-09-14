@@ -33,10 +33,14 @@
           <b-form-group label="نوع الحركة">
             <b-form-radio-group  v-model="trans_form.trans_type">
               <b-form-radio value="supp_pre_payment">دفعة سابقة</b-form-radio>
+              <!--
               <b-form-radio value="supp_pre_recp">فاتورة سابقة</b-form-radio>
+              -->
               <b-form-radio value="supp_collect">تحصيل</b-form-radio>
               <b-form-radio value="supp_payment">دفعة اليوم</b-form-radio>
+              <!--
               <b-form-radio value="supp_recp_expenses">مصروف فاتورة</b-form-radio>
+              -->
             </b-form-radio-group>
           </b-form-group>
 
@@ -90,27 +94,32 @@
               <th>التاريخ</th>
               <th>الحركة</th>
               <th>المبلغ</th>
-              <th>باقي</th>
             </tr>
           </thead>
           <tbody>
             <template v-for="(payment, idx) in supplier_trans" >
-            <tr :key='idx' v-if="true || payment.trans_type == 'supp_payment'">
+            <tr :key='idx' v-if="true || payment.trans_type == 'supp_payment'" :class="{'text-danger':payment.sum =='-' }">
               <th>{{idx +1 | toAR }} </th>
               <td>{{payment.day | arDate }}</td>
               <td>
                 {{payment.trans_type | tr_label('trans_types')}}
                 <span v-if="payment.notes">- {{payment.notes}} </span>
               </td>
-              <td>{{payment.amount | toAR}}</td>
+              <td>
+                <span v-if="payment.sum=='-'">( {{payment.amount | toAR}} )</span>
+                <span v-else> {{payment.amount | toAR}} </span>
+              </td>
+              <!--
               <td>{{payment.balance_after | toAR}}</td>
+              -->
             </tr>
             </template>
             <tr>
               <td></td>
+              <td></td>
               <td>رصيد العميل الحالي</td>
               <td>
-                <b>{{supplier.balance | toAR}}</b>
+                <b>{{supp_trans_sums.total_debt | toAR}}</b>
               </td>
             </tr>
           </tbody>
@@ -131,7 +140,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(receipt, idx) in supplier_receipts" :key='idx'>
+            <tr v-for="(receipt, idx) in supplier_receipts" :key='idx' >
               <th>{{idx +1 | toAR }}</th>
               <td>
                 {{receipt.net_value | round2 | toAR}}
@@ -144,7 +153,7 @@
                 <span v-if="receipt.recp_paid == 2">صرف</span>
               </td>
               <td> 
-                <button class="btn text-danger" @click="removeRecpItself(receipt.id)" >
+                <button v-if="false" class="btn text-danger" @click="removeRecpItself(receipt.id)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step_recp[receipt.id]"> حذف الفاتورة</template>
                   <template v-if="confirm_step_recp[receipt.id]"> تأكيد </template>
@@ -156,9 +165,11 @@
         </table>
 <div class="m-3">اجمالي فواتير الرصد فقط = <b>{{supp_recps_sums.total_rasd | round2 | toAR}}</b> </div>
         <div class="text-center">
+          <!--
           <button class="btn btn-printo pr-hideme" @click="vue_window.print()">
             <span class="fa fa-print"></span> طباعة 
           </button>
+          -->
         </div>
 
   </section>
@@ -317,6 +328,16 @@ export default {
       })
       // this.receipt.sale_value = sum
       return supp_recps_sums
+    },
+    supp_trans_sums: function() {
+      let supp_trans_sums = {total_debt: 0 }
+      this.supplier_trans.forEach(trans => {
+        if(trans.sum == '+')
+          supp_trans_sums.total_debt += parseFloat(trans.amount)
+        else if (trans.sum == '-')
+          supp_trans_sums.total_debt -= parseFloat(trans.amount)
+      })
+      return supp_trans_sums
     },
     valid_payments_form: function() {
 
