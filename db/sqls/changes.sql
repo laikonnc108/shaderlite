@@ -1,3 +1,30 @@
+-- 0.1.10 --
+
+CREATE VIEW v_daily_sums AS 
+SELECT days.day as day,
+recp_sum_net,
+recp_sum_given,
+recp_sum_rasd_net,
+recp_sum_comm,
+out_sell_comm,
+sum_deducts
+FROM
+	( select DISTINCT day from outgoings UNION select DISTINCT day from incomings UNION select DISTINCT day from cashflow ) days
+LEFT JOIN 
+	(select day, round(sum(recp_given),2) recp_sum_given , round(sum(recp_comm),2) recp_sum_comm, round(sum(net_value),2) recp_sum_net , 
+	round(sum(CASE  
+		WHEN recp_paid = 1 THEN net_value 
+			ELSE 0 
+		END)
+	,2) recp_sum_rasd_net from receipts GROUP By day ) recp_day_g
+	ON days.day = recp_day_g.day
+LEFT JOIN 
+	(select day, sum(amount) as sum_deducts from cashflow  where state in (select name FROM trans_types where category = 'cashflow' and optional = 1)  group by day) cash_deducts
+	ON  days.day = cash_deducts.day
+LEFT JOIN
+	(select day, sum(sell_comm * count) out_sell_comm FROM outgoings GROUP By day) outgoings_day_g
+	ON days.day = outgoings_day_g.day
+
 -- 0.1.9 --
 add receipt_id to supplier_trans
 INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category") VALUES ('recp_deducts', 'خصم الفلاح', 'default', '-', '', 'supplier_trans');
