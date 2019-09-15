@@ -4,7 +4,8 @@
   @saved="refresh_all"
   v-if="! flags.detailed">
   </IncomingResalahForm>
-  <div class="col-6 p-4 col-print-10 pr-me" >
+  <div class=" p-4 col-print-10 pr-me" :class="{ 'col-6': ! flags.detailed , 'col-11':  flags.detailed }" >
+
     <div class="pr-hideme">
       <h3 class="text-danger fa fa-eraser larger"
       @click="search_term = ''" v-if="search_term"></h3>
@@ -48,7 +49,7 @@
               <td v-if="flags.detailed" class="d-print-none">
                 <button class="btn text-danger" @click="discard(incom.id)" >
                   <span class="fa fa-archive "></span> 
-                  <template v-if="! confirm_step[incom.id]"> حذف الوارد</template>
+                  <template v-if="! confirm_step[incom.id]"> حذف </template>
                   <template v-if="confirm_step[incom.id]"> تأكيد </template>
                 </button>
               </td>

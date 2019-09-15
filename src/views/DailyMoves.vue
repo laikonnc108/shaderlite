@@ -66,8 +66,8 @@
               <td></td>
               <th>المجموع</th>
               <td></td>
-              <td></td>
-              <td></td>
+              <td>{{recp_sums.sum_out_comm | round2 }}</td>
+              <td>{{recp_sums.sum_recp_comm | round2 }}</td>
               <td>{{recp_sums.sum_comms | round2 }}</td>
               <th>
                 <span v-if="recp_sums.sum_diffs  > 0">+</span>
@@ -180,6 +180,8 @@ export default {
         sum_net: 0 , 
         sum_rasd_net: 0 ,
         sum_income: 0 ,
+        sum_out_comm: 0,
+        sum_recp_comm: 0,
         sum_comms: 0 ,
         sum_givens: 0
       }
@@ -190,6 +192,8 @@ export default {
         recp_sums.sum_net += recp.sum_net_value
         recp_sums.sum_income += recp.sum_sell_comm + recp.sum_recp_comm + ( recp.sum_out_value - recp.sum_sale_value )
         recp_sums.sum_comms += recp.sum_sell_comm + recp.sum_recp_comm 
+        recp_sums.sum_out_comm += recp.sum_sell_comm
+        recp_sums.sum_recp_comm += recp.sum_recp_comm
         recp_sums.sum_givens += recp.sum_recp_given
         recp_sums.sum_rasd_net += recp.sum_rasd_net
       })

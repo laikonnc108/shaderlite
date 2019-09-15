@@ -217,7 +217,7 @@ class="btn btn-lg  m-1 btn-block"
               <td v-if="flags.detailed" class="d-print-none">
                 <button class="btn text-danger" @click="discard(item.id)" >
                   <span class="fa fa-archive "></span> 
-                  <template v-if="! confirm_step[item.id]"> حذف المبيع</template>
+                  <template v-if="! confirm_step[item.id]"> حذف </template>
                   <template v-if="confirm_step[item.id]"> تأكيد </template>
                 </button>
               </td>

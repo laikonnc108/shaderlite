@@ -1,7 +1,7 @@
 <template>
   <section class="incoming-resalah-form">
 
-  <form  @submit="saveIncomings" class="p-4">
+  <form  class="p-4">
     <div class="form-group row">
       <label class="col-sm-2">التاريخ</label>
       <div class="col-sm-10">
@@ -28,12 +28,12 @@
         </v-select>
       </div>
     </div>
-
     <div class="form-group row">
       <label class="col-sm-2">الاصناف</label>
       <div class="col-sm-10">
         <div class="product-row p-1" v-for="(product, index) in incomings_data.products_arr" :key='index' >
-           عدد {{product.count}} - {{products_arr[product.id]}} 
+          <span :class="{'text-danger': product.found }" > عدد {{product.count}} - {{products_arr[product.id]}}  </span>
+           <div class="text-danger" v-if="product.found"> ( تم تسجيل نفس الوارد اليوم بنفس العدد ) </div>
         </div>
       </div>
     </div>
@@ -85,8 +85,8 @@
         <input v-model="incomings_data.given" class="form-control">
       </div>
     </div>
-
-    <button type="submit" class="btn btn-success" :disabled="! valid_form">حفظ</button>
+    <!-- prevent enter to supmit -->
+    <button type="button" @click="saveIncomings" class="btn btn-success" :disabled="! valid_form">حفظ</button>
     &nbsp;
     <button type="button" @click="fresh_form" class="btn btn-danger"> الغاء </button>
     
@@ -105,6 +105,7 @@ export default {
     return {
       incomings_data: new IncomingsData({day: this.$store.state.day.iso }),
       active_suppliers: [],
+      supplier_incomings: [],
       incomingsCtrl: new IncomingsCtrl(),
       all_products: Object.keys(this.$store.state.products_arr).map(
         key => ({
@@ -160,6 +161,30 @@ export default {
     },
     valid_product: function() {
       return this.product_data.id && this.product_data.count
+    }
+  },
+  watch: {
+    incomings_data : {
+      /**@param {IncomingsData} newData */
+      handler: async function(newData) {
+        if(newData.supplier_id){
+          this.supplier_incomings = await new IncomingsCtrl().findAll({supplier_id: newData.supplier_id,
+          day: this.day.iso})
+        }
+      },
+      deep: true
+    },
+    'incomings_data.products_arr' :{
+      handler: function(newArr) {
+        newArr.forEach( product => {
+          let found = this.supplier_incomings.filter( item => {
+            return item.product_id == product.id && item.count == product.count
+          })
+          product.found = (found.length > 0 )? true : false;
+          console.log(product)
+        }) 
+      },
+      deep: true
     }
   }
 }
