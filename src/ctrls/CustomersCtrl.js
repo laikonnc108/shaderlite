@@ -7,6 +7,7 @@ export class CustomerDAO {
   id 
   name 
   debt 
+  sum_debt
   phone
   address
   nat_id
@@ -20,6 +21,7 @@ export class CustomerDAO {
 
   parseTypes() {
     this.debt = this.debt ? parseFloat(this.debt) : 0 
+    delete this.sum_debt
   }
 
   constructor (data) {
@@ -106,8 +108,16 @@ export class CustomersCtrl {
   }
 
   async findAll(filter = {}, options = {}) {
-    let all = await this.model.where(filter).fetchAll(options)
-    return all.map( _=> new CustomerDAO(_.attributes))
+    //let all = await this.model.where(filter).fetchAll(options)
+    // let results = await knex(`v_customers`)
+
+    let results = await knex.raw(`
+    select *, (amount) sum_debt from (select * from customers ) customers_g
+    LEFT JOIN ( select customer_id, sum(amount) as amount from customer_trans group by customer_id ) customer_trans_g
+    ON customers_g.id = customer_trans_g.customer_id
+    `)
+
+    return results.map( _=> new CustomerDAO(_))
   }
 
   async getCustomerDetails(id){
@@ -156,19 +166,20 @@ ORDER BY day
     let instance = await this.model.forge('id',transDAO.customer_id).fetch()
     let debt = parseFloat(instance.get('debt')) ? parseFloat(instance.get('debt')) : 0
     transDAO.debt_was = debt
+
+    if(transDAO.sum == '-')
+      transDAO.amount = - parseFloat(transDAO.amount)
     await this.createCustomerTrans(transDAO)
     
-    if(transDAO.sum === '+') {
-      debt += parseFloat(transDAO.amount)
-    } else if(transDAO.sum === '-'){
-      debt -= parseFloat(transDAO.amount)
-    }
+    debt += parseFloat(transDAO.amount)
+
     return await instance.save({debt: debt})
   }
 
   /**@param {CustomerTransDAO} transDAO */
   async createCustomerTrans(transDAO) {
     transDAO.parseTypes()
+
     let trans_record = await this.customerTransModel.forge(transDAO).save()
     return trans_record.id
   }
@@ -182,12 +193,7 @@ ORDER BY day
     let amount = parseFloat(transDAO.amount)
     console.log(debt,amount)
     // TODO more organized !
-    if(transDAO.sum == '+') {
-      debt = parseFloat(debt) - amount
-    } else {
-      debt = parseFloat(debt) + amount
-    }
-    console.log(debt)
+    debt = parseFloat(debt) - amount
 
     await customerInstance.save({debt: debt})
     let transInstance = await this.customerTransModel.where('id', transDAO.id).fetch()

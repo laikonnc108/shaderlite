@@ -270,14 +270,16 @@ export default {
   computed: {
     fltrd_outgoings_arr: function(){
       return this.outgoings_arr.filter( item => {
-        return (item.supplier_name.includes(this.search_term) 
-        || item.product_name.includes(this.search_term)
-        || item.customer_name.includes(this.search_term))
+        return (
+          item.supplier_name.includes(this.search_term) 
+          || item.product_name.includes(this.search_term)
+          || (item.customer_name && item.customer_name.includes(this.search_term))
+        )
       })
     },
     fltrd_avilable_incomings: function(){
       return this.avilable_incomings.filter( item => {
-        return (item.supplier_name.includes(this.search_term_incomings) 
+        return (item.supplier_name && item.supplier_name.includes(this.search_term_incomings) 
         || item.product_name.includes(this.search_term_incomings))
       })
     },

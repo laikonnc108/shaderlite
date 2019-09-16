@@ -1,3 +1,6 @@
+-- 0.1.11 -- 
+UPDATE customer_trans set amount = - (amount) where sum = '-' and amount > 0
+
 -- 0.1.10 --
 
 CREATE VIEW v_daily_sums AS 
