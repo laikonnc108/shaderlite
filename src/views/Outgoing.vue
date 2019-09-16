@@ -150,7 +150,7 @@ class="btn btn-lg  m-1 btn-block"
   <!-- Prevent implicit submission of the form to solve delay issu-->
   <button type="submit" disabled style="display: none" aria-hidden="true"></button>
   
-  <button type="submit" class="btn btn-success" :disabled="! valid_form">اضافة</button> 
+  <button type="submit" class="btn btn-success" :disabled="! valid_form || submited">اضافة</button> 
   &nbsp;&nbsp;
   <button class="btn btn-danger" type="button" @click="refresh_all"> الغاء </button>
 </form>
@@ -256,6 +256,7 @@ export default {
       customersCtrl: new CustomersCtrl(),
       avilable_incomings: [],
       selected_inc: {},
+      submited: false,
       outgoing_form: new OutgoingDAO({ day: this.$store.state.day.iso, ...OutgoingDAO.INIT_DAO}),
       flags:{detailed: false},
       confirm_step: [],
@@ -315,6 +316,7 @@ export default {
   },
   methods: {
     async saveOutgoing(evt){
+      this.submited = true
       evt.preventDefault()
       this.outgoing_form.value_calc = this.value_calc
       this.outgoing_form.income_day = this.selected_inc.day
@@ -349,6 +351,7 @@ export default {
       this.outgoings_arr = await this.outgoingsCtrl.findAll({day: this.day.iso})
       this.outgoing_form = new OutgoingDAO({ day: this.$store.state.day.iso, ...OutgoingDAO.INIT_DAO})
       this.selected_inc = {}
+      this.submited = false
     }
   },
   async mounted() {
