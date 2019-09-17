@@ -123,10 +123,12 @@ class="btn btn-lg  m-1 btn-block"
     -->
     <v-select class="vselect-styler"  dir="rtl"
     ref='customerSelect'
+    @search='new_customer'
     :options="active_customers" label="name" 
     :reduce="customer => customer.id"
-    v-model="outgoing_form.customer_id">
-      <div slot="no-options">لا يوجد نتائج بحث</div>
+    v-model="outgoing_form.customer_id"
+    :key="outgoing_form.customer_id">
+      <div slot="no-options">لا يوجد نتائج بحث <span class="text-primary" @click="new_customer('new')">انشاء جديد</span></div>
     </v-select>
     </div>
   </div>
@@ -241,7 +243,7 @@ class="btn btn-lg  m-1 btn-block"
 <script>
 import { InoutHeadCtrl } from '../ctrls/InoutHeadCtrl'
 import { OutgoingDAO, OutgoingsCtrl } from '../ctrls/OutgoingsCtrl'
-import { CustomersCtrl } from '../ctrls/CustomersCtrl';
+import { CustomersCtrl, CustomerDAO } from '../ctrls/CustomersCtrl';
 import { MainMixin } from '../mixins/MainMixin';
 
 export default {
@@ -254,6 +256,7 @@ export default {
       inoutHeadCtrl: new InoutHeadCtrl(),
       outgoingsCtrl: new OutgoingsCtrl(),
       customersCtrl: new CustomersCtrl(),
+      customer_search: '',
       avilable_incomings: [],
       selected_inc: {},
       outgoing_form: new OutgoingDAO({ day: this.$store.state.day.iso, ...OutgoingDAO.INIT_DAO}),
@@ -335,6 +338,15 @@ export default {
       else {
         this.confirm_step = []
         this.confirm_step[id] = true
+      }
+    },
+    async new_customer(search) {
+      this.customer_search = (search && search != 'new') ? search : this.customer_search
+      if(search == 'new') {
+        console.log(this.customer_search)
+        let new_customer_id = await new CustomersCtrl().save(new CustomerDAO({name: this.customer_search }))
+        this.active_customers = await this.customersCtrl.findAll({},{softDelete: true})
+        this.outgoing_form.customer_id = new_customer_id
       }
     },
     async setSelectedInc(incom){
