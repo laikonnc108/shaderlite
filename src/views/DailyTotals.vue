@@ -27,22 +27,18 @@
           <thead>
             <tr>
               <th>اليوم</th>
-              <th>فواتير</th>
-              <th> وهبة </th>
+              <th> مشال </th>
               <th> دخان </th>
-              <th> نوالين </th>
               <th>مصاريف </th>
-              <th>بياعات + عمولات </th>
+              <th>عمولة </th>
               <th>خصوم الفلاح </th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(item, idx) in daily_totals" :key='idx'>
               <td>{{item.day | arDate }}</td>
-              <td>{{item.recp_sum_net | round2 }}</td>
               <td>{{item.recp_sum_given | round2 }}</td>
               <td>{{ item.sum_given | round2 }}</td>
-              <td>{{ item.sum_nolon | round2 }}</td>
               <td>{{item.sum_deducts | round2 }}</td>
               <td>{{item.recp_sum_comm +item.out_sell_comm | round2 }}</td>
               <td>{{item.recp_sum_deducts | round2 }}</td>

@@ -102,7 +102,7 @@
               <th>اسم</th>
               <th v-if="false && ! flags.zm_mode" >التليفون</th>
               <th>مديونية</th>
-              <th> calc مديونية</th>
+              <th v-if="false"> calc مديونية</th>
               <th v-if=" flags.zm_mode" width="25%">تحصيل</th>
               <th v-if="false">ملاحظات</th>
               
@@ -119,7 +119,7 @@
               </td>
               <td v-if="false && ! flags.zm_mode"  >{{item.phone}}</td>
               <td>{{item.debt | toAR }}</td>
-              <td>{{item.sum_debt | toAR }}</td>
+              <td v-if="false">{{item.sum_debt | toAR }}</td>
               <td v-if=" flags.zm_mode" >
                 <span class="collect-box "></span>
               </td>

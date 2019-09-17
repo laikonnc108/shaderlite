@@ -85,7 +85,7 @@ export class ReceiptsCtrl {
 
     if(data.recp_deducts) {
       let transDAO = new SupplierTransDAO()
-      transDAO.amount = parseFloat(data.recp_deducts)
+      transDAO.amount = -parseFloat(data.recp_deducts)
       // TODO DYNAMIC
       transDAO.trans_type = 'recp_deducts'
       transDAO.sum = '-'
