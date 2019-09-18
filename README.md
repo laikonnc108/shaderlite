@@ -44,14 +44,27 @@ npm run postinstall
 - SQLiteDatabaseBrowserPortable
 
 ## Manual migration
+mysql -u root -p daily_mngr < file
+
+**Select duplicates**
+SELECT name FROM customers group by name HAVING COUNT(*) > 1;
 
 **Customers**
-- export from phpmyadmin as csv with no "" or NULL
-- import 
-- remove date_crated
+- remove duplicates and empty
 - update active NULL where = 1 / 1 where = 0 (Reverse)
-- rename active to deleted_at
-- create forign keys
+- remove active not null  
+- remove date_crated
+```
+SELECT * FROM customers where name = '';
+update customers set name = 'علي السيد' where id = 175;
+update customers set name = CONCAT(name, ' 2') where id = 246 or id = 223 or id = 224 or id = 66 or id = 108;
+update customers set deleted_at = 1 where deleted_at = 0;
+update customers set deleted_at = NULL where deleted_at = 1;
+```
+- rename active to deleted_at 
+- export sql
+- import 
+
 
 **Suppliers**
 - export sql
@@ -62,6 +75,7 @@ npm run postinstall
 
 **Products**
 - add comm
+- add rahn
 
 **Supplier_trans**
 - export sql
