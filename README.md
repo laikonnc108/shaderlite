@@ -67,6 +67,10 @@ update customers set deleted_at = NULL where deleted_at = 1;
 
 
 **Suppliers**
+```
+SELECT MAX(ID), active FROM suppliers GROUP BY name HAVING count(*) > 1' and active = 0;
+update suppliers set name = CONCAT(name, ' 2') where id =  322 or id =331 or id =547 or id =535 or id =550 or id =151 or id =545 or id =79 or id =539 or id =98 or id =383 or id =341 or id =104 or id =338 or id =78 or id =74 or id =339 or id =544 or id =306 or id =542 or id =528 or id =220 or id =244 or id =110 or id =533;
+```
 - export sql
 - remove all bluff
 - edit cols and datatypes (and add unique)
