@@ -1,10 +1,11 @@
-import { bookshelf } from '../main'
+import { bookshelf, knex } from '../main'
 
 export class SupplierDAO {
 
   id 
   name 
   balance 
+  sum_debt
   phone
   address
   notes
@@ -17,10 +18,12 @@ export class SupplierDAO {
 
   parseTypes() {
     this.balance = this.debt ? parseFloat(this.debt) : 0 
+    delete this.sum_debt
   }
 
   constructor (data) {
     Object.assign(this, data)
+    
   }
 }
 
@@ -45,6 +48,7 @@ export class SupplierTransDAO {
     this.amount = this.amount? parseFloat(this.amount) : 0
     delete this.products
     delete this.count
+
   }
 
   /**@param {import('./TransTypesCtrl').TransTypeDAO} transDAO */
@@ -82,6 +86,7 @@ export class SuppliersCtrl {
     /**@type {import('bookshelf').ModelBase} */
     let instance = await this.model.forge('id',transDAO.supplier_id).fetch()
     let balance = parseFloat(instance.get('balance')) ? parseFloat(instance.get('balance')) : 0
+    /*
     if(transDAO.sum === '+') {
       balance += parseFloat(transDAO.amount)
     } else if(transDAO.sum === '-'){
@@ -90,6 +95,15 @@ export class SuppliersCtrl {
     await instance.save({balance: balance})
     transDAO.balance_after = balance
     return await this.createSupplierTrans(transDAO)
+    */
+
+    if(transDAO.sum == '-')
+      transDAO.amount = - parseFloat(transDAO.amount)
+    await this.createSupplierTrans(transDAO)
+    
+    balance += parseFloat(transDAO.amount)
+
+    return await instance.save({balance: balance})
   }
 
   /**@param {SupplierTransDAO} transDAO */
@@ -127,9 +141,17 @@ export class SuppliersCtrl {
   }
 
   async findAll(filter = {}, options = {}) {
+    /*
     let all = await this.model.where(filter).fetchAll(options)
-    
     return all.map( _=> new SupplierDAO(_.attributes))
+    */
+   let results = await knex.raw(`
+   select * from (select * from suppliers ) suppliers_g
+   LEFT JOIN ( select supplier_id, sum(amount) as sum_debt from supplier_trans group by supplier_id ) supplier_trans_g
+   ON suppliers_g.id = supplier_trans_g.supplier_id
+   `)
+
+   return results.map( _=> new SupplierDAO(_))
   }
 
   

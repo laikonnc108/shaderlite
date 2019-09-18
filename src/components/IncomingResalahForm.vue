@@ -23,8 +23,11 @@
         ref="supplierSelect"
         :options="active_suppliers" label="name" 
         :reduce="supplier => supplier.id"
-        v-model="incomings_data.supplier_id">
-          <div slot="no-options">لا يوجد نتائج بحث</div>
+        @search="new_supplier"
+        v-model="incomings_data.supplier_id"
+        :key="incomings_data.supplier_id" >
+          <div slot="no-options">لا يوجد نتائج بحث <span class="text-primary" @click="new_supplier('new')">انشاء جديد</span> </div>
+          
         </v-select>
       </div>
     </div>
@@ -39,11 +42,11 @@
     </div>
 
     <div class="form-group row">
-      <div class="col-sm-2"></div>
-      <div class="col-sm-10 ">
-        <div class="row product_area p-3">
+      <div class="col-sm-1"></div>
+      <div class="col-sm-11 ">
+        <div class="row product_area p-2">
           <label class="col-sm-2">الصنف</label>
-          <div class="col-sm-6">
+          <div class="col-sm-7">
             <!--
             <select v-model="product_data.id" class="form-control" placeholder="اختار الصنف">
               <option v-for="(product, index) in all_products" :key='index' :value='index'>
@@ -55,11 +58,13 @@
             ref='productSelect'
             :reduce="product => product.id"
             :options="all_products" label="product_name"
-            v-model="product_data.id">
-              <div slot="no-options">لا يوجد نتائج </div>
+            @search="new_product"
+            v-model="product_data.id"
+            :key="product_data.id">
+              <div slot="no-options">لا يوجد نتائج <span class="text-primary" @click="new_product('new')"> منتج جديد </span> </div>
             </v-select>
           </div>
-          <div class="col-sm-4">
+          <div class="col-sm-3">
             <input v-model="product_data.count" class="form-control" placeholder=" العدد">
           </div>
           <div class="p-4">
@@ -95,9 +100,11 @@
 </template>
 
 <script >
-import { SuppliersCtrl } from '../ctrls/SuppliersCtrl';
+import { SuppliersCtrl, SupplierDAO } from '../ctrls/SuppliersCtrl';
 import { IncomingsCtrl,IncomingsData } from '../ctrls/IncomingsCtrl'
 import { MainMixin } from '../mixins/MainMixin'
+import { ProductsCtrl, ProductDAO } from '../ctrls/ProductsCtrl';
+import { MyStoreMutations } from '../main'
 
 export default {
   name: 'IncomingResalahForm',
@@ -105,6 +112,8 @@ export default {
     return {
       incomings_data: new IncomingsData({day: this.$store.state.day.iso }),
       active_suppliers: [],
+      supplier_search: '',
+      product_search: '',
       supplier_incomings: [],
       incomingsCtrl: new IncomingsCtrl(),
       all_products: Object.keys(this.$store.state.products_arr).map(
@@ -134,9 +143,31 @@ export default {
       this.$emit('saved')
 
     },
+    async new_supplier(search, loading) {
+      this.supplier_search = (search && search != 'new') ? search : this.supplier_search
+      if(search == 'new') {
+        console.log(this.supplier_search)
+        let newsupplier_id = await new SuppliersCtrl().save(new SupplierDAO({name: this.supplier_search }))
+        this.active_suppliers = await new SuppliersCtrl().findAll({},{softDelete: true})
+        this.incomings_data.supplier_id = newsupplier_id
+        //this.$refs.supplierSelect.search = this.supplier_search
+      }
+    },
+    async new_product(search) {
+      this.product_search = (search && search != 'new') ? search : this.product_search
+      if(search == 'new') {
+        console.log(this.product_search)
+        let product_id = await new ProductsCtrl().save(new ProductDAO({name: this.product_search }))
+        let products_arr = await new ProductsCtrl().getProductsArr()
+        this.$store.commit(MyStoreMutations.setProductsArr, products_arr)
+        this.all_products.push({id: product_id, product_name: this.product_search })
+        this.product_data.id = product_id
+      }
+    },
     add_product() {
       if(this.product_data.id && parseInt(this.product_data.count) > 0 )
         this.incomings_data.products_arr.push(this.product_data)
+
       this.product_data = {id: 0 , count: null}
       this.$refs.productSelect.clearSelection()
     },
@@ -145,13 +176,13 @@ export default {
       this.product_data = {id: 0 , count: null}
       this.$refs.productSelect.clearSelection()
       this.$refs.supplierSelect.clearSelection()
+      this.$refs.supplierSelect.search = null
     }
   },
   async mounted () {
     // console.log(this.$store.state.products_arr)
     console.log(this.all_products)
-    let suppliersCtrl = new SuppliersCtrl()
-    this.active_suppliers = await suppliersCtrl.findAll({},{softDelete: true})
+    this.active_suppliers = await new SuppliersCtrl().findAll({},{softDelete: true})
     this.fresh_form()
   },
   computed: {

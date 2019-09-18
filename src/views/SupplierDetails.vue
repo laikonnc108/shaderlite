@@ -332,10 +332,9 @@ export default {
     supp_trans_sums: function() {
       let supp_trans_sums = {total_debt: 0 }
       this.supplier_trans.forEach(trans => {
-        if(trans.sum == '+')
-          supp_trans_sums.total_debt += parseFloat(trans.amount)
-        else if (trans.sum == '-')
-          supp_trans_sums.total_debt -= parseFloat(trans.amount)
+
+        supp_trans_sums.total_debt += parseFloat(trans.amount)
+
       })
       return supp_trans_sums
     },

@@ -1,6 +1,39 @@
 -- 0.1.11 -- 
-UPDATE customer_trans set amount = - (amount) where sum = '-' and amount > 0
+UPDATE customer_trans set amount = - (amount) where sum = '-' and amount > 0;
+UPDATE supplier_trans set amount = - (amount) where sum = '-' and amount > 0;
 
+CREATE VIEW v_daily_sums AS 
+SELECT days.day as day,
+recp_sum_net,
+recp_sum_given,
+recp_sum_rasd_net,
+recp_sum_comm,
+recp_sum_deducts,
+out_sell_comm,
+sum_deducts,
+sum_given,
+sum_nolon
+FROM
+	( select DISTINCT day from outgoings UNION select DISTINCT day from incomings UNION select DISTINCT day from cashflow ) days
+LEFT JOIN 
+	(select day,
+	round(sum(recp_given),2) recp_sum_given,
+	round(sum(recp_comm),2) recp_sum_comm,
+	round(sum(net_value),2) recp_sum_net,
+	sum(recp_deducts) recp_sum_deducts,
+	round(sum(CASE  WHEN recp_paid = 1 THEN net_value ELSE 0 END),2) recp_sum_rasd_net
+	FROM receipts GROUP By day ) recp_day_g
+	ON days.day = recp_day_g.day
+LEFT JOIN 
+	(select day,
+	sum(case when state = 'given' then amount else null end) as sum_given,
+	sum(case when state = 'nolon' then amount else null end) as sum_nolon,
+	sum(case when state in (select name FROM trans_types where category = 'cashflow' and optional = 1) then amount else null end) sum_deducts
+	from cashflow  GROUP by day ) cash_deducts
+	ON  days.day = cash_deducts.day
+LEFT JOIN
+	(select day, sum(sell_comm * count) out_sell_comm FROM outgoings GROUP By day) outgoings_day_g
+	ON days.day = outgoings_day_g.day
 -- 0.1.10 --
 
 CREATE VIEW v_daily_sums AS 

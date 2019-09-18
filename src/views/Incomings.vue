@@ -1,9 +1,11 @@
 <template>
 <div class="incomings home row">
+  
   <IncomingResalahForm class="col-6 bg-incoming minh90 d-print-none"
   @saved="refresh_all"
   v-if="! flags.detailed">
   </IncomingResalahForm>
+
   <div class=" p-4 col-print-10 pr-me" :class="{ 'col-6': ! flags.detailed , 'col-11':  flags.detailed }" >
 
     <div class="pr-hideme">
