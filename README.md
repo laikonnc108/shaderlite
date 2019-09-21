@@ -50,29 +50,30 @@ mysql -u root -p daily_mngr < file
 SELECT name FROM customers group by name HAVING COUNT(*) > 1;
 
 **Customers**
-- remove duplicates and empty
-- remove active not null and remove date_crated
+- Don't remove duplicates and empty
+- remove active not null and remove date_crated and rename active to deleted_at 
 ```
 SELECT * FROM customers where name = '';
 update customers set name = 'علي السيد' where id = 175;
 update customers set name = CONCAT(name, ' 2') where id = 246 or id = 223 or id = 224 or id = 66 or id = 108;
 
-update customers set active = NULL where active = 1;
-update customers set active = 1 where active = 0;
+update customers set deleted_at = NULL where deleted_at = 1;
+update customers set deleted_at = 1 where deleted_at = 0;
 ```
-- rename active to deleted_at 
 - export sql
 - import 
 
 
 **Suppliers**
 - remove duplicates and empty
-- remove active not null and remove date_crated, total_count and rename active to deleted_at 
+
 ```
 SELECT MAX(ID),group_concat(id), group_concat(active) , any_value(name) FROM suppliers GROUP BY name HAVING count(*) > 1;
-update suppliers set name = CONCAT(name, ' 2') where id = 106 or id=322 or id=468 or id=67 or id=126 or id=380 or id=73 or id=138 or id=97 or id=383 or id=22 or id=23 or id=4 or id=76 or id=74 or id=3 or id=2 or id=306 or id=273 or id=374 or id=203 or id=194 or id=110 or id=10;
+update suppliers set name = CONCAT(name, ' 2') where id = 106 or id=322 or id=468 or id=67 or id=126 or id=380 or id=73 or id=138 or id=97 or id=383 or id=22 or id=23 or id=4 or id=76 or id=74 or id=3 or id=2 or id=306 or id=273 or id=374 or id=203 or id=194 or id=110 or id=10 or id = 393;
 update suppliers set name = CONCAT(name, ' 3') where id = 410 or id=11 or id=504 ;
-
+```
+- remove active not null and remove date_crated, total_count and rename active to deleted_at 
+```
 update suppliers set deleted_at = NULL where deleted_at = 1;
 update suppliers set deleted_at = 1 where deleted_at = 0;
 
@@ -83,12 +84,15 @@ update suppliers set deleted_at = 1 where deleted_at = 0;
 **Products**
 - rename active to deleted_at and remove active not null , remove date_created
 ```
+ALTER TABLE `daily_mngr`.`products` CHANGE COLUMN `active` `deleted_at` TINYINT(1) UNSIGNED,
+DROP COLUMN `date_created`;
+
 update products set name = CONCAT(name, ' P') where id = 211 or id = 7 or id = 93 or id = 31 or id = 184 or id = 127 or id = 175 or id = 5 or id = 248 or id = 233 ;
 update products set name = CONCAT(name, ' PP') where id = 26 ;
 
 update products set deleted_at = NULL where deleted_at = 1;
 update products set deleted_at = 1 where deleted_at = 0;
-
+SELECT name FROM products group by name HAVING COUNT(*) > 1;
 ```
 - add comm
 - add rahn
@@ -96,38 +100,74 @@ update products set deleted_at = 1 where deleted_at = 0;
 `update products set product_sell_comm = 6`
 
 **Supplier_trans**
-- export sql
-- remove all bluff
-- edit cols and datatypes 
-- remove unwanted cols d_product, date_created
-- create forign keys
+- remove d_product, date_created
+- export sql and remove all bluff
+- rename trans_types
 
 **Customer_trans**
+`Delete FROM customer_trans WHERE customer_id not in (select id from customers)`
 - add debt_was
-- todo remove product_name , count also debt_after
-- rename states
+- todo remove product_name , count
+- rename trans_types
+```
+UPDATE customer_trans set amount = - (amount) where sum = '-' and amount > 0
+--
+UPDATE customer_trans set sum = '-' where amount < 0
+UPDATE customer_trans set sum = '+' where amount > 0
+```
 
 **Receipts**
 - replace "\" to be valid json string
 - update receipts set serial = 1
 
 **Incomings**
+
 - remove product_name, supplier_name, notes, date_created, nolon, given 
+```
+ALTER TABLE `daily_mngr`.`incomings` DROP COLUMN `supplier_name`,
+ DROP COLUMN `product_name`,
+ DROP COLUMN `notes`,
+ DROP COLUMN `date_created`,
+ DROP COLUMN `nolon`,
+ DROP COLUMN `given`;
+
+delete from incomings where count is null;
+```
 (before creating inout_head view)
 - create forign keys
 
-**outgoingd**
-- remove income_header_id , sell type
+**outgoings**
+```
+ALTER TABLE `daily_mngr`.`outgoings` DROP COLUMN `supplier_name`,
+ DROP COLUMN `product_name`,
+ DROP COLUMN `customer_name`,
+ DROP COLUMN `date_created`,
+ DROP COLUMN `income_head_id`,
+ DROP COLUMN `sell_type`;
+
+delete from outgoings where customer_id = 7;
+update outgoings set customer_id = Null where customer_id = 0;
+```
 
 **Cashflow**
 - move actor_id to supplier_id / customer_id
 ```
-update cashflow set supplier_id = actor_id where state = 'nolon' or state = 'given' or state = 'recp_paid' or state = 'supp_payment' or state = 'out_receipt' or state = 'supp_collect' 
+ALTER TABLE `daily_mngr`.`cashflow` ADD COLUMN `supplier_id` INTEGER UNSIGNED AFTER `d_product`,
+ ADD COLUMN `customer_id` INTEGER UNSIGNED AFTER `supplier_id`;
 
-update cashflow set customer_id = actor_id where state = 'paid' or state = 'collecting' or state = 'acc_rest' or state = 'acc_rest'
+update cashflow set supplier_id = actor_id where state = 'nolon' or state = 'given' or state = 'recp_paid' or state = 'supp_payment' or state = 'out_receipt' or state = 'supp_collect';
+
+update cashflow set customer_id = actor_id where state = 'paid' or state = 'collecting' or state = 'acc_rest' or state = 'acc_rest';
+
+ALTER TABLE `daily_mngr`.`cashflow` DROP COLUMN `state_data`,
+ DROP COLUMN `actor_id`,
+ DROP COLUMN `actor_name`,
+ DROP COLUMN `date_created`;
+
 ```
 - rename states !
 - delete cols : state_data, actor_id, actor_name , date_created
+- replace "\" to be valid json string
 
 **Replaces**
 double DEFAULT NULL > REAL
@@ -135,13 +175,7 @@ UNSIGNED >
 DEFAULT NULL > 
 
 **Views**
-```
-CREATE VIEW out_headers 
-AS
-SELECT income_day, supplier_id, product_id, sum(count) as 'all_sold' FROM outgoings group by income_day,supplier_id , product_id 
-```
 
-### Lints and fixes files
+CREATE VIEWS
 ```
-npm run lint
 ```

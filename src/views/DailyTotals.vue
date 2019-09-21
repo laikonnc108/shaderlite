@@ -41,13 +41,25 @@
             <tr v-for="(item, idx) in daily_totals" :key='idx'>
               <td>{{item.day | arDate }}</td>
               <td>{{item.recp_sum_given | round2 }}</td>
-              <td>{{ item.sum_given | round2 }}</td>
+              <td>{{item.sum_given | round2 }}</td>
               <td>{{item.sum_deducts | round2 }}</td>
               <td>{{item.recp_sum_comm +item.out_sell_comm | round2 }}</td>
               <td>{{item.sum_supp_payment | round2 }}</td>
               <td>{{item.recp_sum_deducts | round2 }}</td>
               <td>{{item.sum_product_rahn | round2 }}</td>
               <td>{{item.sum_repay_rahn | round2 }}</td>
+            </tr>
+            <tr >
+              <th>المجموع</th>
+              <th>{{sum_totals.recp_sum_given | round}}</th>
+              <th>{{sum_totals.sum_given | round}}</th>
+              <th>{{sum_totals.sum_deducts | round}}</th>
+              <th>{{sum_totals.sum_comm_plus_sell_comm | round}}</th>
+              <th>{{sum_totals.sum_supp_payment | round}}</th>
+              <th>{{sum_totals.recp_sum_deducts | round}}</th>
+              <th>{{sum_totals.sum_product_rahn | round}}</th>
+              <th>{{sum_totals.sum_repay_rahn | round}}</th>
+              <th></th>
             </tr>
           </tbody>
         </table>
@@ -99,6 +111,32 @@ export default {
   async mounted() {
     this.refresh_all()
   },
+  computed: {
+    sum_totals: function() {
+      let sum_totals = {
+        recp_sum_given: 0,
+        sum_given: 0,
+        sum_deducts: 0,
+        sum_comm_plus_sell_comm: 0,
+        sum_supp_payment: 0,
+        recp_sum_deducts: 0,
+        sum_product_rahn: 0,
+        sum_repay_rahn: 0
+      }
+      this.daily_totals.forEach(one => {
+        sum_totals.recp_sum_given += one.recp_sum_given
+        sum_totals.sum_given += one.sum_given
+        sum_totals.sum_deducts += one.sum_deducts
+        sum_totals.sum_comm_plus_sell_comm += one.recp_sum_comm +one.out_sell_comm
+        sum_totals.sum_supp_payment += one.sum_supp_payment
+        sum_totals.recp_sum_deducts += one.recp_sum_deducts
+        sum_totals.sum_product_rahn += one.sum_product_rahn
+        sum_totals.sum_repay_rahn += one.sum_repay_rahn
+      })  
+
+      return sum_totals
+    }
+  }
 }
 </script>
 

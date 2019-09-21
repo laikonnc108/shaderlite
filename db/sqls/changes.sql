@@ -1,5 +1,6 @@
 -- 0.1.11 -- 
-add product_rahn , change product_sell_comm to real
+products add product_rahn , change product_sell_comm to real
+outgoings add product_rahn 
 
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('product_rahn', '10', '', 'magdy', 'config');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('product_sell_comm', '6', '', 'default', 'config');

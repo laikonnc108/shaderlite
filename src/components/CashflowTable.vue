@@ -98,7 +98,7 @@ export default {
   computed: {
     total_cash : function() {
       let sum = 0
-      this.cashflow_arr.forEach(item => {
+      this.fltrd_cashflow_arr.forEach(item => {
         sum += parseFloat(item.amount)
       })
       return sum

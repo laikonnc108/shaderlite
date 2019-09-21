@@ -223,7 +223,7 @@ class="btn btn-lg  m-1 btn-block"
               
               <td>{{item.weight}}</td>
               <td>{{item.kg_price}}</td>
-              <td>{{item.value_calc}}</td>
+              <th>{{item.value_calc | round2 }}</th>
               <td v-if="flags.detailed ">{{item.notes}}</td>
               <td v-if="flags.detailed" class="d-print-none">
                 <button class="btn text-danger" @click="discard(item.id)" >
