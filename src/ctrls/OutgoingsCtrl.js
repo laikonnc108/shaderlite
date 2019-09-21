@@ -15,6 +15,7 @@ export class OutgoingDAO {
   customer_id  
   customer_name
   sell_comm
+  product_rahn
   sell_comm_value
   kg_price
   weight
@@ -28,6 +29,7 @@ export class OutgoingDAO {
   parseTypes () {
     this.count = parseInt(this.count)
     this.sell_comm = this.sell_comm ? parseFloat(this.sell_comm) : 0
+    this.product_rahn = this.product_rahn ? parseFloat(this.product_rahn) : 0
     this.kg_price = this.kg_price ? parseFloat(this.kg_price) : 0
     this.weight = this.weight ? parseFloat(this.weight) : 0
     this.sell_comm_value = this.sell_comm_value ? parseFloat(this.sell_comm_value) : 0
@@ -84,8 +86,40 @@ export class OutgoingsCtrl {
       customerTrans.product_id = data.product_id
       customerTrans.notes = data.notes
 
-      let customersCtrl = new CustomersCtrl()
-      await customersCtrl.updateDebtByTrans(customerTrans)
+      await new CustomersCtrl().updateDebtByTrans(customerTrans)
+      let cashflow_id = null
+      // Now adding rahn
+      if(data.product_rahn) {
+        let rahnTrans = await this.transTypesCtrl.findOne({name: 'product_rahn', category: 'customer_trans'})
+        if(rahnTrans.map_cashflow){
+          // Create cashflow with trans
+          let cashflowTrans = await this.transTypesCtrl.findOne({name: rahnTrans.map_cashflow , category: 'cashflow'})
+
+          let newCashflow = new CashflowDAO({
+            amount: parseFloat(data.product_rahn) * parseInt(data.count),
+            day:  data.day,
+            customer_id: data.customer_id,
+            outgoing_id: out_id,
+            d_product: data.product_id
+          })
+
+          newCashflow.transType = cashflowTrans
+          cashflow_id = await new CashflowCtrl().save(newCashflow)
+        }
+
+        let customerTrans = new CustomerTransDAO()
+        customerTrans.transType = rahnTrans
+        customerTrans.day = data.day
+        customerTrans.amount = parseFloat(data.product_rahn) * parseInt(data.count)
+        customerTrans.customer_id = data.customer_id
+        customerTrans.outgoing_id = out_id
+        customerTrans.cashflow_id = cashflow_id
+        customerTrans.product_id = data.product_id
+        customerTrans.notes = data.notes
+
+        await new CustomersCtrl().updateDebtByTrans(customerTrans)
+      }
+
     } else {
       // Create cashflow with outgoing
       let cashflowTrans =  await this.transTypesCtrl.findOne({name: 'outgoing_cash', category: 'cashflow'})

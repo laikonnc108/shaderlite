@@ -31,7 +31,10 @@
               <th> دخان </th>
               <th>مصاريف </th>
               <th>عمولة </th>
+              <th>واصل الفلاح </th>
               <th>خصوم الفلاح </th>
+              <th>رهونات  </th>
+              <th>رد الرهن</th>
             </tr>
           </thead>
           <tbody>
@@ -41,7 +44,10 @@
               <td>{{ item.sum_given | round2 }}</td>
               <td>{{item.sum_deducts | round2 }}</td>
               <td>{{item.recp_sum_comm +item.out_sell_comm | round2 }}</td>
+              <td>{{item.sum_supp_payment | round2 }}</td>
               <td>{{item.recp_sum_deducts | round2 }}</td>
+              <td>{{item.sum_product_rahn | round2 }}</td>
+              <td>{{item.sum_repay_rahn | round2 }}</td>
             </tr>
           </tbody>
         </table>

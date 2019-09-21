@@ -133,9 +133,13 @@ export class CustomersCtrl {
 
   async getDailyOutTrans(filter= {id:null , day: ''}) {
     let daily_out_trans = await this.customerTransModel
-    .where({customer_id: filter.id, day:filter.day, trans_type: 'outgoing' }).fetchAll({withRelated:['outgoing','product']})
+    .query({
+      where: {customer_id: filter.id, day:filter.day, trans_type: 'outgoing' },
+      // orWhere: {customer_id: filter.id, day:filter.day, trans_type: 'product_rahn'},
+      orderBy: 'trans_type'
+    }).fetchAll({withRelated:['outgoing','product']})
 
-    return daily_out_trans.map( _=> {
+    let trans_arr = daily_out_trans.map( _=> {
       let transDAO = new CustomerTransDAO(_.attributes)
       if(_.related('outgoing')){
         transDAO.kg_price = _.related('outgoing').get('kg_price')
@@ -145,16 +149,26 @@ export class CustomersCtrl {
       }
       return transDAO
     })
+    let product_rahn_trans = await knex.raw(`select day, customer_id, trans_type, sum(amount) amount
+    from customer_trans where customer_id= ${filter.id} and
+    trans_type= 'product_rahn' and
+    day= '${filter.day}'`)
+    product_rahn_trans.map( _ => {
+      trans_arr.push(new CustomerTransDAO(_))
+    })
+    
+    console.log(trans_arr,)
+    return trans_arr
   }
 
   async getCustomerTrans(filter= {id:null , day: ''}) {
 
     let results = await knex.raw(`
 select null as id, day, customer_id,null as cashflow_id,'+' as sum  ,sum(amount) as amount, 'sum_outgoing' as trans_type  from customer_trans 
-where customer_id = ${filter.id} and trans_type ='outgoing' GROUP BY day
+where customer_id = ${filter.id} and (trans_type ='outgoing' or trans_type ='product_rahn') GROUP BY day
 UNION
 select id, day, customer_id, cashflow_id, sum , amount , trans_type  from customer_trans 
-where customer_id = ${filter.id} and trans_type <> 'outgoing'
+where customer_id = ${filter.id} and trans_type <> 'outgoing' and trans_type <> 'product_rahn'
 ORDER BY day
 `)
     return results.map(_ => new CustomerTransDAO(_))
@@ -169,10 +183,10 @@ ORDER BY day
 
     if(transDAO.sum == '-')
       transDAO.amount = - parseFloat(transDAO.amount)
+
     await this.createCustomerTrans(transDAO)
     
     debt += parseFloat(transDAO.amount)
-
     return await instance.save({debt: debt})
   }
 
@@ -201,12 +215,26 @@ ORDER BY day
     return true 
   }
 
+    // To solve foreach async problem
+    async asyncEach(array, callback) {
+      for (let index = 0 ; index < array.length ; index ++) {
+        await callback( array[index] , index )
+      }
+    }
+
   async removeTransByOutgoingId(outgoing_id) {
-    let transInstance = await this.customerTransModel.where('outgoing_id', outgoing_id).fetch()
+    let transArr = await this.customerTransModel.where('outgoing_id', outgoing_id).fetchAll()
+    transArr = transArr.map(_ => new CustomerTransDAO(_.attributes) )
+    await this.asyncEach(transArr, async(item) => {
+      console.log(item)
+      await this.removeCustomerTrans(item)
+    })
+    /*
     if(transInstance){
       let transDAO = new CustomerTransDAO(transInstance.toJSON())
       await this.removeCustomerTrans(transDAO)
     }
+    */
   }
 
   async deleteById(id){

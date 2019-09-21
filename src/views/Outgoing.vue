@@ -80,6 +80,15 @@ class="btn btn-lg  m-1 btn-block"
     </div>
   </div>
 
+  <div class="form-group row" v-if="false && outgoing_form.product_rahn" >
+    <label :class="{ 'text-danger':  outgoing_form.product_rahn > 50 }" class="col-sm-3">
+     رهن الطرد
+    </label>
+    <div class="col-sm-9">
+      <input v-model="outgoing_form.product_rahn" class="form-control" placeholder="ادخل القيمة">
+    </div>
+  </div>
+
   <div class="form-group row">
     <label class="col-sm-3">وزن</label>
     <div class="col-sm-9">
@@ -352,10 +361,12 @@ export default {
       }
     },
     async setSelectedInc(incom){
+      console.log(incom)
       this.selected_inc = incom
       // remove getLastKgPrice
       //this.outgoing_form.kg_price = await this.outgoingsCtrl.getLastKgPrice(incom.product_id)
       this.outgoing_form.sell_comm = incom.product_sell_comm
+      this.outgoing_form.product_rahn = incom.product_rahn
     },
     async refresh_all() {
       this.avilable_incomings = await this.inoutHeadCtrl.findAll({diff: '> 0', day: this.$store.state.day.iso})

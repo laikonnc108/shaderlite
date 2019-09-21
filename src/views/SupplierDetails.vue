@@ -32,6 +32,7 @@
         <form  @submit="addPayments">
           <b-form-group label="نوع الحركة">
             <b-form-radio-group  v-model="trans_form.trans_type">
+              <b-form-radio value="supp_init_payment">رصيد </b-form-radio>
               <b-form-radio value="supp_pre_payment">دفعة سابقة</b-form-radio>
               <!--
               <b-form-radio value="supp_pre_recp">فاتورة سابقة</b-form-radio>
@@ -76,7 +77,10 @@
           </div>     
 
           <button type="submit" class="btn btn-success" :disabled="! valid_payments_form ">
-            <span v-if="trans_form.trans_type === 'supp_pre_payment' || trans_form.trans_type === 'supp_payment' || trans_form.trans_type === 'supp_recp_expensess'">اضافة دفعة</span>
+            <span v-if="trans_form.trans_type === 'supp_pre_payment' 
+            || trans_form.trans_type === 'supp_payment' 
+            || trans_form.trans_type === 'supp_init_payment' 
+            || trans_form.trans_type === 'supp_recp_expensess'">اضافة دفعة</span>
             <span v-if="trans_form.trans_type === 'supp_pre_recp' ">اضافة الفاتورة</span>
             <span v-if=" trans_form.trans_type == 'supp_collect'">تحصيل مبلغ</span>
           </button>

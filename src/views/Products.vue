@@ -24,6 +24,12 @@
           <input v-model="product_form.product_sell_comm" class="form-control "  placeholder="ادخل مبلغ بياعة الصنف">
         </div>
       </div>
+      <div class="form-group row" v-if="shader_configs['product_rahn']">
+        <label  class="col-sm-2">رهن الصنف</label>
+        <div class="col-sm-10">
+          <input v-model="product_form.product_rahn" class="form-control "  placeholder="ادخل مبلغ رهن الصنف">
+        </div>
+      </div>
       <!--
       <div class="form-group row" v-if="isBoth">
         <label  class="col-sm-2">نوع الصنف</label>
@@ -34,7 +40,7 @@
       -->
 
       <button type="submit" class="btn btn-success" 
-      :disabled="! product_form.name || ! product_form.product_sell_comm">اضافة</button>
+      :disabled="! product_form.name || ! product_form.product_sell_comm">حفظ</button>
     </form>
     </div>
   </b-collapse>
@@ -44,11 +50,11 @@
   <div class="col-7 p-3 col-print-10 pr-me">
     <div class="m-1">
       <br/>
-      <button  class="btn btn-danger " @click="show_active=false;refresh_all()" v-if="show_active">
+      <button  class="btn btn-danger " @click="flags.show_active=false;refresh_all()" v-if="flags.show_active">
         عرض الارشيف
         &nbsp; <span class="fa fa-archive"></span>
       </button>
-      <button  class="btn btn-success " @click="show_active=true;refresh_all()" v-if="! show_active">
+      <button  class="btn btn-success " @click="flags.show_active=true;refresh_all()" v-if="! flags.show_active">
         اغلاق الارشيف   &nbsp; <span class="fa fa-external-link-square-alt"></span>
       </button>
     </div>
@@ -57,9 +63,9 @@
       <input v-model="search_term" class="form-control "  :placeholder="custom_labels['search_products']">
     </div>
     <br/>
-    <h2 :class="{ 'text-danger': ! show_active }">
-      <span v-if="show_active"> ادارة </span>
-      <span v-if="! show_active"> ارشيف </span>
+    <h2 :class="{ 'text-danger': ! flags.show_active }">
+      <span v-if="flags.show_active"> ادارة </span>
+      <span v-if="! flags.show_active"> ارشيف </span>
      الاصناف 
     </h2>
 
@@ -70,7 +76,7 @@
               <th> كود الصنف </th>
               <th>اسم الصنف</th>
               <th>بياعة الصنف</th>
-              <th>ملاحظات</th>
+              <th v-if="shader_configs['product_rahn']">رهن الصنف</th>
               <th></th>
             </tr>
           </thead>
@@ -79,6 +85,7 @@
               <td>{{item.id}}</td>
               <td>{{item.name}}</td>
               <td>{{item.product_sell_comm}}</td>
+              <td v-if="shader_configs['product_rahn']">{{item.product_rahn}}</td>
               <td>{{item.notes}}</td>
               <td class="d-print-none">
                 <button class="btn text-danger" @click="archive(item.id)" v-if="! item.deleted_at">
@@ -91,11 +98,15 @@
                   <template v-if="! confirm_step[item.id]"> استرجاع</template>
                   <template v-if="confirm_step[item.id]"> تأكيد </template>
                 </button>
+               <button class="btn text-primary" @click="edit(item.id)" v-if="! item.deleted_at">
+                  تعديل
+                </button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
+
           <button class="btn btn-printo pr-hideme" @click="vue_window.print()">
             <span class="fa fa-print"></span> طباعة 
           </button>
@@ -106,6 +117,7 @@
 <script>
 import { MyStoreMutations } from '../main'
 import { ProductDAO, ProductsCtrl} from '../ctrls/ProductsCtrl'
+import { MainMixin } from '../mixins/MainMixin';
 export default {
   name: 'products',
   data() {
@@ -113,13 +125,12 @@ export default {
       products_arr: [],
       confirm_step: [],
       productsCtrl: new ProductsCtrl(),
-      show_active: true,
+      flags: {show_active: true, form_collabsed: true},
       search_term: '',
       product_form: new ProductDAO(ProductDAO.INIT_DAO),
-      custom_labels: this.$store.state.custom_labels,
-      //isBoth: getShaderConfigValue(this.$store.state , 'work_in') === 'both'
     }
   },
+  mixins: [MainMixin],
   methods: {
     async SaveProduct(evt){
       evt.preventDefault()
@@ -139,7 +150,7 @@ export default {
       let products_arr = await new ProductsCtrl().getProductsArr()
       this.$store.commit(MyStoreMutations.setProductsArr, products_arr)
 
-      let soft_delete = this.show_active ? true : false;
+      let soft_delete = this.flags.show_active ? true : false;
       this.products_arr = await this.productsCtrl.findAll({},{softDelete: soft_delete})
     },
     async archive(id, restore = 'ARCHIVE') {
@@ -156,17 +167,27 @@ export default {
         this.confirm_step[id] = true
       }
     },
+    async edit(id) {
+      let comp_products_arr = this.products_arr.filter( element =>{
+        return element.id == id
+      })
+      this.product_form = new ProductDAO(comp_products_arr[0])
+      // Show form only if collabsed
+      if(this.flags.form_collabsed) {
+        this.$root.$emit('bv::toggle::collapse', 'collapse_form')
+      }
+    },
   },
   async mounted() {
     this.$root.$on('bv::collapse::state', (collapseId, show) => {
-      if(collapseId == 'collapse_form') this.form_collabsed = ! show
+      if(collapseId == 'collapse_form') this.flags.form_collabsed = ! show
     })
     this.refresh_all()
   },
   computed: {
     comp_products_arr: function () {
       return this.products_arr.filter( item => {
-        return ((item.deleted_at == null) === this.show_active  && item.name.includes(this.search_term))
+        return ((item.deleted_at == null) === this.flags.show_active  && item.name.includes(this.search_term))
       })
     }
   },

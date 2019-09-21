@@ -42,6 +42,8 @@ hide-header hide-footer hide-header-close hide-backdrop>
   <span style="font-size: .6em;">المطلوب من السيد/ </span> 
   <span style="font-size: 1.1em;">{{customer.name}}</span>
 </h4>
+<img style="margin-top: -75px;float: left;"
+src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vegetables_icon_1422990_cc.svg/110px-Noun_Project_vegetables_icon_1422990_cc.svg.png' />
 <h4 class="text-center" v-if="daily_out_trans[0]"> حساب سابق : {{ daily_out_trans[0].debt_was | toAR }}</h4>
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me-xx" >
@@ -64,17 +66,29 @@ hide-header hide-footer hide-header-close hide-backdrop>
         </thead>
         <tbody>
           <tr v-for="(item, idx) in daily_out_trans" :key='idx'>
-            <td>{{ item.amount | toAR(true) }}</td>
-            <td> {{ item.count | toAR }}</td>
-            <td> {{ item.weight | toAR }}</td>
-            <td> {{ item.kg_price | toAR(true) }}</td>
-            <td>{{item.product_name}} </td>
-            <td >
-              <b v-if="shader_configs['pay_arboon'] && item.notes">
-                عربون : 
-              </b>
-              {{item.notes }}
-            </td>
+            <template v-if="item.trans_type == 'outgoing'">
+              <td>{{ item.amount | toAR(true) }} </td>
+              <td> {{ item.count | toAR }}</td>
+              <td> {{ item.weight | toAR }}</td>
+              <td> {{ item.kg_price | toAR(true) }}</td>
+              <td>{{ item.product_name }} </td>
+              <td >
+                <b v-if="shader_configs['pay_arboon'] && item.notes">
+                  عربون : 
+                </b>
+                {{item.notes }}
+              </td>
+            </template>
+            <template v-if="item.trans_type == 'product_rahn'">
+              <td>{{ item.amount | toAR(true) }} </td>
+              <td> {{ item.count | toAR }}</td>
+              <td> </td>
+              <td> </td>
+              <td> رهن {{ item.product_name }} </td>
+              <td >
+                {{item.notes }}
+              </td>
+            </template>
           </tr>
           <tr>
             <td ><b class="border-top border-primary">{{ sum_outgoings_val | ceil5 | toAR }} </b></td>
@@ -140,7 +154,7 @@ export default {
       try {
         await knex.raw(`insert into customers_daily (customer_id, day, printed) values( ${customer_id} , '${outg_day}', 1)`)
       } catch (error) {
-        
+        error
       }
     },
   },

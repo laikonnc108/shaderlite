@@ -5,6 +5,7 @@ export class ProductDAO {
     name
     notes
     product_sell_comm
+    product_rahn
     // season 
     // collection = ''
 

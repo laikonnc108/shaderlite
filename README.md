@@ -51,15 +51,14 @@ SELECT name FROM customers group by name HAVING COUNT(*) > 1;
 
 **Customers**
 - remove duplicates and empty
-- update active NULL where = 1 / 1 where = 0 (Reverse)
-- remove active not null  
-- remove date_crated
+- remove active not null and remove date_crated
 ```
 SELECT * FROM customers where name = '';
 update customers set name = 'علي السيد' where id = 175;
 update customers set name = CONCAT(name, ' 2') where id = 246 or id = 223 or id = 224 or id = 66 or id = 108;
-update customers set deleted_at = 1 where deleted_at = 0;
-update customers set deleted_at = NULL where deleted_at = 1;
+
+update customers set active = NULL where active = 1;
+update customers set active = 1 where active = 0;
 ```
 - rename active to deleted_at 
 - export sql
@@ -67,19 +66,34 @@ update customers set deleted_at = NULL where deleted_at = 1;
 
 
 **Suppliers**
+- remove duplicates and empty
+- remove active not null and remove date_crated, total_count and rename active to deleted_at 
 ```
-SELECT MAX(ID), active FROM suppliers GROUP BY name HAVING count(*) > 1' and active = 0;
-update suppliers set name = CONCAT(name, ' 2') where id =  322 or id =331 or id =547 or id =535 or id =550 or id =151 or id =545 or id =79 or id =539 or id =98 or id =383 or id =341 or id =104 or id =338 or id =78 or id =74 or id =339 or id =544 or id =306 or id =542 or id =528 or id =220 or id =244 or id =110 or id =533;
+SELECT MAX(ID),group_concat(id), group_concat(active) , any_value(name) FROM suppliers GROUP BY name HAVING count(*) > 1;
+update suppliers set name = CONCAT(name, ' 2') where id = 106 or id=322 or id=468 or id=67 or id=126 or id=380 or id=73 or id=138 or id=97 or id=383 or id=22 or id=23 or id=4 or id=76 or id=74 or id=3 or id=2 or id=306 or id=273 or id=374 or id=203 or id=194 or id=110 or id=10;
+update suppliers set name = CONCAT(name, ' 3') where id = 410 or id=11 or id=504 ;
+
+update suppliers set deleted_at = NULL where deleted_at = 1;
+update suppliers set deleted_at = 1 where deleted_at = 0;
+
 ```
 - export sql
-- remove all bluff
-- edit cols and datatypes (and add unique)
-- update active NULL where = 1 / 1 where = 0 (Reverse)
-- rename active to deleted_at
+- import 
 
 **Products**
+- rename active to deleted_at and remove active not null , remove date_created
+```
+update products set name = CONCAT(name, ' P') where id = 211 or id = 7 or id = 93 or id = 31 or id = 184 or id = 127 or id = 175 or id = 5 or id = 248 or id = 233 ;
+update products set name = CONCAT(name, ' PP') where id = 26 ;
+
+update products set deleted_at = NULL where deleted_at = 1;
+update products set deleted_at = 1 where deleted_at = 0;
+
+```
 - add comm
 - add rahn
+
+`update products set product_sell_comm = 6`
 
 **Supplier_trans**
 - export sql
@@ -89,9 +103,9 @@ update suppliers set name = CONCAT(name, ' 2') where id =  322 or id =331 or id 
 - create forign keys
 
 **Customer_trans**
-- remove product_name , count also debt_after
-- rename states
 - add debt_was
+- todo remove product_name , count also debt_after
+- rename states
 
 **Receipts**
 - replace "\" to be valid json string
