@@ -131,6 +131,11 @@ export class CustomersCtrl {
     return new CustomerDAO(one.toJSON())
   }
 
+  async sumDebt(){
+    let result = await knex.raw(`select sum(debt) as sum_debt from customers where deleted_at is null and (is_self is null or is_self = 0)`)
+    return result.length > 0 ? result[0] : null
+  }
+
   async getDailyOutTrans(filter= {id:null , day: ''}) {
     let daily_out_trans = await this.customerTransModel
     .query({

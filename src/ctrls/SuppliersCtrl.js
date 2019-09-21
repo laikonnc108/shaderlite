@@ -164,6 +164,11 @@ export class SuppliersCtrl {
     return new SupplierDAO(instance.attributes)
   }
 
+  async sumDebt(){
+    let result = await knex.raw(`select sum(balance) as sum_debt from suppliers where deleted_at is null`)
+    return result.length > 0 ? result[0] : null
+  }
+
   async getSupplierDetails(id){
     let one = await this.model.forge('id',id).fetch({withRelated:[
       {'trans': function(qb){

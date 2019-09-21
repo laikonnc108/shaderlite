@@ -1,7 +1,21 @@
 <template>
   <section class="suppliers row">
     <div class="col-5 d-print-none ">
-    <br/>
+      <br/>
+        <div class="row detailed" >
+          <div class="col-6">
+            <span class="btn text-primary">
+            {{custom_labels['sum_suppliers_debt']}}
+            </span>
+          </div>
+          <div class="col-6 btn text-primary">
+            <span >
+            {{ sum_debt| round2 }}
+            </span>
+            <span class="fa fa-table"></span>
+          </div>
+        </div>
+    <hr>
 <button v-b-toggle.collapse_form class="btn btn-primary mr-3">
   ادخال عميل جديد 
   &nbsp; <span class="fa fa-address-book"></span>
@@ -132,6 +146,7 @@ export default {
       confirm_step: [],
       form_collabsed: true,
       custom_labels: this.$store.state.custom_labels,
+      sum_debt: 0,
     }
   },
   methods: {
@@ -176,6 +191,8 @@ export default {
     async refresh_all() {
       let soft_delete = this.show_active ? true : false;
       this.suppliers_arr = await this.suppliersCtrl.findAll({},{softDelete: soft_delete})
+      let {sum_debt} = await this.suppliersCtrl.sumDebt()
+      this.sum_debt = sum_debt
     }
   },
   async mounted() {

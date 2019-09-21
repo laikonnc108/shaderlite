@@ -1,7 +1,21 @@
 <template>
   <section class="customers row">
         <div class="col-5 d-print-none">
-    <br/>
+          <br/>
+        <div class="row detailed" >
+          <div class="col-6">
+            <span class="btn text-primary">
+            {{custom_labels['sum_customers_debt']}}
+            </span>
+          </div>
+          <div class="col-6 btn text-primary">
+            <span >
+            {{ sum_debt| round2 }}
+            </span>
+            <span class="fa fa-table"></span>
+          </div>
+        </div>
+    <hr>
 <button @click="fresh_form" class="btn btn-primary mr-3" v-if="flags.form_collabsed">
   {{custom_labels['add_new_customer']}}
   &nbsp; <span class="fa fa-address-book"></span>
@@ -200,7 +214,8 @@ export default {
       search_term: '',
       custom_labels: this.$store.state.custom_labels,
       now_day: moment().format('LL'),
-      now_hour: moment().format('hh:mm a')
+      now_hour: moment().format('hh:mm a'),
+      sum_debt: 0
     }
   },
 
@@ -209,6 +224,8 @@ export default {
       let soft_delete = this.flags.show_active
       this.customers_arr = await this.customersCtrl.findAll({},{softDelete: soft_delete})
       this.collect_dao = new CashflowDAO()
+      let {sum_debt} = await this.customersCtrl.sumDebt()
+      this.sum_debt = sum_debt
     },
     fresh_form(){
       this.customer_form = new CustomerDAO(CustomerDAO.INIT_DAO)
