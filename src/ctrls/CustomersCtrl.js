@@ -141,7 +141,7 @@ export class CustomersCtrl {
     .query({
       where: {customer_id: filter.id, day:filter.day, trans_type: 'outgoing' },
       orWhere: {customer_id: filter.id, day:filter.day, trans_type: 'cust_in_collecting'},
-      orderBy: 'trans_type'
+      //orderBy: 'trans_type'
     }).fetchAll({withRelated:['outgoing','product']})
 
     let trans_arr = daily_out_trans.map( _=> {
@@ -159,8 +159,8 @@ export class CustomersCtrl {
     from customer_trans where customer_id= ${filter.id} and
     trans_type= 'product_rahn' and
     day= '${filter.day}'`)
-
     product_rahn_trans.map( _ => {
+      if(_ && _.amount)
       trans_arr.push(new CustomerTransDAO(_))
     })
     

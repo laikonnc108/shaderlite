@@ -285,7 +285,7 @@ import { TransTypesCtrl } from '../ctrls/TransTypesCtrl'
 import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl'
 import { MainMixin } from '../mixins/MainMixin';
 import { knex } from '../main';
-import image from '../assets/vegetables.png'
+// import image from '../assets/vegetables.png'
 
 export default {
   name: 'customer-details',
@@ -409,6 +409,7 @@ export default {
     sum_outgoings_val: function() {
       let sum = 0
       this.daily_out_trans.forEach(item => {
+        console.log(item)
         sum += parseFloat(item.amount)
       })
       return sum

@@ -283,6 +283,80 @@ export default {
      
   },
   mixins: [MainMixin],
+  methods: {
+    async saveOutgoing(evt){
+      this.submited = true
+      evt.preventDefault()
+      this.outgoing_form.value_calc = this.value_calc
+      this.outgoing_form.income_day = this.selected_inc.day
+      this.outgoing_form.supplier_id = this.selected_inc.supplier_id
+      this.outgoing_form.product_id = this.selected_inc.product_id
+      this.outgoing_form.sell_comm_value = this.outgoing_form.count * this.outgoing_form.sell_comm
+      await this.outgoingsCtrl.saveOutgoingData(this.outgoing_form)
+      // console.log(this.outgoing_form)
+      this.refresh_all()
+    },
+    async discard(id) {
+      if( this.confirm_step[id] ) {
+        this.discard_success = await this.outgoingsCtrl.deleteById(id)
+        this.confirm_step = []
+        this.refresh_all()
+      }
+      else {
+        this.confirm_step = []
+        this.confirm_step[id] = true
+      }
+    },
+    async out_redirect(item) {
+      if( this.confirm_step[item.id] ) {
+        await this.outgoingsCtrl.deleteById(item.id)
+        this.confirm_step = []
+        await this.refresh_all()
+        let selected_incoms = this.avilable_incomings.filter( incom => incom.day == item.income_day &&
+          incom.supplier_id == item.supplier_id &&
+          incom.product_id == item.product_id )
+        this.flags.detailed = false
+        this.$root.$emit('bv::toggle::collapse', 'collapse2')
+        this.setSelectedInc(selected_incoms[0])
+        this.outgoing_form.count = item.count
+        this.outgoing_form.weight = item.weight
+        this.outgoing_form.kg_price = item.kg_price
+        console.log(item)
+      }
+      else {
+        this.confirm_step = []
+        this.confirm_step[item.id] = true
+      }
+    },
+    async new_customer(search) {
+      this.customer_search = (search && search != 'new') ? search : this.customer_search
+      if(search == 'new') {
+        console.log(this.customer_search)
+        let new_customer_id = await new CustomersCtrl().save(new CustomerDAO({name: this.customer_search }))
+        this.active_customers = await this.customersCtrl.findAll({},{softDelete: true})
+        this.outgoing_form.customer_id = new_customer_id
+      }
+    },
+    async setSelectedInc(incom){
+      console.log(incom)
+      this.selected_inc = incom
+      // remove getLastKgPrice
+      //this.outgoing_form.kg_price = await this.outgoingsCtrl.getLastKgPrice(incom.product_id)
+      this.outgoing_form.sell_comm = incom.product_sell_comm
+      this.outgoing_form.product_rahn = incom.product_rahn
+    },
+    async refresh_all() {
+      this.avilable_incomings = await this.inoutHeadCtrl.findAll({diff: '> 0', day: this.$store.state.day.iso})
+      this.active_customers = await this.customersCtrl.findAll({},{softDelete: true})
+      this.outgoings_arr = await this.outgoingsCtrl.findAll({day: this.day.iso})
+      this.outgoing_form = new OutgoingDAO({ day: this.$store.state.day.iso, ...OutgoingDAO.INIT_DAO})
+      this.selected_inc = {}
+      this.submited = false
+    }
+  },
+  async mounted() {
+    this.refresh_all()
+  },
   computed: {
     fltrd_outgoings_arr: function(){
       return this.outgoings_arr.filter( item => {
@@ -329,72 +403,5 @@ export default {
       this.outgoing_form.kg_price > 0
     }
   },
-  methods: {
-    async saveOutgoing(evt){
-      this.submited = true
-      evt.preventDefault()
-      this.outgoing_form.value_calc = this.value_calc
-      this.outgoing_form.income_day = this.selected_inc.day
-      this.outgoing_form.supplier_id = this.selected_inc.supplier_id
-      this.outgoing_form.product_id = this.selected_inc.product_id
-      this.outgoing_form.sell_comm_value = this.outgoing_form.count * this.outgoing_form.sell_comm
-      await this.outgoingsCtrl.saveOutgoingData(this.outgoing_form)
-      // console.log(this.outgoing_form)
-      this.refresh_all()
-    },
-    async discard(id) {
-      if( this.confirm_step[id] ) {
-        this.discard_success = await this.outgoingsCtrl.deleteById(id)
-        this.confirm_step = []
-        this.refresh_all()
-      }
-      else {
-        this.confirm_step = []
-        this.confirm_step[id] = true
-      }
-    },
-    async out_redirect(item) {
-      if( this.confirm_step[item.id] ) {
-        // await this.outgoingsCtrl.deleteById(item.id)
-        this.confirm_step = []
-        await this.refresh_all()
-        let selected_incoms = this.avilable_incomings.filter( incom => incom.day == item.income_day &&
-          incom.supplier_id == item.supplier_id &&  incom.product_id == item.product_id )
-        console.log(item,selected_incoms)
-      }
-      else {
-        this.confirm_step = []
-        this.confirm_step[item.id] = true
-      }
-    },
-    async new_customer(search) {
-      this.customer_search = (search && search != 'new') ? search : this.customer_search
-      if(search == 'new') {
-        console.log(this.customer_search)
-        let new_customer_id = await new CustomersCtrl().save(new CustomerDAO({name: this.customer_search }))
-        this.active_customers = await this.customersCtrl.findAll({},{softDelete: true})
-        this.outgoing_form.customer_id = new_customer_id
-      }
-    },
-    async setSelectedInc(incom){
-      console.log(incom)
-      this.selected_inc = incom
-      // remove getLastKgPrice
-      //this.outgoing_form.kg_price = await this.outgoingsCtrl.getLastKgPrice(incom.product_id)
-      this.outgoing_form.sell_comm = incom.product_sell_comm
-      this.outgoing_form.product_rahn = incom.product_rahn
-    },
-    async refresh_all() {
-      this.avilable_incomings = await this.inoutHeadCtrl.findAll({diff: '> 0', day: this.$store.state.day.iso})
-      this.active_customers = await this.customersCtrl.findAll({},{softDelete: true})
-      this.outgoings_arr = await this.outgoingsCtrl.findAll({day: this.day.iso})
-      this.outgoing_form = new OutgoingDAO({ day: this.$store.state.day.iso, ...OutgoingDAO.INIT_DAO})
-      this.selected_inc = {}
-      this.submited = false
-    }
-  },
-  async mounted() {
-    this.refresh_all()
-  }
 }
 </script>

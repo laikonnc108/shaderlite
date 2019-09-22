@@ -1,6 +1,6 @@
-
 -- 0.1.13 -- 
 INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category", "map_cashflow") VALUES ('cust_in_collecting', 'تحصيل اليوم', 'default', '-', '', 'customer_trans', 'cust_collecting');
+
 -- 0.1.11 -- 
 
 products add product_rahn , change product_sell_comm to real

@@ -89,6 +89,12 @@ src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vege
                 {{item.notes }}
               </td>
             </template>
+            <template v-if="item.trans_type == 'cust_in_collecting'">
+              <td>( {{ item.amount | toAR(true) }} ) </td>
+              <td> تنزيل</td>
+              <td> </td>
+
+            </template>
           </tr>
           <tr>
             <td ><b class="border-top border-primary">{{ sum_outgoings_val | ceil5 | toAR }} </b></td>

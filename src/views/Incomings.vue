@@ -68,7 +68,7 @@
 
         <button class="btn btn-primary pr-hideme" v-if="flags.detailed === false" @click="flags.detailed= true"> عرض التفاصيل </button>
         
-        <button class="btn btn-printo pr-hideme"  @click="print_co">
+        <button class="btn btn-printo pr-hideme mr-2"  @click="print_co">
           <span class="fa fa-print"></span> طباعة
         </button>
 
