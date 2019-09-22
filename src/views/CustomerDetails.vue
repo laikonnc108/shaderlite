@@ -238,6 +238,22 @@ src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vege
             </template>
           </tr>
           <tr>
+            <td ><input v-if="! customer_trans_form.id" 
+              v-model="customer_trans_form.amount" class="form-control" placeholder="ادخل مبلغ التحصيل" >
+              <span v-if="customer_trans_form.id">({{customer_trans_form.amount | toAR}})</span>
+              </td>
+            <td style="border: none !important;"> تنزيل </td>
+
+            <td style="border: none !important;">
+                <button  v-if="customer_trans_form.id"
+                class="btn text-danger pr-hideme" @click="removeTrans(customer_trans_form)" >
+                  <span class="fa fa-archive "></span> 
+                  <template v-if="! confirm_step[customer_trans_form.id]"> حذف </template>
+                  <template v-if="confirm_step[customer_trans_form.id]"> تأكيد </template>
+                </button>
+            </td>
+          </tr>
+          <tr>
             <td ><b class="border-top border-primary">{{ sum_outgoings_val | ceil5 | toAR }} </b></td>
             <td style="border: none !important;"> اجمالي </td>
           </tr>
@@ -248,7 +264,7 @@ src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vege
       </span>
 
       <div class="m-2">
-          <button class="btn btn-primary pr-hideme" @click="$bvModal.hide('modal-daily')" >
+          <button class="btn btn-primary pr-hideme" @click="modalSave" >
             <span class="fa fa-check "></span> &nbsp;
             موافق
           </button>
@@ -278,7 +294,7 @@ export default {
       customer: {},
       customersCtrl: new CustomersCtrl(),
       transTypesCtrl: new TransTypesCtrl(),
-      customer_trans_form: {trans_type:'cust_collecting', amount: null , notes: null},
+      customer_trans_form: {id:null , trans_type:'cust_collecting', amount: null , notes: null},
       trans_types_opts : [],
       customer_trans: [],
       daily_out_trans: [],
@@ -304,7 +320,22 @@ export default {
     async showOutModal(day = null){
       this.outg_day = day ? day : this.day.iso
       this.daily_out_trans = await this.customersCtrl.getDailyOutTrans({id: this.customer_id, day: this.outg_day})
+      // TODO show incollect_trans amount
+      let filtered_incollect = this.daily_out_trans.filter(item => item.trans_type === 'cust_in_collecting')
+      if(filtered_incollect.length > 0){
+        this.customer_trans_form.amount = Math.abs(filtered_incollect[0].amount)
+        this.customer_trans_form.id = filtered_incollect[0].id
+      }
       this.$bvModal.show('modal-daily')
+    },
+    async modalSave(evt){
+      if(! this.customer_trans_form.id && this.customer_trans_form.amount ) {
+        // await this.customersCtrl.removeCustomerTrans(this.customer_trans_form)
+        this.customer_trans_form.trans_type = 'cust_in_collecting'
+        await this.createCustomerTrans(evt)
+      }
+
+      this.$bvModal.hide('modal-daily')
     },
     async removeTrans(trans) {
       if( this.confirm_step[trans.id] ) {
@@ -355,7 +386,7 @@ export default {
       }
       
       this.getCustomerDetails()
-      this.customer_trans_form = {trans_type:'+', amount: null , notes: null}
+      this.customer_trans_form = {trans_type:'cust_collecting', amount: null , notes: null}
       this.$root.$emit('bv::toggle::collapse', 'collapse_collect')
     }
   },

@@ -122,7 +122,7 @@ export default {
   name: 'products',
   data() {
     return {
-      products_arr: [],
+      all_products: [],
       confirm_step: [],
       productsCtrl: new ProductsCtrl(),
       flags: {show_active: true, form_collabsed: true},
@@ -151,7 +151,7 @@ export default {
       this.$store.commit(MyStoreMutations.setProductsArr, products_arr)
 
       let soft_delete = this.flags.show_active ? true : false;
-      this.products_arr = await this.productsCtrl.findAll({},{softDelete: soft_delete})
+      this.all_products = await this.productsCtrl.findAll({},{softDelete: soft_delete})
     },
     async archive(id, restore = 'ARCHIVE') {
       if( this.confirm_step[id] ) {
@@ -168,7 +168,7 @@ export default {
       }
     },
     async edit(id) {
-      let comp_products_arr = this.products_arr.filter( element =>{
+      let comp_products_arr = this.all_products.filter( element =>{
         return element.id == id
       })
       this.product_form = new ProductDAO(comp_products_arr[0])
@@ -186,7 +186,7 @@ export default {
   },
   computed: {
     comp_products_arr: function () {
-      return this.products_arr.filter( item => {
+      return this.all_products.filter( item => {
         return ((item.deleted_at == null) === this.flags.show_active  && item.name.includes(this.search_term))
       })
     }

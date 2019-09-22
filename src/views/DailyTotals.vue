@@ -64,6 +64,9 @@
           </tbody>
         </table>
       </div>
+        <button class="btn btn-printo pr-hideme"  @click="print_co">
+          <span class="fa fa-print"></span> طباعة
+        </button>
   </section>
 </template>
 <script>

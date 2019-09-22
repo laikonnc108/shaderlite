@@ -140,7 +140,7 @@ export class CustomersCtrl {
     let daily_out_trans = await this.customerTransModel
     .query({
       where: {customer_id: filter.id, day:filter.day, trans_type: 'outgoing' },
-      // orWhere: {customer_id: filter.id, day:filter.day, trans_type: 'product_rahn'},
+      orWhere: {customer_id: filter.id, day:filter.day, trans_type: 'cust_in_collecting'},
       orderBy: 'trans_type'
     }).fetchAll({withRelated:['outgoing','product']})
 
@@ -154,15 +154,16 @@ export class CustomersCtrl {
       }
       return transDAO
     })
+
     let product_rahn_trans = await knex.raw(`select day, customer_id, trans_type, sum(amount) amount
     from customer_trans where customer_id= ${filter.id} and
     trans_type= 'product_rahn' and
     day= '${filter.day}'`)
+
     product_rahn_trans.map( _ => {
       trans_arr.push(new CustomerTransDAO(_))
     })
     
-    console.log(trans_arr,)
     return trans_arr
   }
 
@@ -170,10 +171,10 @@ export class CustomersCtrl {
 
     let results = await knex.raw(`
 select null as id, day, customer_id,null as cashflow_id,'+' as sum  ,sum(amount) as amount, 'sum_outgoing' as trans_type  from customer_trans 
-where customer_id = ${filter.id} and (trans_type ='outgoing' or trans_type ='product_rahn') GROUP BY day
+where customer_id = ${filter.id} and (trans_type= 'outgoing' or trans_type= 'product_rahn' or trans_type= 'cust_in_collecting') GROUP BY day
 UNION
 select id, day, customer_id, cashflow_id, sum , amount , trans_type  from customer_trans 
-where customer_id = ${filter.id} and trans_type <> 'outgoing' and trans_type <> 'product_rahn'
+where customer_id = ${filter.id} and trans_type <> 'outgoing' and trans_type <> 'product_rahn' and trans_type <> 'cust_in_collecting'
 ORDER BY day
 `)
     return results.map(_ => new CustomerTransDAO(_))
@@ -205,9 +206,11 @@ ORDER BY day
 
   /**@param {CustomerTransDAO} transDAO */
   async removeCustomerTrans(transDAO) {
-    console.log(transDAO)
+    let transInstance = await this.customerTransModel.forge('id', transDAO.id).fetch()
+    transDAO = new CustomerTransDAO(transInstance.attributes)
     /**@type {import('bookshelf').ModelBase} */
     let customerInstance = await this.model.forge('id',transDAO.customer_id).fetch()
+    console.log(customerInstance.attributes)
     let debt = customerInstance.get('debt')
     let amount = parseFloat(transDAO.amount)
     console.log(debt,amount)
@@ -215,7 +218,7 @@ ORDER BY day
     debt = parseFloat(debt) - amount
 
     await customerInstance.save({debt: debt})
-    let transInstance = await this.customerTransModel.where('id', transDAO.id).fetch()
+    
     await transInstance.destroy()
     return true 
   }
