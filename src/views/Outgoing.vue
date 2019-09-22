@@ -170,7 +170,7 @@ class="btn btn-lg  m-1 btn-block"
 
 </div>
 <!-- conditional class col-6 -->
-<div class="p-3 col-print-12 pr-me" :class="{ 'col-7': ! flags.detailed , 'col-11':  flags.detailed }">
+<div class="p-3 col-print-12 pr-me" :class="{ 'col-7': ! flags.detailed , 'col-12':  flags.detailed }">
 
     <div class="pr-hideme">
       <h3 class="text-danger fa fa-eraser larger"
@@ -193,7 +193,6 @@ class="btn btn-lg  m-1 btn-block"
               <th>اسم البياع</th>
               
               <th v-if="flags.detailed ">بياعة </th>
-              <th v-if="flags.detailed ">مبلغ البياعة </th>
               
               <th >الوزن</th>
               <th>السعر</th>
@@ -217,8 +216,7 @@ class="btn btn-lg  m-1 btn-block"
                   {{item.customer_name}}
                 </router-link>
               </td>
-              
-              <td v-if="flags.detailed ">{{item.sell_comm}}</td>
+
               <td v-if="flags.detailed ">{{item.sell_comm * item.count}}</td>
               
               <td>{{item.weight}}</td>
@@ -230,6 +228,11 @@ class="btn btn-lg  m-1 btn-block"
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[item.id]"> حذف </template>
                   <template v-if="confirm_step[item.id]"> تأكيد </template>
+                </button>
+                <button class="btn text-danger" @click="out_redirect(item)" >
+                  <span class="fa fa-directions "></span> 
+                  <template v-if="! confirm_step[item.id]"> تحويل </template>
+                  <template v-if="confirm_step[item.id]">  تأكيد </template>
                 </button>
               </td>
             </tr>
@@ -343,12 +346,25 @@ export default {
       if( this.confirm_step[id] ) {
         this.discard_success = await this.outgoingsCtrl.deleteById(id)
         this.confirm_step = []
-
         this.refresh_all()
       }
       else {
         this.confirm_step = []
         this.confirm_step[id] = true
+      }
+    },
+    async out_redirect(item) {
+      if( this.confirm_step[item.id] ) {
+        // await this.outgoingsCtrl.deleteById(item.id)
+        this.confirm_step = []
+        await this.refresh_all()
+        let selected_incoms = this.avilable_incomings.filter( incom => incom.day == item.income_day &&
+          incom.supplier_id == item.supplier_id &&  incom.product_id == item.product_id )
+        console.log(item,selected_incoms)
+      }
+      else {
+        this.confirm_step = []
+        this.confirm_step[item.id] = true
       }
     },
     async new_customer(search) {
