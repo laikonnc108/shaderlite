@@ -48,7 +48,12 @@ export class InoutHeadCtrl {
     (SELECT supplier_id, day, sum(amount) as total_nolon from cashflow where state= 'nolon' group by supplier_id, day ) cashflow_v
     on inoutv.day = cashflow_v.day and inoutv.supplier_id = cashflow_v.supplier_id
   WHERE
-    inoutv.day = '${filter.day}'`
+    inoutv.day = '${filter.day}'
+  OR (
+    inoutv.day in (SELECT income_day from outgoings where day= '${filter.day}' and income_day <> '${filter.day}')
+    and inoutv.supplier_id in (SELECT supplier_id from outgoings where day= '${filter.day}' and income_day <> '${filter.day}')
+  )
+`
 
     return await knex.raw(query)
   }

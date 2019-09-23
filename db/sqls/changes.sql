@@ -9,8 +9,6 @@ outgoings add product_rahn
 INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category") VALUES ('supp_init_payment', 'رصيد اول المدة', 'default', '', '', 'supplier_trans');
 INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category") VALUES ('product_rahn', 'رهن طرود', 'default', '+', '', 'customer_trans');
 
-
-
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('product_rahn', '10', '', 'magdy', 'config');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('product_sell_comm', '6', '', 'default', 'config');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('product_sell_comm', '3', '', 'magdy', 'config');

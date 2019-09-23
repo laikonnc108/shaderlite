@@ -65,7 +65,7 @@
 
   <div class="col-7 col-print-10 pr-me">
 
-    <div class="m-1">
+    <div class="m-1 pr-hideme">
       <br/>
       <button  class="btn btn-danger " @click="show_active=false;refresh_all()" v-if="show_active">
       عرض الارشيف
@@ -74,6 +74,11 @@
     <button  class="btn btn-success " @click="show_active=true;refresh_all()" v-if="! show_active">
       اغلاق الارشيف   &nbsp; <span class="fa fa-external-link-square-alt"></span>
     </button>
+    
+      <button  class="btn btn-primary mr-2" @click="setSelected()" >
+        اختيار للطباعة   &nbsp; <span class="fa fa-external-link-square-alt"></span>
+      </button>
+
     </div>
     <div class="pr-hideme" >
       <br>
@@ -83,12 +88,13 @@
   <h2 :class="{ 'text-danger': ! show_active }">
       <span v-if="show_active"> {{custom_labels['list']}} </span>
       <span v-if="! show_active"> {{custom_labels['archive']}} </span>
-     {{custom_labels['suppliers']}} 
+      العملاء
   </h2>
       <div class="table-responsive">
         <table class="table table-striped table-sm ">
           <thead>
             <tr>
+              <td></td>
               <th> الكود </th>
               <th>الاسم</th>
               <th>رقم التليفون </th>
@@ -98,6 +104,7 @@
           </thead>
           <tbody>
             <tr v-for="(item, idx) in comp_suppliers_arr" :key='idx' >
+              <td><input class="pr-hideme" :id="item.id" :value="item.id" type="checkbox" v-model="checkedItems" /></td>
               <td>{{item.id}}</td>
               <td>
                 <router-link class="nav-link " :to="{name:'supplier_details', params: {id: item.id}}">
@@ -141,6 +148,7 @@ export default {
       supplier_form: new SupplierDAO(SupplierDAO.INIT_DAO),
       suppliersCtrl: new SuppliersCtrl(),
       suppliers_arr: [],
+      checkedItems: [],
       search_term: '',
       show_active: true,
       confirm_step: [],
@@ -163,6 +171,9 @@ export default {
       
       this.supplier_form = new SupplierDAO(SupplierDAO.INIT_DAO)
       this.refresh_all()
+    },
+    setSelected() {
+      this.suppliers_arr = this.suppliers_arr.filter(item => this.checkedItems.includes(item.id))
     },
     async edit(id) {
       let filtered_arr = this.suppliers_arr.filter( element =>{

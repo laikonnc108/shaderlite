@@ -107,16 +107,16 @@ export class CustomersCtrl {
     // TODO Add Customer Trans with debt
   }
 
-  async findAll(filter = {}, options = {}) {
+  async findAll(filter = {}, options = {orderByName: false}) {
     //let all = await this.model.where(filter).fetchAll(options)
     // let results = await knex(`v_customers`)
+    
+let query = `select *, (amount) sum_debt from (select * from customers ) customers_g
+LEFT JOIN ( select customer_id, sum(amount) as amount from customer_trans group by customer_id ) customer_trans_g
+ON customers_g.id = customer_trans_g.customer_id 
+${ options.orderByName ? 'order by name ': ''} ` 
 
-    let results = await knex.raw(`
-    select *, (amount) sum_debt from (select * from customers ) customers_g
-    LEFT JOIN ( select customer_id, sum(amount) as amount from customer_trans group by customer_id ) customer_trans_g
-    ON customers_g.id = customer_trans_g.customer_id
-    `)
-
+    let results = await knex.raw(query)
     return results.map( _=> new CustomerDAO(_))
   }
 

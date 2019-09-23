@@ -183,7 +183,7 @@ export default {
         this.is_7z_ok = true
         const contents = remote.getCurrentWebContents()
         this.printers = contents.getPrinters()
-        contents.print({silent: true })
+        contents.print()
         // contents.printToPDF(options, callback)
         contents.printToPDF({/*pageSize:"A5"*/}, (error, data) => {
           if (error) throw error

@@ -88,15 +88,23 @@
   </div>
   <div class="col-7 col-print-12 pr-me">
     
-    <div class="m-1">
+    <div class="m-1 pr-hideme">
       <br/>
       <button  class="btn btn-danger " @click="flags.show_active=false;refresh_all()" v-if="flags.show_active">
       عرض الارشيف
       &nbsp; <span class="fa fa-archive"></span>
-    </button>
-    <button  class="btn btn-success " @click="flags.show_active=true;refresh_all()" v-if="! flags.show_active">
-      اغلاق الارشيف   &nbsp; <span class="fa fa-external-link-square-alt"></span>
-    </button>
+      </button>
+      <button  class="btn btn-success " @click="flags.show_active=true;refresh_all()" v-if="! flags.show_active">
+        اغلاق الارشيف   &nbsp; <span class="fa fa-external-link-square-alt"></span>
+      </button>
+
+      <button  class="btn btn-primary mr-2" @click="setSelected()" >
+        اختيار للطباعة   &nbsp; <span class="fa fa-external-link-square-alt"></span>
+      </button>
+
+      <button v-if="! flags.zm_mode" class="btn btn-primary mr-2" @click="zmMode()">
+          <span class="fa fa-print"></span> كشف الزمامات
+        </button>
     </div>
     <div class="pr-hideme" >
       <br>
@@ -112,26 +120,25 @@
         <table class="table table-striped table-sm">
           <thead>
             <tr>
+              <th></th>
               <th> كود </th>
               <th>اسم</th>
-              <th v-if="false && ! flags.zm_mode" >التليفون</th>
               <th>مديونية</th>
               <th v-if="false"> calc مديونية</th>
               <th v-if=" flags.zm_mode" width="25%">تحصيل</th>
               <th v-if="false">ملاحظات</th>
-              
               <th></th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(item, idx) in comp_customers_arr" :key='idx' >
+              <td><input class="pr-hideme" :id="item.id" :value="item.id" type="checkbox" v-model="checkedItems" /></td>
               <td>{{item.id}}</td>
               <td>
                 <router-link class="nav-link" :to="{name:'customer_details', params: {id: item.id}}">
                 {{item.name}}
                 </router-link>
               </td>
-              <td v-if="false && ! flags.zm_mode"  >{{item.phone}}</td>
               <td>{{item.debt | toAR }}</td>
               <td v-if="false">{{item.sum_debt | toAR }}</td>
               <td v-if=" flags.zm_mode" >
@@ -161,6 +168,10 @@
           </tbody>
         </table>
       </div>
+
+        <button class="btn btn-printo pr-hideme m-1"  @click="print_co">
+          <span class="fa fa-print"></span> طباعة
+        </button>
     </div>
     <!-- Nolons Modal -->
 <b-modal id="modal-collect"  
@@ -200,6 +211,7 @@ import { CustomerTransDAO, CustomerDAO, CustomersCtrl} from '../ctrls/CustomersC
 import { moment } from '../main'
 import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl'
+import { MainMixin } from '../mixins/MainMixin'
 
 export default {
   name: 'customers',
@@ -211,14 +223,14 @@ export default {
       customers_arr: [],
       flags: {show_active: true, zm_mode: false, form_collabsed: true,},
       confirm_step: [],
+      checkedItems: [],
       search_term: '',
-      custom_labels: this.$store.state.custom_labels,
       now_day: moment().format('LL'),
       now_hour: moment().format('hh:mm a'),
       sum_debt: 0
     }
   },
-
+  mixins: [MainMixin],
   methods: {
     async refresh_all() {
       let soft_delete = this.flags.show_active
@@ -230,6 +242,13 @@ export default {
     fresh_form(){
       this.customer_form = new CustomerDAO(CustomerDAO.INIT_DAO)
       this.$root.$emit('bv::toggle::collapse', 'collapse_form')
+    },
+    async zmMode() {
+      this.customers_arr = await this.customersCtrl.findAll({},{orderByName: true})
+      this.flags.zm_mode = true
+    },
+    setSelected(){
+      this.customers_arr = this.customers_arr.filter(item => this.checkedItems.includes(item.id))
     },
     async saveCustomer(evt) {
       evt.preventDefault()
@@ -315,7 +334,7 @@ export default {
     comp_customers_arr: function () {
       return this.customers_arr.filter( item => {
         return ((item.deleted_at == null) === this.flags.show_active  && item.name.includes(this.search_term))
-      })
+      })      
     },
     valid_form: function() {
       return this.customer_form.name
