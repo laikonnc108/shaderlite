@@ -184,7 +184,7 @@ ORDER BY day
   async updateDebtByTrans(transDAO) {
     /**@type {import('bookshelf').ModelBase} */
     let instance = await this.model.forge('id',transDAO.customer_id).fetch()
-    let debt = parseFloat(instance.get('debt')) ? parseFloat(instance.get('debt')) : 0
+    let debt = instance.get('debt') && parseFloat(instance.get('debt')) ? parseFloat(instance.get('debt')) : 0
     transDAO.debt_was = debt
 
     if(transDAO.sum == '-')

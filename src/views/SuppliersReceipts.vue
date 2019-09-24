@@ -64,8 +64,8 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
         </td>
         <td>{{row.sum_recp_count}}</td>
         <td>
-          
-          <router-link class="nav-link " :to="{name:'supp_recp_details', params: {supplier_id: row.supplier_id}}">
+          <div v-if="row.day != day.iso" class="text-danger">وارد {{row.day | arDate }} </div> 
+          <router-link class="nav-link " :to="{name:'supp_recp_details', params: {supplier_id: row.supplier_id, day: row.day}}">
           عرض الفواتير 
           </router-link>
         </td>

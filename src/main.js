@@ -8,6 +8,7 @@ import vSelect from 'vue-select'
 Vue.use(BootstrapVue)
 Vue.component('v-select', vSelect)
 
+require('events').EventEmitter.defaultMaxListeners = 25
 
 // Import vue-datetime with specific loader for CSS files
 import Datetime from 'vue-datetime'

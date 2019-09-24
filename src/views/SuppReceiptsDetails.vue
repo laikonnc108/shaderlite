@@ -1,6 +1,6 @@
 <template>
   <section class="supp-receipts-details m-3">
-  <section class="data-play pr-hideme">
+  <section class="data-play pr-hideme" v-if="! receipt_d_mode">
     <button class="btn btn-primary d-print-none pr-hideme" @click="$router.go(-1)">
         <span class="fa fa-arrow-right"></span> &nbsp;   العودة
     </button>
@@ -13,7 +13,7 @@
     <hr>
     <section class="row ">
       <div class=" col-5 " >
-        <h3>اجماليات وارد اليوم {{store_day.arab}}</h3>
+        <h3>اجماليات وارد يوم {{recp_day | arDate }}</h3>
         <table class="table table-striped table-sm pr-me">
           <thead>
             <tr>
@@ -157,7 +157,7 @@
           <span> {{recp_1.net_value | round2}} </span>
         </div>
         <hr>
-        <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_1"> <span class="fa fa-edit"></span>
+        <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_1;receipt_d_mode = true"> <span class="fa fa-edit"></span>
         تعديل / عرض  
         </button>&nbsp;
         <button  class="btn btn-primary" v-if="! recp_1.recp_paid" @click="setRecpPaid(recp_1, 1)">
@@ -219,7 +219,7 @@
           <span> {{recp_2.net_value | round2}} </span>
         </div>
         <hr>
-        <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_2"> <span class="fa fa-edit"></span>
+        <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_2;receipt_d_mode = true"> <span class="fa fa-edit"></span>
          تعديل / عرض 
         </button>&nbsp;
         <button  class="btn btn-primary" v-if="! recp_2.recp_paid" @click="setRecpPaid(recp_2, 1)">
@@ -282,7 +282,7 @@
           <span> {{recp_3.net_value | round2}} </span>
         </div>
         <hr>
-        <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_3"> <span class="fa fa-edit"></span>
+        <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_3; receipt_d_mode = true"> <span class="fa fa-edit"></span>
          تعديل / عرض 
         </button>&nbsp;
         <button  class="btn btn-primary" v-if="! recp_3.recp_paid" @click="setRecpPaid(recp_3, 1)">
@@ -398,9 +398,9 @@
   </div>
 </b-modal>
 
-<!-- modal_recp Modal -->
-<b-modal id="modal-recp" size="xl" class="col-print-12" hide-header
- hide-footer hide-header-close hide-backdrop>
+<!-- modal_recp Modal <b-modal id="modal-recp" size="xl" class="col-print-12" hide-header
+ hide-footer hide-header-close hide-backdrop>-->
+<section v-if="modal_recp.serial && receipt_d_mode">
 <template v-if="true || print_mode">
   <p class="recp-header" v-html="shader_configs['recp_header']"></p>
 </template>
@@ -460,8 +460,12 @@
             <td ><b class="border-top border-primary">{{modal_recp.sale_value | round2 | toAR }} </b></td>
             <td colspan="6" style="border: none !important;"></td>
           </tr>
+          </tbody>
+          </table>
+        <table class="table  table-sm pr-me-xx" >
+        <tbody>
           <tr>
-            <td colspan="2" style="border: none !important;"></td>
+            <td colspan="4" style="border: none !important;"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" v-model="modal_recp.comm_rate" class="form-control"  >
             </td>
@@ -475,18 +479,18 @@
             <th style="border: none !important;">عمولة</th>
           </tr>
           <tr v-if="modal_recp.total_nolon">
-            <td colspan="5" style="border: none !important;"></td>
+            <td colspan="7" style="border: none !important;"></td>
             <td ><b >( {{modal_recp.total_nolon | round2 | toAR(true) }} )</b></td>
             <td  style="border: none !important;">نولون</td>
           </tr>
           <tr v-if="modal_recp.recp_expenses">
-            <td colspan="5" style="border: none !important;"></td>
+            <td colspan="7" style="border: none !important;"></td>
             <td ><b >( {{modal_recp.recp_expenses | round2 | toAR }} )</b></td>
             <td  style="border: none !important;">خصم الفاتورة</td>
           </tr>
 
           <tr>
-            <td colspan="2" style="border: none !important;"></td>
+            <td colspan="4" style="border: none !important;"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" 
               v-model="modal_recp.recp_deducts" class="form-control" placeholder="ادخل مبلغ الخصم" >
@@ -498,7 +502,7 @@
           </tr>
 
           <tr>
-            <td colspan="2" style="border: none !important;"></td>
+            <td colspan="4" style="border: none !important;"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" 
               v-model="modal_recp.recp_given" class="form-control" placeholder="ادخل مبلغ الوهبة" >
@@ -510,7 +514,7 @@
           </tr>
 
           <tr>
-            <td style="border: none !important;"></td>
+            <td colspan="2" style="border: none !important;"></td>
             <td style="border: none !important;">صافي الفاتورة</td>
             <td ><b class="border-top border-primary">{{modal_recp.net_value | round2 | toAR }} </b></td>
             
@@ -519,7 +523,8 @@
       </table>
 
       <div class="m-2">
-          <button class="btn btn-primary pr-hideme" @click="print_mode=false;$bvModal.hide('modal-recp');saveAll();" >
+          <button class="btn btn-primary pr-hideme" 
+          @click="print_mode=false;$bvModal.hide('modal-recp');receipt_d_mode= false;saveAll();" >
             <span class="fa fa-check "></span> &nbsp;
             موافق
           </button>
@@ -535,7 +540,8 @@
         {{modal_recp.recp_paid}}
         (م {{modal_recp.serial}})
       </span>
-</b-modal>
+      </section>
+      <!--</b-modal> -->
 
   </section>
 </template>
@@ -556,7 +562,8 @@ export default {
   name: 'supp-receipts-details',
   data () {
     return {
-      store_day: this.$store.state.day,
+      recp_day: this.$route.params.day ? this.$route.params.day: this.$store.state.day.iso,
+      receipt_d_mode: false,
       show_receipts: {1: false, 2: false, 3: false},
       supplier_id: this.$route.params.supplier_id,
       supplier: new SupplierDAO(),
@@ -572,7 +579,7 @@ export default {
       inc_headers: [],
       today_nolons: [],
       recp_in_sums: {},
-      recp_default_comm_rate: this.$store.state.shader_configs['recp_comm'] ? parseFloat(this.$store.state.shader_configs['recp_comm']) : 0 ,
+      recp_init_comm_rate: this.$store.state.shader_configs['init_recp_comm'] ? parseFloat(this.$store.state.shader_configs['init_recp_comm']) : 0 ,
       recp_1: new ReceiptDAO({}),
       recp_2: new ReceiptDAO({}),
       recp_3: new ReceiptDAO({}),
@@ -583,18 +590,19 @@ export default {
   mixins: [MainMixin],
   methods: {
     async refresh_all(){
-      this.recp_1 = new ReceiptDAO({serial: 1, comm_rate: this.recp_default_comm_rate, ...ReceiptDAO.INIT_DAO})
-      this.recp_2 = new ReceiptDAO({serial: 2, comm_rate: this.recp_default_comm_rate, ...ReceiptDAO.INIT_DAO})
-      this.recp_3 = new ReceiptDAO({serial: 3, comm_rate: this.recp_default_comm_rate, ...ReceiptDAO.INIT_DAO})
+      this.recp_1 = new ReceiptDAO({serial: 1, comm_rate: this.recp_init_comm_rate, ...ReceiptDAO.INIT_DAO})
+      this.recp_2 = new ReceiptDAO({serial: 2, comm_rate: this.recp_init_comm_rate, ...ReceiptDAO.INIT_DAO})
+      this.recp_3 = new ReceiptDAO({serial: 3, comm_rate: this.recp_init_comm_rate, ...ReceiptDAO.INIT_DAO})
 
       this.show_receipts= {1: false, 2: false, 3: false}
-      this.total_nolon = await this.cashflowCtrl.getSupplierNolons({supplier_id: this.supplier_id, day: this.store_day.iso})
-      this.recp_expenses_dao = await this.cashflowCtrl.getSupplierRecpExpenses({supplier_id: this.supplier_id, day: this.store_day.iso})
+      this.total_nolon = await this.cashflowCtrl.getSupplierNolons({supplier_id: this.supplier_id, day: this.recp_day})
+      // TODO ظبط
+      this.recp_expenses_dao = await this.cashflowCtrl.getSupplierRecpExpenses({supplier_id: this.supplier_id, day: this.recp_day})
       this.recp_expenses_dao = this.recp_expenses_dao ? this.recp_expenses_dao : new CashflowDAO(CashflowDAO.RECP_EXPENSES)
       this.recp_expenses = this.recp_expenses_dao.amount ? this.recp_expenses_dao.amount : 0
-      this.outgoings_sums = await this.outgoingsCtrl.findSuppDaySums({supplier_id: this.supplier_id, day: this.store_day.iso})
-      this.inc_headers = await this.inoutHeadCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
-      let receipts = await this.receiptsCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
+      this.outgoings_sums = await this.outgoingsCtrl.findSuppDaySums({supplier_id: this.supplier_id, day: this.recp_day})
+      this.inc_headers = await this.inoutHeadCtrl.findAll({supplier_id: this.supplier_id, day: this.recp_day})
+      let receipts = await this.receiptsCtrl.findAll({supplier_id: this.supplier_id, day: this.recp_day})
       receipts.forEach(receipt => {
         this['recp_'+ receipt.serial] = receipt
         console.log(receipt)
@@ -602,7 +610,7 @@ export default {
         this.show_receipts[receipt.serial] = true        
       })
 
-      this.today_nolons = await this.cashflowCtrl.findAll({supplier_id: this.supplier_id, day: this.day.iso, state: 'nolon'})
+      this.today_nolons = await this.cashflowCtrl.findAll({supplier_id: this.supplier_id, day: this.recp_day, state: 'nolon'})
       
     },
     async recp_changed(){
@@ -613,16 +621,21 @@ export default {
       await this.addReceipt(1)
     },
     async removeAll(){
-      if(this.recp_1.id)
+      if(this.recp_1.id){
         await this.receiptsCtrl.deleteById(this.recp_1.id)
-
-      if(this.recp_2.id)
+        await this.cashflowCtrl.rawDelete({receipt_id: this.recp_1.id})
+      }
+      if(this.recp_2.id){
         await this.receiptsCtrl.deleteById(this.recp_2.id)
-
-      if(this.recp_3.id)
+        await this.cashflowCtrl.rawDelete({receipt_id: this.recp_2.id})
+      }
+      if(this.recp_3.id){
         await this.receiptsCtrl.deleteById(this.recp_3.id)
-
-      await this.cashflowCtrl.rawDelete({day: this.day.iso, supplier_id: this.supplier_id, state: 'recp_paid'})
+        await this.cashflowCtrl.rawDelete({receipt_id: this.recp_3.id})
+      }
+        
+      // TODO delete also تاريخ الصرف
+      await this.cashflowCtrl.rawDelete({day: this.recp_day, supplier_id: this.supplier_id, state: 'recp_paid'})
       await this.refresh_all()
     },
     async setRecpPaid( receipt, recp_paid ) {
@@ -632,7 +645,8 @@ export default {
           day: this.day.iso,
           supplier_id: this.supplier_id,
           amount: receipt.net_value,
-          d_product: receipt.products_arr
+          d_product: receipt.products_arr,
+          receipt_id: receipt.id
         })
         let transType = await new TransTypesCtrl().findOne({name: 'recp_paid', category: 'cashflow'})
         cashflowDAO.transType = transType
@@ -645,7 +659,7 @@ export default {
       if(this.recp_1.details.length > 0){
         let receipt = new ReceiptDAO({
           ...this.recp_1,
-          day: this.store_day.iso,
+          day: this.recp_day,
           supplier_id: this.supplier_id,
         })
         await this.receiptsCtrl.save(receipt)
@@ -656,7 +670,7 @@ export default {
       if(this.recp_2.details.length > 0){
         let receipt = new ReceiptDAO({
           ...this.recp_2,
-          day: this.store_day.iso,
+          day: this.recp_day,
           supplier_id: this.supplier_id,
         })
         await this.receiptsCtrl.save(receipt)
@@ -667,7 +681,7 @@ export default {
       if(this.recp_3.details.length > 0){
         let receipt = new ReceiptDAO({
           ...this.recp_3,
-          day: this.store_day.iso,
+          day: this.recp_day,
           supplier_id: this.supplier_id,
         })
         await this.receiptsCtrl.save(receipt)
@@ -700,10 +714,11 @@ export default {
         // console.log(this.recp_1)
         this.modal_recp = this['recp_'+ num]
         this.$bvModal.show('modal-recp')
+        this.receipt_d_mode = true
       }
     },
     async watchit(){
-      this.inc_headers = await this.inoutHeadCtrl.findAll({supplier_id: this.supplier_id, day: this.store_day.iso})
+      this.inc_headers = await this.inoutHeadCtrl.findAll({supplier_id: this.supplier_id, day: this.recp_day})
 
       this.recp_1.total_count = 0
       this.recp_1.details.forEach( item => {        

@@ -19,6 +19,7 @@ export class CashflowDAO {
   kg_price
   count
   weight
+  receipt_id
 
   static get INIT_DAO() {
     return { }
@@ -105,10 +106,10 @@ export class CashflowCtrl {
       await knex.raw(`delete from cashflow where incoming_id = ${filter.incoming_id}`)
     else if(filter.outgoing_id)
       await knex.raw(`delete from cashflow where outgoing_id = ${filter.outgoing_id}`)
-    else if(filter.state == 'recp_paid' && filter.supplier_id && filter.day){
+    else if(filter.state == 'recp_paid' && filter.supplier_id && filter.day)
       await knex.raw(`delete from cashflow where state= 'recp_paid' and day='${filter.day}' and supplier_id= ${filter.supplier_id}`)
-    }
-      
+    else if(filter.receipt_id)
+      await knex.raw(`delete from cashflow where receipt_id= ${filter.receipt_id}`)      
   }
   async deleteById(id){
     let instance = await this.model.where('id',id).fetch()
