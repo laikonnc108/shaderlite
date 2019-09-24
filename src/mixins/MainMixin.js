@@ -21,7 +21,7 @@ export const MainMixin = {
   methods: {
     print_co(){
       const contents = remote.getCurrentWebContents()
-      contents.print({silent: false })
+      contents.print({silent: true })
     },
   }
 }

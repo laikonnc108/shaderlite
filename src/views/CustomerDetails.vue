@@ -237,7 +237,7 @@ src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vege
               </td>
             </template>
           </tr>
-          <tr>
+          <tr :class="{'pr-hideme': !customer_trans_form.amount }">
             <td ><input v-if="! customer_trans_form.id" 
               v-model="customer_trans_form.amount" class="form-control" placeholder="ادخل مبلغ التحصيل" >
               <span v-if="customer_trans_form.id">({{customer_trans_form.amount | toAR}})</span>
@@ -246,7 +246,7 @@ src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vege
 
             <td style="border: none !important;">
                 <button  v-if="customer_trans_form.id"
-                class="btn text-danger pr-hideme" @click="removeTrans(customer_trans_form)" >
+                class="btn text-danger pr-hideme" @click="removeTrans(customer_trans_form,true)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[customer_trans_form.id]"> حذف </template>
                   <template v-if="confirm_step[customer_trans_form.id]"> تأكيد </template>
@@ -264,9 +264,14 @@ src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vege
       </span>
 
       <div class="m-2">
-          <button class="btn btn-primary pr-hideme" @click="modalSave" >
+          <button class="btn btn-success pr-hideme" @click="modalSave" >
             <span class="fa fa-check "></span> &nbsp;
-            موافق
+            حفظ
+          </button>
+          &nbsp;
+          <button class="btn btn-danger pr-hideme" @click="$bvModal.hide('modal-daily');customer_trans_form= {}" >
+            <span class="fa fa-close "></span> &nbsp;
+            اغلاق
           </button>
           &nbsp;
           <button class="btn btn-printo pr-hideme" 
@@ -334,14 +339,17 @@ export default {
         this.customer_trans_form.trans_type = 'cust_in_collecting'
         await this.createCustomerTrans(evt)
       }
-
-      this.$bvModal.hide('modal-daily')
+      await this.showOutModal(this.outg_day)
     },
-    async removeTrans(trans) {
+    async removeTrans(trans, in_kashf = false) {
       if( this.confirm_step[trans.id] ) {
         this.discard_success = await this.customersCtrl.removeCustomerTrans(trans)
         this.confirm_step = []
         this.getCustomerDetails()
+        if(in_kashf) {
+          this.customer_trans_form = {}
+          this.showOutModal(this.outg_day)
+        }
       }
       else {
         this.confirm_step = []
