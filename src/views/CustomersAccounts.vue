@@ -89,12 +89,27 @@ src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vege
                 {{item.notes }}
               </td>
             </template>
-            <template v-if="item.trans_type == 'cust_in_collecting'">
+            <template v-if="false && item.trans_type == 'cust_in_collecting'">
               <td>( {{ item.amount | toAR(true) }} ) </td>
               <td> تنزيل</td>
               <td> </td>
-
             </template>
+          </tr>
+          <tr :class="{'pr-hideme': !customer_trans_form.amount }">
+            <td ><input v-if="! customer_trans_form.id" 
+              v-model="customer_trans_form.amount" class="form-control" placeholder="ادخل مبلغ التحصيل" >
+              <span v-if="customer_trans_form.id">({{customer_trans_form.amount | toAR}})</span>
+              </td>
+            <td style="border: none !important;"> تنزيل </td>
+
+            <td style="border: none !important;">
+                <button  v-if="customer_trans_form.id"
+                class="btn text-danger pr-hideme" @click="removeTrans(customer_trans_form,true)" >
+                  <span class="fa fa-archive "></span> 
+                  <template v-if="! confirm_step[customer_trans_form.id]"> حذف </template>
+                  <template v-if="confirm_step[customer_trans_form.id]"> تأكيد </template>
+                </button>
+            </td>
           </tr>
           <tr>
             <td ><b class="border-top border-primary">{{ sum_outgoings_val | ceil5 | toAR }} </b></td>
@@ -107,14 +122,19 @@ src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vege
       </span>
 
       <div class="m-2">
-          <button class="btn btn-primary pr-hideme" @click="$bvModal.hide('modal-daily');refresh_all()" >
+          <button class="btn btn-success pr-hideme" @click="modalSave" >
             <span class="fa fa-check "></span> &nbsp;
-            موافق
+            حفظ
           </button>
           &nbsp;
           <button class="btn btn-printo pr-hideme" 
             @click="print_co();print_done(outg_day, customer.id);">
             <span class="fa fa-print"></span> طباعة
+          </button>
+           &nbsp;
+          <button class="btn btn-danger pr-hideme" @click="$bvModal.hide('modal-daily');refresh_all();customer_trans_form= {}" >
+            <span class="fa fa-close "></span> &nbsp;
+            اغلاق
           </button>
       </div>
   </div>
@@ -126,7 +146,9 @@ src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vege
 import { OutgoingsCtrl } from '../ctrls/OutgoingsCtrl'
 import { knex } from '../main';
 import { MainMixin } from '../mixins/MainMixin';
-import { CustomersCtrl } from '../ctrls/CustomersCtrl';
+import { CustomersCtrl, CustomerTransDAO } from '../ctrls/CustomersCtrl';
+import { CashflowCtrl, CashflowDAO } from '../ctrls/CashflowCtrl';
+import { TransTypesCtrl } from '../ctrls/TransTypesCtrl';
 
 export default {
   name: 'accounts',
@@ -136,7 +158,11 @@ export default {
       printed_all: {},
       outg_day: {},
       daily_out_trans: [],
-      customer: {}
+      customer: {},
+      customer_trans_form: {id:null , trans_type:'cust_collecting', amount: null , notes: null},
+      confirm_step: [],
+      customersCtrl: new CustomersCtrl(),
+      transTypesCtrl: new TransTypesCtrl()
     }
   },
   mixins: [MainMixin],
@@ -151,10 +177,69 @@ export default {
       this.unique_daily_customers = await outgoingsCtrl.findDailyCustomers({day: this.$store.state.day.iso})
     },
     async showOutModal(customer_id){
-      this.customer = await new CustomersCtrl().findOne(customer_id)
+      this.customer = await this.customersCtrl.findOne(customer_id)
       this.outg_day = this.day.iso
-      this.daily_out_trans = await new CustomersCtrl().getDailyOutTrans({id: customer_id, day: this.outg_day})
+      this.daily_out_trans = await this.customersCtrl.getDailyOutTrans({id: customer_id, day: this.outg_day})
+      let filtered_incollect = this.daily_out_trans.filter(item => item.trans_type === 'cust_in_collecting')
+      if(filtered_incollect.length > 0){
+        this.customer_trans_form.amount = Math.abs(filtered_incollect[0].amount)
+        this.customer_trans_form.id = filtered_incollect[0].id
+        this.customer_trans_form.customer_id = filtered_incollect[0].customer_id
+      }
       this.$bvModal.show('modal-daily')
+    },
+    async modalSave(evt){
+      if(! this.customer_trans_form.id && this.customer_trans_form.amount ) {
+        this.customer_trans_form.trans_type = 'cust_in_collecting'
+        await this.createCustomerTrans(evt)
+      }
+      await this.showOutModal(this.customer.id)
+    },
+    async removeTrans(trans, in_kashf = false) {
+      if( this.confirm_step[trans.id] ) {
+        this.discard_success = await this.customersCtrl.removeCustomerTrans(trans)
+        this.confirm_step = []
+        if(in_kashf) {
+          this.customer_trans_form = {}
+          this.showOutModal(this.customer.id)
+        }
+      }
+      else {
+        this.confirm_step = []
+        this.confirm_step[trans.id] = true
+      }
+    },
+    async createCustomerTrans(evt ) {
+      evt.preventDefault()
+      
+      let selectedTrans = await this.transTypesCtrl.findOne({name: this.customer_trans_form.trans_type , category: 'customer_trans'})
+      // create customer trans
+      if(selectedTrans) {
+        let cashflow_id = null
+        if(selectedTrans.map_cashflow){
+          // Create cashflow with trans
+          let cashflowTrans = await this.transTypesCtrl.findOne({name: selectedTrans.map_cashflow , category: 'cashflow'})
+          
+          let newCashflow = new CashflowDAO({
+            amount: this.customer_trans_form.amount,
+            day: this.$store.state.day.iso,
+            customer_id: this.customer.id,
+          })
+
+          newCashflow.transType = cashflowTrans
+          let cashflowCtrl = new CashflowCtrl()
+          cashflow_id = await cashflowCtrl.save(newCashflow)
+        }
+
+        let custtransDAO = new CustomerTransDAO(this.customer_trans_form)
+        custtransDAO.day = this.$store.state.day.iso
+        custtransDAO.customer_id = this.customer.id
+        custtransDAO.cashflow_id = cashflow_id
+        custtransDAO.transType = selectedTrans
+        await this.customersCtrl.updateDebtByTrans(custtransDAO)
+      }
+      this.customer_trans_form = {trans_type:'cust_collecting', amount: null , notes: null}
+      this.showOutModal(this.customer.id)
     },
     async print_done(outg_day, customer_id){
       try {

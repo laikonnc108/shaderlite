@@ -268,15 +268,16 @@ src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vege
             <span class="fa fa-check "></span> &nbsp;
             حفظ
           </button>
-          &nbsp;
-          <button class="btn btn-danger pr-hideme" @click="$bvModal.hide('modal-daily');customer_trans_form= {}" >
-            <span class="fa fa-close "></span> &nbsp;
-            اغلاق
-          </button>
+
           &nbsp;
           <button class="btn btn-printo pr-hideme" 
             @click="print_co();print_done(outg_day)">
             <span class="fa fa-print"></span> طباعة
+          </button>
+          &nbsp;
+          <button class="btn btn-danger pr-hideme" @click="$bvModal.hide('modal-daily');customer_trans_form= {}" >
+            <span class="fa fa-close "></span> &nbsp;
+            اغلاق
           </button>
       </div>
   </div>
