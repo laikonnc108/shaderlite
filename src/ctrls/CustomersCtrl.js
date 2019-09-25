@@ -21,7 +21,9 @@ export class CustomerDAO {
 
   parseTypes() {
     this.debt = this.debt ? parseFloat(this.debt) : 0 
+    this.name = (""+this.name).trim()
     delete this.sum_debt
+    delete this.customer_id
   }
 
   constructor (data) {
@@ -107,14 +109,14 @@ export class CustomersCtrl {
     // TODO Add Customer Trans with debt
   }
 
-  async findAll(filter = {}, options = {orderByName: false}) {
+  async findAll(filter = {}, options = {orderByName: false, orderByDebt: false, softDelete: false}) {
     //let all = await this.model.where(filter).fetchAll(options)
     // let results = await knex(`v_customers`)
     
-let query = `select *, (amount) sum_debt from (select * from customers ) customers_g
-LEFT JOIN ( select customer_id, sum(amount) as amount from customer_trans group by customer_id ) customer_trans_g
+let query = `select * from (select * from customers ${options.softDelete ? 'where deleted_at is null': ''}) customers_g
+LEFT JOIN ( select customer_id, sum(amount) as sum_debt from customer_trans group by customer_id ) customer_trans_g
 ON customers_g.id = customer_trans_g.customer_id 
-${ options.orderByName ? 'order by name ': ''} ` 
+${ options.orderByName ? 'order by name ': ''}  ${options.orderByDebt ? 'order by debt desc' : ''}` 
 
     let results = await knex.raw(query)
     return results.map( _=> new CustomerDAO(_))
@@ -184,6 +186,7 @@ ORDER BY day
   async updateDebtByTrans(transDAO) {
     /**@type {import('bookshelf').ModelBase} */
     let instance = await this.model.forge('id',transDAO.customer_id).fetch()
+    console.log(instance)
     let debt = instance.get('debt') && parseFloat(instance.get('debt')) ? parseFloat(instance.get('debt')) : 0
     transDAO.debt_was = debt
 

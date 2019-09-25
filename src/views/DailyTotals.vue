@@ -80,7 +80,7 @@
         <div v-if="daily_expenses.length == 0">
           <div class="row m-2">
             <template v-for="(item, idx) in expenses_items" class=" p-2 col-3">
-              <span v-if="item.notes" :key='idx' class=" p-2 col-3">
+              <span v-if="item.notes && item.notes.includes('كاتب')" :key='idx' class=" p-2 col-3">
                 <input class="pr-hideme" :id="item.notes" :value="item.notes" type="checkbox" v-model="checkedItems" />
                 {{item.notes}}
               </span>
@@ -161,13 +161,13 @@ export default {
     },
     async refresh_all(){
       this.daily_totals = await knex('v_daily_sums').orderBy('day',"asc")
-      this.expenses_items = await knex.raw(`SELECT DISTINCT(notes) notes from cashflow where state = 'expenses' group by notes HAVING COUNT(*) > 1`)
+      this.expenses_items = await knex.raw(`SELECT DISTINCT(notes) notes from cashflow where state = 'expenses' or state = 'act_pymnt' group by notes HAVING COUNT(*) > 1`)
     },
     async showSelected(){
       let fromDateTime = DateTime.fromISO(this.from_day)
       let toDateTime = DateTime.fromISO(this.to_day)
 
-      let sql = `select day, amount, notes from cashflow where state = 'expenses' and notes in
+      let sql = `select day, amount, notes from cashflow where ( state = 'expenses' or state = 'act_pymnt' ) and notes in
       ('${this.checkedItems.join("','")}')`
       if(fromDateTime && fromDateTime.toISODate()) sql += ` and day >= '${fromDateTime.toISODate()}'`
       if(toDateTime && toDateTime.toISODate()) sql += ` and day <= '${toDateTime.toISODate()}'`

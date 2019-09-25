@@ -14,6 +14,11 @@
               <option value="expenses">مصروفات يومية</option>
               <option value="men_account">حساب الرجالة</option>
               <option value="act_pymnt">دفعات لا تخصم من الايراد</option>
+              <option value="كاتب 1">كاتب 1</option>
+              <option value="كاتب 2">كاتب 2</option>
+              <option value="كاتب 3">كاتب 3</option>
+              <option value="كاتب 4">كاتب 4</option>
+              <option value="كاتب 5">كاتب 5</option>
             </select>
             </div>
           </div>
@@ -108,9 +113,15 @@ export default {
       evt.preventDefault()
       let cashDAO = new CashflowDAO(this.cashflow_form)
       cashDAO.day = this.store_day.iso
+      
+      if(cashDAO.state && cashDAO.state.includes('كاتب')) {
+        cashDAO.notes = cashDAO.state
+        cashDAO.state = 'expenses'
+      }
       let transTypesCtrl = new TransTypesCtrl()
       let cashTrans = await transTypesCtrl.findOne({name: cashDAO.state , category: 'cashflow' })
       cashDAO.sum = cashTrans.sum
+
       await this.cashflowCtrl.save(cashDAO)
       this.$root.$emit('bv::toggle::collapse', 'collapse_cash')
       this.cashflow_form = new CashflowDAO(CashflowDAO.INIT_DAO)

@@ -105,6 +105,9 @@ import { IncomingsCtrl,IncomingsData } from '../ctrls/IncomingsCtrl'
 import { MainMixin } from '../mixins/MainMixin'
 import { ProductsCtrl, ProductDAO } from '../ctrls/ProductsCtrl';
 import { MyStoreMutations } from '../main'
+import { CashflowCtrl, CashflowDAO } from '../ctrls/CashflowCtrl';
+
+const moment = require('moment')
 
 export default {
   name: 'IncomingResalahForm',
@@ -116,12 +119,8 @@ export default {
       product_search: '',
       supplier_incomings: [],
       incomingsCtrl: new IncomingsCtrl(),
-      all_products: Object.keys(this.$store.state.products_arr).map(
-        key => ({
-          id: key,
-          product_name: this.$store.state.products_arr[key]
-        })
-      ),
+      cashflowCtrl: new CashflowCtrl(),
+      all_products: [],
       product_data: {id: 0 , count: null}
     }
   },
@@ -137,8 +136,28 @@ export default {
         alert('يوجد مشكلة بتاريخ الجهاز ')
         return
       }
-      else
+      else {
+        let day_incs = await this.incomingsCtrl.findAll({day: this.day.iso})
+        let cashflow_rasid = await this.cashflowCtrl.findAll({day: this.day.iso,state: 'inc_collect', notes: 'عهده'})
+        
+        moment.locale('en')
+        let isoyesterDay = moment(moment(this.day.iso).subtract(1, 'days')).format('YYYY-MM-DD')
+        moment.locale('ar')
+
+        let netcashYesterday = await this.cashflowCtrl.getNetCash({day: isoyesterDay})
+        console.log(day_incs.length, cashflow_rasid.length)
+        if(day_incs.length == 0 && cashflow_rasid.length == 0 && netcashYesterday >  0) {
+          await this.cashflowCtrl.save(new CashflowDAO({
+            amount: netcashYesterday,
+            state: 'inc_collect',
+            notes: 'عهده',
+            sum: '+',
+            day: this.day.iso
+          }))
+        }
         await this.incomingsCtrl.saveIncomingsData(this.incomings_data)
+      }
+        
       this.fresh_form()
       this.$emit('saved')
 
@@ -181,8 +200,14 @@ export default {
   },
   async mounted () {
     // console.log(this.$store.state.products_arr)
-    console.log(this.all_products)
+    
     this.active_suppliers = await new SuppliersCtrl().findAll({},{softDelete: true})
+
+    let all_products = await new ProductsCtrl().findAll({},{softDelete: true})
+    this.all_products = all_products.map (product => { 
+      return {id: product.id, product_name: product.name, color: product.notes}
+    })
+    console.log(this.all_products)
     this.fresh_form()
   },
   computed: {

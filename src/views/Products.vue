@@ -30,14 +30,17 @@
           <input v-model="product_form.product_rahn" class="form-control "  placeholder="ادخل مبلغ رهن الصنف">
         </div>
       </div>
-      <!--
-      <div class="form-group row" v-if="isBoth">
-        <label  class="col-sm-2">نوع الصنف</label>
+
+      <div class="form-group row"  v-if="false">
+        <label  class="col-sm-2">لون الصنف</label>
         <div class="col-sm-10">
-          <input v-model="product_form.type" class="form-control " >
+          <select v-model="product_form.notes" class="form-control ">
+            <option value=""></option>
+            <option value="red">احمر</option>
+            <option value="green">اخضر</option>
+          </select>
         </div>
       </div>
-      -->
 
       <button type="submit" class="btn btn-success" 
       :disabled="! product_form.name || ! product_form.product_sell_comm">حفظ</button>

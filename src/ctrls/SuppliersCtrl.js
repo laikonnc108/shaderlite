@@ -1,4 +1,6 @@
 import { bookshelf, knex } from '../main'
+import { store } from '../store'
+import { TransTypesCtrl } from './TransTypesCtrl'
 
 export class SupplierDAO {
 
@@ -17,13 +19,14 @@ export class SupplierDAO {
   }
 
   parseTypes() {
-    this.balance = this.debt ? parseFloat(this.debt) : 0 
+    this.balance = this.balance ? parseFloat(this.balance) : 0 
+    this.name = (""+this.name).trim()
     delete this.sum_debt
+    delete this.supplier_id
   }
 
   constructor (data) {
     Object.assign(this, data)
-    
   }
 }
 
@@ -78,6 +81,18 @@ export class SuppliersCtrl {
   async save(data) {
     data.parseTypes()
     let record = await this.model.forge(data).save()
+    if(! data.id && data.balance >= 0) { // new one with init debt
+      let transDAO = new SupplierTransDAO({
+        supplier_id: record.id,
+        amount: data.balance,
+        day: store.state.day.iso
+      })
+
+      let selectedTrans = await new TransTypesCtrl().findOne({name: 'supp_init_payment' , category: 'supplier_trans'})
+      transDAO.transType = selectedTrans
+      console.log(transDAO)
+      await this.createSupplierTrans(transDAO)
+    }
     return record.id
   }
 
@@ -140,18 +155,19 @@ export class SuppliersCtrl {
     return trans_record.id
   }
 
-  async findAll(filter = {}, options = {}) {
+  async findAll(filter= {}, options= {softDelete: false}) {
     /*
     let all = await this.model.where(filter).fetchAll(options)
     return all.map( _=> new SupplierDAO(_.attributes))
     */
-   let results = await knex.raw(`
-   select * from (select * from suppliers ) suppliers_g
-   LEFT JOIN ( select supplier_id, sum(amount) as sum_debt from supplier_trans group by supplier_id ) supplier_trans_g
-   ON suppliers_g.id = supplier_trans_g.supplier_id
-   `)
+    console.log(options)
+    let results = await knex.raw(`
+    select * from (select * from suppliers ${options.softDelete ? 'where deleted_at is null': ''}) suppliers_g
+    LEFT JOIN ( select supplier_id, sum(amount) as sum_debt from supplier_trans group by supplier_id ) supplier_trans_g
+    ON suppliers_g.id = supplier_trans_g.supplier_id
+    `)
 
-   return results.map( _=> new SupplierDAO(_))
+    return results.map( _=> {return new SupplierDAO(_)})
   }
 
   

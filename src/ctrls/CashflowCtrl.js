@@ -83,6 +83,12 @@ export class CashflowCtrl {
       return cashDAO
     })
   }
+  
+  async getNetCash(filter = {day: ''}) {
+    let results = await knex.raw(`SELECT sum(CASE When sum='-' Then -amount Else amount End ) net_amount from cashflow where day= '${filter.day}'`)
+    let net_amount =(results && results.length > 0) ? results[0].net_amount : 0
+    return net_amount
+  }
 
   async getSupplierNolons(filter = {day: '' , supplier_id : 0 }){
     let query = `SELECT supplier_id, day, sum(amount) as total_nolon from cashflow WHERE 

@@ -189,8 +189,10 @@ hide-header hide-footer hide-header-close hide-backdrop>
   <span style="font-size: .6em;">المطلوب من السيد/ </span> 
   <span style="font-size: 1.1em;">{{customer.name}}</span>
 </h4>
-<img style="margin-top: -75px;float: left;"
-src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vegetables_icon_1422990_cc.svg/110px-Noun_Project_vegetables_icon_1422990_cc.svg.png' />
+<img style="margin-top: -425px;float: right;margin-right: 30px;" width="150" class="pr-only"
+src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxuJSnqfd3EHT00s84gev-DgYVrJ4a5h' />
+<img style="margin-top: -425px;float: left;margin-left: 30px;" width="150" class="pr-only"
+src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxuJSnqfd3EHT00s84gev-DgYVrJ4a5h' />
 <h4 class="text-center" v-if="daily_out_trans[0]"> حساب سابق : {{ daily_out_trans[0].debt_was | toAR }}</h4>
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me-xx" >
@@ -243,7 +245,6 @@ src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vege
               <span v-if="customer_trans_form.id">({{customer_trans_form.amount | toAR}})</span>
               </td>
             <td style="border: none !important;"> تنزيل </td>
-
             <td style="border: none !important;">
                 <button  v-if="customer_trans_form.id"
                 class="btn text-danger pr-hideme" @click="removeTrans(customer_trans_form,true)" >
@@ -259,26 +260,23 @@ src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vege
           </tr>
         </tbody>
       </table>
-      <span>
-        
-      </span>
-
+      <span></span>
       <div class="m-2">
-          <button class="btn btn-success pr-hideme" @click="modalSave" >
-            <span class="fa fa-check "></span> &nbsp;
-            حفظ
-          </button>
+        <button class="btn btn-success pr-hideme" @click="modalSave" >
+          <span class="fa fa-check "></span> &nbsp;
+          حفظ
+        </button>
 
-          &nbsp;
-          <button class="btn btn-printo pr-hideme" 
-            @click="print_co();print_done(outg_day)">
-            <span class="fa fa-print"></span> طباعة
-          </button>
-          &nbsp;
-          <button class="btn btn-danger pr-hideme" @click="$bvModal.hide('modal-daily');customer_trans_form= {}" >
-            <span class="fa fa-close "></span> &nbsp;
-            اغلاق
-          </button>
+        &nbsp;
+        <button class="btn btn-printo pr-hideme" 
+          @click="print_co();print_done(outg_day)">
+          <span class="fa fa-print"></span> طباعة
+        </button>
+        &nbsp;
+        <button class="btn btn-danger pr-hideme" @click="$bvModal.hide('modal-daily');customer_trans_form= {}" >
+          <span class="fa fa-close "></span> &nbsp;
+          اغلاق
+        </button>
       </div>
   </div>
 </b-modal>

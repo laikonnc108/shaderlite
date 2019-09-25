@@ -1,16 +1,16 @@
 <template>
   <section class="customers row">
-        <div class="col-5 d-print-none">
+    <div class="col-5 d-print-none" v-if="! flags.detailed">
           <br/>
-        <div class="row detailed" >
+        <div class="row detailed" v-if="logged_in_user.user_type != 'editor'">
           <div class="col-6">
-            <span class="btn text-primary">
+            <span class="btn text-primary h3">
             {{custom_labels['sum_customers_debt']}}
             </span>
           </div>
           <div class="col-6 btn text-primary">
-            <span >
-            {{ sum_debt| round2 }}
+            <span class="h3">
+            {{ sum_debt| round2 | toAR}}
             </span>
             <span class="fa fa-table"></span>
           </div>
@@ -86,7 +86,7 @@
     </div>
   </b-collapse>
   </div>
-  <div class="col-7 col-print-12 pr-me">
+  <div class=" col-print-12 pr-me p-2" :class="{ 'col-7': ! flags.detailed , 'col-10':  flags.detailed }">
     
     <div class="m-1 pr-hideme">
       <br/>
@@ -98,12 +98,16 @@
         اغلاق الارشيف   &nbsp; <span class="fa fa-external-link-square-alt"></span>
       </button>
 
+      <button v-if="! flags.zm_mode" class="btn btn-primary mr-2" @click="zmMode()">
+        <span class="fa fa-print"></span> كشف الزمامات
+      </button>
+
       <button  class="btn btn-primary mr-2" @click="setSelected()" >
         اختيار للطباعة   &nbsp; <span class="fa fa-external-link-square-alt"></span>
       </button>
 
-      <button v-if="! flags.zm_mode" class="btn btn-primary mr-2" @click="zmMode()">
-          <span class="fa fa-print"></span> كشف الزمامات
+        <button class="btn btn-printo pr-hideme mr-2"  @click="print_co">
+          <span class="fa fa-print"></span> طباعة
         </button>
     </div>
     <div class="pr-hideme" >
@@ -147,7 +151,7 @@
               <td v-if="false">{{item.notes}}</td>
 
               <td v-if="! flags.zm_mode" class="d-print-none">
-                <button class="btn text-danger" @click="archive(item.id)" v-if="! item.deleted_at">
+                <button class="btn text-danger" @click="archive(item.id)" v-if=" flags.detailed && ! item.deleted_at">
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[item.id]"> أرشفة</template>
                   <template v-if="confirm_step[item.id]"> تأكيد </template>
@@ -169,9 +173,15 @@
         </table>
       </div>
 
-        <button class="btn btn-printo pr-hideme m-1"  @click="print_co">
+        <button class="btn btn-primary pr-hideme" v-if="flags.detailed === false" @click="flags.detailed= true"> عرض التفاصيل </button>
+        
+        <button class="btn btn-printo pr-hideme mr-2"  @click="print_co">
           <span class="fa fa-print"></span> طباعة
         </button>
+
+         &nbsp;
+        <button class="btn btn-primary pr-hideme" v-if="flags.detailed !== false" @click="flags.detailed= false"> العودة للتجار </button>
+
     </div>
     <!-- Nolons Modal -->
 <b-modal id="modal-collect"  
@@ -221,7 +231,7 @@ export default {
       customersCtrl: new CustomersCtrl(),
       collect_dao: new CashflowDAO(),
       customers_arr: [],
-      flags: {show_active: true, zm_mode: false, form_collabsed: true,},
+      flags: {show_active: true, zm_mode: false, form_collabsed: true, detailed: false},
       confirm_step: [],
       checkedItems: [],
       search_term: '',
@@ -234,7 +244,7 @@ export default {
   methods: {
     async refresh_all() {
       let soft_delete = this.flags.show_active
-      this.customers_arr = await this.customersCtrl.findAll({},{softDelete: soft_delete})
+      this.customers_arr = await this.customersCtrl.findAll({},{softDelete: soft_delete, orderByDebt: true})
       this.collect_dao = new CashflowDAO()
       let {sum_debt} = await this.customersCtrl.sumDebt()
       this.sum_debt = sum_debt

@@ -321,6 +321,7 @@ export default {
         this.outgoing_form.count = item.count
         this.outgoing_form.weight = item.weight
         this.outgoing_form.kg_price = item.kg_price
+        this.outgoing_form.customer_id = item.customer_id
         console.log(item)
       }
       else {

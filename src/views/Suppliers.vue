@@ -1,16 +1,16 @@
 <template>
   <section class="suppliers row">
-    <div class="col-5 d-print-none ">
+    <div class="col-5 d-print-none " v-if="! flags.detailed">
       <br/>
-        <div class="row detailed" >
+        <div class="row detailed" v-if="logged_in_user.user_type != 'editor'" >
           <div class="col-6">
-            <span class="btn text-primary">
+            <span class="btn text-primary h3">
             {{custom_labels['sum_suppliers_debt']}}
             </span>
           </div>
-          <div class="col-6 btn text-primary">
-            <span >
-            {{ sum_debt| round2 }}
+          <div class="col-6 btn text-primary ">
+            <span class="h3">
+            {{ sum_debt| round2 | toAR }}
             </span>
             <span class="fa fa-table"></span>
           </div>
@@ -48,6 +48,14 @@
       </div>
 
       <div class="form-group row">
+        <label class="col-sm-2">مبلغ واصل اليه</label>
+        <div class="col-sm-10">
+          <input v-model="supplier_form.balance" :disabled="supplier_form.id"
+          class="form-control"  placeholder="ادخل المبلغ">
+        </div>
+      </div>
+
+      <div class="form-group row">
         <label for="notes1" class="col-sm-2">ملاحظات</label>
         <div class="col-sm-10">
           <input v-model="supplier_form.notes" class="form-control " id="notes1"  placeholder="ادخال الملاحظات">
@@ -63,7 +71,7 @@
   </b-collapse>
   </div>
 
-  <div class="col-7 col-print-10 pr-me">
+  <div class="col-print-10 pr-me p-2" :class="{ 'col-7': ! flags.detailed , 'col-10':  flags.detailed }">
 
     <div class="m-1 pr-hideme">
       <br/>
@@ -114,7 +122,7 @@
               <td>{{item.phone}}</td>
               <td>{{item.sum_debt | toAR}}</td>
               <td class="d-print-none">
-                <button class="btn text-danger" @click="archive(item.id)"  v-if="! item.deleted_at">
+                <button class="btn text-danger" @click="archive(item.id)"  v-if="flags.detailed && ! item.deleted_at">
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[item.id]"> أرشفة</template>
                   <template v-if="confirm_step[item.id]"> تأكيد </template>
@@ -132,14 +140,23 @@
           </tbody>
         </table>
       </div>
-          <button class="btn btn-printo pr-hideme" @click="vue_window.print()">
-            <span class="fa fa-print"></span> طباعة
-          </button>
+
+        <button class="btn btn-primary pr-hideme" v-if="flags.detailed === false" @click="flags.detailed= true"> عرض التفاصيل </button>
+        
+        <button class="btn btn-printo pr-hideme mr-2"  @click="print_co">
+          <span class="fa fa-print"></span> طباعة
+        </button>
+
+         &nbsp;
+        <button class="btn btn-primary pr-hideme" v-if="flags.detailed !== false" @click="flags.detailed= false"> العودة للعملاء </button>
+
+
   </div>
   </section>
 </template>
 <script >
 import { SupplierDAO , SuppliersCtrl } from '../ctrls/SuppliersCtrl'
+import { MainMixin } from '../mixins/MainMixin';
 
 export default {
   name: 'suppliers',
@@ -153,10 +170,11 @@ export default {
       show_active: true,
       confirm_step: [],
       form_collabsed: true,
-      custom_labels: this.$store.state.custom_labels,
+      flags: {detailed: false},
       sum_debt: 0,
     }
   },
+  mixins: [MainMixin],
   methods: {
     async saveSupplier(evt) {
       evt.preventDefault()

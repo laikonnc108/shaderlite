@@ -1,6 +1,6 @@
 <template>
 <section class="m-3">
-  <section class="daily-receipts">
+  <section class="daily-receipts" v-if="logged_in_user.user_type != 'editor'">
     
     <div class="pr-hideme">
       <h3 class="text-danger fa fa-eraser larger"
@@ -81,6 +81,7 @@
         </table>
       </div>
   </section>
+  <section v-if="logged_in_user.user_type != 'editor'">
   <hr>
     <div>
       <h4>اجمالي فواتير الرصد فقط : {{recp_sums.sum_rasd_net | toAR(true) }}</h4>
@@ -98,6 +99,12 @@
   <hr>
     <div>
       <h4>صافي الايراد اليومي : {{ (recp_sums.sum_income - daily_totals.sum_deducts) | toAR(true) }}</h4>
+    </div>
+  <hr>
+  </section>
+
+    <div>
+      <h4>صافي الخزينة : {{ cash_sums.net | toAR(true) }}</h4>
     </div>
   <hr>
   <section class="inout-cashflow">
@@ -171,6 +178,20 @@ export default {
       return this.daily_receipts.filter( item => {
         return (item.supplier_name.includes(this.search_term) )
       })
+    },
+    cash_sums: function() {
+      let cash_sums = {
+        net: 0
+      }
+      this.cashflow_arr_in.forEach( item => {
+        console.log(item.amount, item.sum)
+        cash_sums.net += parseFloat(item.amount)
+      })
+      this.cashflow_arr_out.forEach( item => {
+        console.log(item.amount, item.sum)
+        cash_sums.net -= parseFloat(item.amount)
+      })
+      return cash_sums
     },
     recp_sums: function() {
       let recp_sums = { 

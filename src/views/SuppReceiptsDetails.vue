@@ -467,12 +467,14 @@
           <tr>
             <td colspan="4" style="border: none !important;"></td>
             <td >
-              <input v-if="! print_mode && ! modal_recp.recp_paid" v-model="modal_recp.comm_rate" class="form-control"  >
+              <input v-if="! print_mode && ! modal_recp.recp_paid" 
+              style="font-weight: 100;font-size: x-small;" 
+              v-model="modal_recp.comm_rate" class="form-control"  >
             </td>
             <td></td>
             <th>
               <span class="pr-hideme">
-                {{modal_recp.comm_rate }}  
+                
                </span>
             </th>
             <td>( {{modal_recp.recp_comm | round2 | toAR(true) }} )</td>
@@ -523,20 +525,38 @@
       </table>
 
       <div class="m-2">
-          <button class="btn btn-primary pr-hideme" 
-          @click="print_mode=false;$bvModal.hide('modal-recp');receipt_d_mode= false;saveAll();" >
+          <button class="btn btn-success pr-hideme" 
+          @click="saveAll();" >
             <span class="fa fa-check "></span> &nbsp;
-            موافق
+            حفظ 
+          </button>
+          &nbsp;
+          <button class="btn btn-primary pr-hideme" v-if="modal_recp.id && modal_recp.paid != 1"
+          @click="setRecpPaid(modal_recp, 1)" >
+            <span class="fa fa-money-bill "></span> &nbsp;
+            رصد
+          </button>
+
+          &nbsp;
+          <button class="btn btn-primary pr-hideme" v-if="modal_recp.id && modal_recp.paid != 2"
+          @click="setRecpPaid(modal_recp, 2)" >
+            <span class="fa fa-money-bill "></span> &nbsp;
+            صرف
           </button>
           &nbsp;
           <button class="btn btn-printo pr-hideme" 
             @click="modal_recp.printed = 1 ;print_mode=true;saveAll();print_co()">
             <span class="fa fa-print"></span> طباعة
           </button>
+          &nbsp;
+          <button class="btn btn-danger pr-hideme" 
+          @click="print_mode=false;$bvModal.hide('modal-recp');receipt_d_mode= false;">
+          <span class="fa fa-sign-out-alt "></span> &nbsp; اغلاق
+          </button>
       </div>
 
   </div>
-        <span> ف
+      <span> ف
         {{modal_recp.recp_paid}}
         (م {{modal_recp.serial}})
       </span>
@@ -689,7 +709,11 @@ export default {
         await this.receiptsCtrl.deleteById(this.recp_3.id)
       }
 
-      this.refresh_all()
+      await this.refresh_all()
+
+      if(this.modal_recp.serial && this.receipt_d_mode) {
+        this.modal_recp = this['recp_'+ this.modal_recp.serial]
+      }
     },
     async saveNolons(){
       this.today_nolons.forEach(async (nolonCashflow) => {
@@ -776,7 +800,7 @@ export default {
       dao.sale_value = sale_value
       // TODO INIT VALUES
       dao.comm_rate = dao.comm_rate ? dao.comm_rate : 0
-      dao.recp_comm = ( dao.comm_rate / 100 ) * sale_value
+      dao.recp_comm = Math.round(( dao.comm_rate / 100 ) * sale_value * 100) / 100
       dao.recp_expenses = dao.recp_expenses ? dao.recp_expenses : 0
       dao.recp_deducts = dao.recp_deducts ? dao.recp_deducts : 0
       dao.recp_given = dao.recp_given ? dao.recp_given : 0 

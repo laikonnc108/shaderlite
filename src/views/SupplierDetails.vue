@@ -153,8 +153,13 @@
               <td>{{receipt.products_arr | productsFilter }}</td>
               <td>{{receipt.day | arDate}}</td>
               <td>
-                <span v-if="receipt.recp_paid == 1">رصد</span>
-                <span v-if="receipt.recp_paid == 2">صرف</span>
+                <span v-if="receipt.recp_paid == 1">رصد</span> 
+                <span v-if="receipt.recp_paid == 2">صرف</span> 
+                <span v-if="receipt.printed"> - {{'printed' | tr_label }} </span>
+                <br>
+          <router-link class="nav-link " :to="{name:'supp_recp_details', params: {supplier_id: receipt.supplier_id, day: receipt.day}}">
+          عرض  
+          </router-link>
               </td>
               <td> 
                 <button v-if="false" class="btn text-danger" @click="removeRecpItself(receipt.id)" >

@@ -45,7 +45,7 @@
                   {{ custom_labels['outgoings'] }}  <span class="sr-only">(current)</span>
                 </router-link>
               </li>
-              <li class="nav-item bg-dailymoves" v-if="logged_in_user.user_type != 'editor'">
+              <li class="nav-item bg-dailymoves" >
                 <router-link class="nav-link active" to="/daily_moves">
                   <span class="fa fa-dolly"></span>
                   {{ custom_labels['daily_moves'] }} <span class="sr-only">(current)</span>
@@ -63,7 +63,6 @@
                   {{ custom_labels['customers_accounts'] }}
                 </router-link>
               </li>
-
               <li class="nav-item">
                 <router-link class="nav-link active" to="/out_cashflow">
                   <span class="fa fa-money-bill-wave"></span>
@@ -445,6 +444,9 @@ select.form-control {
   margin: 0 auto;
   max-width: 90%;
   font-size: 1.4em;
+}
+.detailed {
+  font-size: 1.2em !important;
 }
 
 /*Vue Select Style*/

@@ -42,8 +42,10 @@ hide-header hide-footer hide-header-close hide-backdrop>
   <span style="font-size: .6em;">المطلوب من السيد/ </span> 
   <span style="font-size: 1.1em;">{{customer.name}}</span>
 </h4>
-<img style="margin-top: -75px;float: left;"
-src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Noun_Project_vegetables_icon_1422990_cc.svg/110px-Noun_Project_vegetables_icon_1422990_cc.svg.png' />
+<img style="margin-top: -425px;float: right;margin-right: 30px;" width="150" class="pr-only"
+src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxuJSnqfd3EHT00s84gev-DgYVrJ4a5h' />
+<img style="margin-top: -425px;float: left;margin-left: 30px;" width="150" class="pr-only"
+src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxuJSnqfd3EHT00s84gev-DgYVrJ4a5h' />
 <h4 class="text-center" v-if="daily_out_trans[0]"> حساب سابق : {{ daily_out_trans[0].debt_was | toAR }}</h4>
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me-xx" >
