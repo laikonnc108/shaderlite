@@ -219,7 +219,7 @@ export default {
     },
     async refresh_all() {
       let soft_delete = this.show_active ? true : false;
-      this.suppliers_arr = await this.suppliersCtrl.findAll({},{softDelete: soft_delete})
+      this.suppliers_arr = await this.suppliersCtrl.findAll({},{softDelete: soft_delete, orderByBalance: true})
       let {sum_debt} = await this.suppliersCtrl.sumDebt()
       this.sum_debt = sum_debt
     }

@@ -44,7 +44,7 @@
               <th>واصل الفلاح </th>
               <th>خصوم الفلاح </th>
               <th>رهونات  </th>
-              <th>رد الرهن</th>
+              <th>تنزيل رهن</th>
             </tr>
           </thead>
           <tbody>
@@ -57,7 +57,7 @@
               <td>{{item.sum_supp_payment | round2 }}</td>
               <td>{{item.recp_sum_deducts | round2 }}</td>
               <td>{{item.sum_product_rahn | round2 }}</td>
-              <td>{{item.sum_repay_rahn | round2 }}</td>
+              <td>{{item.sum_repay_rahn + item.sum_rahn_down | round2 }}</td>
             </tr>
             <tr >
               <th>المجموع</th>
@@ -68,7 +68,7 @@
               <th>{{sum_totals.sum_supp_payment | round}}</th>
               <th>{{sum_totals.recp_sum_deducts | round}}</th>
               <th>{{sum_totals.sum_product_rahn | round}}</th>
-              <th>{{sum_totals.sum_repay_rahn | round}}</th>
+              <th>{{sum_totals.sum_repay_rahn | round}} </th>
               <th></th>
             </tr>
           </tbody>
@@ -211,7 +211,7 @@ export default {
         sum_totals.sum_supp_payment += one.sum_supp_payment
         sum_totals.recp_sum_deducts += one.recp_sum_deducts
         sum_totals.sum_product_rahn += one.sum_product_rahn
-        sum_totals.sum_repay_rahn += one.sum_repay_rahn
+        sum_totals.sum_repay_rahn += one.sum_repay_rahn + one.sum_rahn_down
       })  
       return sum_totals
     },

@@ -155,7 +155,7 @@ export class SuppliersCtrl {
     return trans_record.id
   }
 
-  async findAll(filter= {}, options= {softDelete: false}) {
+  async findAll(filter= {}, options= {softDelete: false, orderByBalance: false}) {
     /*
     let all = await this.model.where(filter).fetchAll(options)
     return all.map( _=> new SupplierDAO(_.attributes))
@@ -164,7 +164,7 @@ export class SuppliersCtrl {
     let results = await knex.raw(`
     select * from (select * from suppliers ${options.softDelete ? 'where deleted_at is null': ''}) suppliers_g
     LEFT JOIN ( select supplier_id, sum(amount) as sum_debt from supplier_trans group by supplier_id ) supplier_trans_g
-    ON suppliers_g.id = supplier_trans_g.supplier_id
+    ON suppliers_g.id = supplier_trans_g.supplier_id ${options.orderByBalance ? 'order by balance desc' : ''}
     `)
 
     return results.map( _=> {return new SupplierDAO(_)})
@@ -193,6 +193,22 @@ export class SuppliersCtrl {
       ],softDelete: false})
     let trans = one.related('trans').map( _=> new SupplierTransDAO(_.attributes))
     return {dao: new SupplierDAO(one.toJSON()), trans: trans}
+  }
+
+  async removeSupplierTrans(trans_id) {
+    let transInstance = await this.supplierTransModel.forge('id', trans_id).fetch()
+    let transDAO = new SupplierTransDAO(transInstance.attributes)
+    /**@type {import('bookshelf').ModelBase} */
+    let instance = await this.model.forge('id',transDAO.supplier_id).fetch()
+    let balance = instance && instance.get('balance') ? instance.get('balance') : 0
+    let amount = parseFloat(transDAO.amount)
+    console.log(balance, amount)
+    // TODO more organized !
+    balance = parseFloat(balance) - amount
+
+    await instance.save({balance: balance})
+    await transInstance.destroy()
+    return true 
   }
 
   async deleteById(id){

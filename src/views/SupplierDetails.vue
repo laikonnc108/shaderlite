@@ -98,6 +98,7 @@
               <th>التاريخ</th>
               <th>الحركة</th>
               <th>المبلغ</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -112,6 +113,14 @@
               <td>
                 <span v-if="payment.sum=='-'">( {{payment.amount | toAR}} )</span>
                 <span v-else> {{payment.amount | toAR}} </span>
+              </td>
+              <td>
+                <button  v-if="payment.id"
+                class="btn text-danger pr-hideme" @click="removeTrans(payment)" >
+                  <span class="fa fa-archive "></span> 
+                  <template v-if="! confirm_step[payment.id]"> حذف </template>
+                  <template v-if="confirm_step[payment.id]"> تأكيد </template>
+                </button>
               </td>
               <!--
               <td>{{payment.balance_after | toAR}}</td>
@@ -204,6 +213,7 @@ export default {
       supplier_id: this.$route.params.id,
       store_day: this.$store.state.day,
       confirm_step_recp: [],
+      confirm_step: [],
       suppliersCtrl: new SuppliersCtrl(),
       trans_form: {trans_type: 'supp_payment'},
     }
@@ -215,6 +225,17 @@ export default {
       this.supplier = dao
       this.supplier_trans = trans
       this.supplier_receipts = await new ReceiptsCtrl().findAll({supplier_id: this.supplier.id})
+    },
+    async removeTrans(trans) {
+      if( this.confirm_step[trans.id] ) {
+        this.discard_success = await this.suppliersCtrl.removeSupplierTrans(trans.id)
+        this.confirm_step = []
+        this.refresh_all()
+      }
+      else {
+        this.confirm_step = []
+        this.confirm_step[trans.id] = true
+      }
     },
     async addPayments(evt){
       evt.preventDefault()

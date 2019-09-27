@@ -14,6 +14,7 @@
               <option value="expenses">مصروفات يومية</option>
               <option value="men_account">حساب الرجالة</option>
               <option value="act_pymnt">دفعات لا تخصم من الايراد</option>
+              <option value="rahn_down">تنزيل في رهن</option>
               <option value="كاتب 1">كاتب 1</option>
               <option value="كاتب 2">كاتب 2</option>
               <option value="كاتب 3">كاتب 3</option>
