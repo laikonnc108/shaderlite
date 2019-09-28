@@ -23,15 +23,13 @@
       </button>
       <pre>
         File: {{db_file.filename}}
-        TO: {{ $store.state.electron_data.user_data_path }}
+        TO: {{ $store.state.app_config.user_data_path }}
       </pre>
       <br/>
       <button v-if="removed_exists" class="btn btn-danger btn-lg" @click="restore_removed()" >
         <span class="fa fa-database "></span> &nbsp;
         استعادة ملف قاعدة البيانات الذي تم حذفه
       </button> &nbsp;
-
-
     </section>
      <br/>
       <button class="btn btn-secondary btn-lg" @click="reload_electron()" >
@@ -39,7 +37,7 @@
         اعادة تشغيل البرنامج
       </button>
   </div>
-  <div v-if="$store.state.electron_data.env.NODE_ENV == 'development' || (shader_configs['logged_in_user'] && shader_configs['logged_in_user'].user_type =='developer')">
+  <div v-if="$store.state.app_config.env.NODE_ENV == 'development' || (shader_configs['logged_in_user'] && shader_configs['logged_in_user'].user_type =='developer')">
     
     <!-- <img alt="Vue logo" src="../assets/logo.png"> 
     <HelloWorld msg="Welcome to Your Vue.js App"/>
@@ -47,7 +45,7 @@
     <div>Check if 7z installed {{is_7z_ok}}</div>
     
 
-    <pre>{{ $store.state.electron_data }}</pre>
+    <pre>{{ $store.state.app_config }}</pre>
 
       <h5 class="card-title">System printers </h5>
       <p class="card-text">{{printers}}</p>
@@ -101,7 +99,7 @@ export default {
       await new ProductsCtrl().findAll()
       this.working_db = true
     } catch (error) {
-      let if_exists_outp = await sync_exec(`IF exist ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db echo file_exists`)
+      let if_exists_outp = await sync_exec(`IF exist ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.db echo file_exists`)
       if(if_exists_outp.stdout.includes('file_exists')){
         this.removed_exists = true
       }
@@ -129,13 +127,13 @@ export default {
   methods: {
     async backup(){
       //const out = await sync_exec(`C:\\PROGRA~1\\7-Zip\\7z a D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.7z C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db`)
-      const out = await sync_exec(`copy ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.db`)
+      const out = await sync_exec(`copy ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.db D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.db`)
       
       console.log(out)
     },
     async wb_backup(){
       // await knex.destroy()
-      const {stdout} = await sync_exec(`curl --upload-file ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db https://transfer.sh/shaderlite.db`)
+      const {stdout} = await sync_exec(`curl --upload-file ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.db https://transfer.sh/shaderlite.db`)
       clipboard.writeText(stdout)
       window.alert('تم نسخ رابط قاعدة البيانات '+stdout)
     },
@@ -143,12 +141,12 @@ export default {
       // await knex.destroy()
       let url = clipboard.readText()
       console.log(url)
-      const {stdout,stderr} = await sync_exec(`curl ${url} --output ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db`)
+      const {stdout,stderr} = await sync_exec(`curl ${url} --output ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.db`)
       this.reload_electron()
     },
     async import_db(){
-      await sync_exec(`IF not exist ${this.$store.state.electron_data.user_data_path}\\db mkdir ${this.$store.state.electron_data.user_data_path}\\db NUL`)
-      await sync_exec(`copy D:\\00_db\\${this.db_file.filename} ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db`)
+      await sync_exec(`IF not exist ${this.$store.state.app_config.user_data_path}\\db mkdir ${this.$store.state.app_config.user_data_path}\\db NUL`)
+      await sync_exec(`copy D:\\00_db\\${this.db_file.filename} ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.db`)
       if(window.confirm(' تم استيراد قاعدة البيانات بنجاح, سيتم اعادة تشغيل البرنامج')){
         this.reload_electron()
       }
@@ -156,17 +154,17 @@ export default {
     async remove_db(){
       if(window.confirm('هل انت متأكد من مسح قاعدة البيانات الحالية')){
         await knex.destroy()
-        await sync_exec(`del ${this.$store.state.electron_data.user_data_path}\\db\\_shaderlite.db`)
-        let output = await sync_exec(`rename ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db _shaderlite.db `)
+        await sync_exec(`del ${this.$store.state.app_config.user_data_path}\\db\\_shaderlite.db`)
+        let output = await sync_exec(`rename ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.db _shaderlite.db `)
         console.log('output', output)
         this.reload_electron()
       }
     },
     async restore_removed(){
       await knex.destroy()
-      let remove = await sync_exec(`del ${this.$store.state.electron_data.user_data_path}\\db\\shaderlite.db`)
+      let remove = await sync_exec(`del ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.db`)
       console.log(remove)
-      let output = await sync_exec(`rename ${this.$store.state.electron_data.user_data_path}\\db\\_shaderlite.db shaderlite.db `)
+      let output = await sync_exec(`rename ${this.$store.state.app_config.user_data_path}\\db\\_shaderlite.db shaderlite.db `)
       console.log(output)
       this.reload_electron()
     },

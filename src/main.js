@@ -26,12 +26,12 @@ const dbFile = path.resolve(app.getPath('userData'), 'db/shaderlite.db')
 
 log.info('dbFile',dbFile)
 
-store.commit('setElectronData',{
+store.commit('setAppConfig',{
   app_path: app.getAppPath(),
   curr_dir: path.dirname(app.getAppPath()),
   user_data_path: app.getPath('userData'),
   db_path: dbFile,
-  shader_name: 'nada',
+  shader_name: 'magdy',
   env:process.env
 })
 

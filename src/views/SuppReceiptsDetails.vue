@@ -530,12 +530,6 @@
             <span class="fa fa-check "></span> &nbsp;
             حفظ 
           </button>
-          &nbsp;
-          <button class="btn btn-primary pr-hideme" v-if="modal_recp.id && modal_recp.paid != 1"
-          @click="setRecpPaid(modal_recp, 1)" >
-            <span class="fa fa-money-bill "></span> &nbsp;
-            رصد
-          </button>
 
           &nbsp;
           <button class="btn btn-primary pr-hideme" v-if="modal_recp.id && modal_recp.paid != 2"
@@ -552,6 +546,12 @@
           <button class="btn btn-danger pr-hideme" 
           @click="print_mode=false;$bvModal.hide('modal-recp');receipt_d_mode= false;">
           <span class="fa fa-sign-out-alt "></span> &nbsp; اغلاق
+          </button>
+          &nbsp;
+          <button class="btn btn-primary pr-hideme" v-if="modal_recp.id && modal_recp.paid != 1"
+          @click="setRecpPaid(modal_recp, 1)" >
+            <span class="fa fa-money-bill "></span> &nbsp;
+            رصد
           </button>
       </div>
 

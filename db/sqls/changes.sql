@@ -8,12 +8,13 @@ INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_veri
 <h4 class="text-primary text-center">
 ت : ٤٤٧٧٠١٨٠ المعلم سلامة : ٠١١١٨٣٥٧٧٥٠ الأستاذ محمد : ٠١٠٢٣٩٢٩٢٢٣
 </h4>', '', 'nada', 'config');
-INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('kashf_cust', 'كشف وجبة', '', 'default', 'label');
-INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('kashf_cust', 'كشف حساب', '', 'magdy', 'label');
 
 ----------------------------------------------------------------------------
 -- 0.1.15 -- 
 INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category") VALUES ('rahn_down', 'تنزيل في رهن', 'default', '-', '', 'cashflow');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('kashf_cust', 'كشف وجبة', '', 'default', 'label');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('kashf_cust', 'كشف حساب', '', 'magdy', 'label');
+
 -- change حساب البرجالة
 ALTER TABLE receipts add balance_was REAL;
 DROP VIEW IF EXISTS v_daily_sums ;

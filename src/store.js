@@ -10,7 +10,7 @@ const store = new Vuex.Store({
     custom_labels: [],
     products_arr: [],
     transtypes_arr: [],
-    electron_data: {},
+    app_config: {},
     logged_in_user: {}
   },
   mutations: {
@@ -21,8 +21,8 @@ const store = new Vuex.Store({
       console.log('setShaderConfigs', payload)
       state.shader_configs = payload
     },
-    setElectronData (state, payload) {
-      state.electron_data = payload
+    setAppConfig (state, payload) {
+      state.app_config = payload
     },
     setCustomLabels (state, payload) {
       state.custom_labels = payload
@@ -44,7 +44,7 @@ const store = new Vuex.Store({
 
 class MyStoreMutations {
   static setShaderConfigs = 'setShaderConfigs'
-  static setElectronData = 'setElectronData'
+  static setAppConfig = 'setAppConfig'
   static setCustomLabels = 'setCustomLabels'
   static setProductsArr = 'setProductsArr'
   static setTranstypesArr = 'setTranstypesArr'

@@ -13,6 +13,7 @@ export const MainMixin = {
     ...mapState([
       'day',
       'logged_in_user',
+      'app_config',
       'shader_configs',
       'custom_labels',
       'products_arr'

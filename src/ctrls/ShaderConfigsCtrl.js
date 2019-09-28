@@ -40,7 +40,7 @@ export class ShaderConfigsCtrl {
       configs_arr[element.get('config_name')] = config_value
     });
     // Override with custom labels
-    let custom_labels = await this.findAll({shader_name: store.state.electron_data.shader_name, category:'config'})
+    let custom_labels = await this.findAll({shader_name: store.state.app_config.shader_name, category:'config'})
     custom_labels.forEach( element => {
       let config_value = (element.get('config_value') === 'true' || element.get('config_value') === 'false' ) ? JSON.parse(element.get('config_value')) : element.get('config_value')
       configs_arr[element.get('config_name')] = config_value
@@ -58,7 +58,7 @@ export class ShaderConfigsCtrl {
       labels_arr[element.get('config_name')] = element.get('config_value')
     });
     // Override with custom labels
-    let custom_labels = await this.findAll({shader_name: store.state.electron_data.shader_name ,category:'label'})
+    let custom_labels = await this.findAll({shader_name: store.state.app_config.shader_name ,category:'label'})
     custom_labels.forEach( element => {
       labels_arr[element.get('config_name')] = element.get('config_value')
     });
