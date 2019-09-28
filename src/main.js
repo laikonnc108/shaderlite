@@ -31,6 +31,7 @@ store.commit('setElectronData',{
   curr_dir: path.dirname(app.getAppPath()),
   user_data_path: app.getPath('userData'),
   db_path: dbFile,
+  shader_name: 'nada',
   env:process.env
 })
 

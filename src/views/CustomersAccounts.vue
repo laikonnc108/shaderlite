@@ -20,7 +20,7 @@
         <button class="col-5 m-1 btn btn-lg d-print-none pr-hideme " 
         :class="{ 'btn-danger': ! printed_all[outgoing.customer_id], 'btn-primary': printed_all[outgoing.customer_id]}"
         @click="showOutModal(outgoing.customer_id)">
-          <span class="fa fa-cash-register"></span>   &nbsp;   كشف مبيعات اليوم
+          <span class="fa fa-cash-register"></span>   &nbsp;  {{'kashf_cust' | tr_label}} اليوم 
         <span v-if="printed_all[outgoing.customer_id]" style="float:left">
           ( تمت طباعته )
         </span>
@@ -46,7 +46,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
     </h4>
   </div>
   <div class="col-7">
-    <h3 > كشف حساب </h3>
+    <h3 > {{'kashf_cust' | tr_label}} </h3>
     <h2 class="text-center" v-if="daily_out_trans[0]"> حساب سابق : {{ daily_out_trans[0].debt_was | toAR }}</h2>
   </div>
 </div>

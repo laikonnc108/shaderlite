@@ -31,7 +31,7 @@
 
   <button @click="showOutModal()" class="btn btn-primary m-1 d-print-none">
     <span class="fa fa-table"></span> &nbsp; 
-    عرض كشف مبيعات اليوم
+    عرض {{'kashf_cust' | tr_label}} اليوم
   </button>
 
 
@@ -144,7 +144,6 @@
                 <span v-if="trans.notes">- {{trans.notes}} </span> 
               </td>              
               <td>
-                
                 <button  v-if="trans.id"
                 class="btn text-danger pr-hideme" @click="removeTrans(trans)" >
                   <span class="fa fa-archive "></span> 
@@ -193,7 +192,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
     </h4>
   </div>
   <div class="col-7">
-    <h3 > كشف حساب </h3>
+    <h3 > {{'kashf_cust' | tr_label}} </h3>
     <h2 class="text-center" v-if="daily_out_trans[0]"> حساب سابق : {{ daily_out_trans[0].debt_was | toAR }}</h2>
   </div>
 </div>

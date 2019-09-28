@@ -88,7 +88,9 @@
               <td>{{item.id}}</td>
               <td>{{item.name}}</td>
               <td>{{item.product_sell_comm}}</td>
-              <td v-if="shader_configs['product_rahn']">{{item.product_rahn}}</td>
+              <td v-if="shader_configs['product_rahn']">
+                {{item.product_rahn}}
+              </td>
               <td>{{item.notes}}</td>
               <td class="d-print-none">
                 <button class="btn text-danger" @click="archive(item.id)" v-if="! item.deleted_at">
@@ -130,7 +132,7 @@ export default {
       productsCtrl: new ProductsCtrl(),
       flags: {show_active: true, form_collabsed: true},
       search_term: '',
-      product_form: new ProductDAO(ProductDAO.INIT_DAO),
+      product_form: new ProductDAO({name: '' , product_sell_comm: this.$store.state.shader_configs.product_sell_comm}),
     }
   },
   mixins: [MainMixin],
@@ -144,7 +146,7 @@ export default {
         return
       }
       
-      this.product_form = new ProductDAO(ProductDAO.INIT_DAO)
+      this.product_form = new ProductDAO({name: '' , product_sell_comm: this.$store.state.shader_configs.product_sell_comm})
       this.search_term = ''
       this.refresh_all()
     },

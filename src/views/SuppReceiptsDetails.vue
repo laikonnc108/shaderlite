@@ -417,7 +417,7 @@
   <span style="font-size: .7em;">اسم العميل/ </span> 
   <span style="font-size: 1.1em;">{{supplier.name}}</span>
 </h4>
-
+<h3 class="text-center" > حساب سابق : {{ modal_recp.balance_was | toAR }}</h3>
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me-xx" >
         <thead>
@@ -733,6 +733,7 @@ export default {
         let all = this.outgoings_sums.map( dao => this.clone(dao))
         this.recp_1.details = all
         this.recp_1.total_nolon = this.total_nolon
+        this.recp_1.balance_was = this.supplier.balance
         this.recp_1.recp_expenses = this.recp_expenses
         this.recp_1.recp_deducts = this.recp_1.recp_deducts? this.recp_1.recp_deducts : this.recp_deducts
         // console.log(this.recp_1)

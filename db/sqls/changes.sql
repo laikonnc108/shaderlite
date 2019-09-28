@@ -1,7 +1,22 @@
+-- nada changes --
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('recp_header', '<h1 class="text-danger text-center"> أولاد الحاج/ مصطفي ندا مصطفي</h1>
+<h1 class="text-primary text-center">الأستاذ / جمــال نــدا</h1>
+<h3 class="text-danger text-center"> لتجارة وتسويق الفاكهة </h3>
+<h4 class="text-primary text-center">
+سوق العبور - القاهرة - محل رقم ١٥٠ عنبر ٤ فاكهة س.ت :٢٨٤٠٤٠
+</h4>
+<h4 class="text-primary text-center">
+ت : ٤٤٧٧٠١٨٠ المعلم سلامة : ٠١١١٨٣٥٧٧٥٠ الأستاذ محمد : ٠١٠٢٣٩٢٩٢٢٣
+</h4>', '', 'nada', 'config');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('kashf_cust', 'كشف وجبة', '', 'default', 'label');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('kashf_cust', 'كشف حساب', '', 'magdy', 'label');
+
+----------------------------------------------------------------------------
 -- 0.1.15 -- 
 INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category") VALUES ('rahn_down', 'تنزيل في رهن', 'default', '-', '', 'cashflow');
 -- change حساب البرجالة
-
+ALTER TABLE receipts add balance_was REAL;
+DROP VIEW IF EXISTS v_daily_sums ;
 CREATE VIEW v_daily_sums AS 
 SELECT days.day as day,
 recp_sum_net,
