@@ -181,19 +181,28 @@ hide-header hide-footer hide-header-close hide-backdrop>
 <template>
   <p class="recp-header" v-html="shader_configs['recp_header']"></p>
 </template>
-<h4 class="text-center"> كشف حساب </h4>
-<h4>
-  تحريراً في {{outg_day | arDate }}
-</h4>
-<h4>
-  <span style="font-size: .6em;">المطلوب من السيد/ </span> 
-  <span style="font-size: 1.1em;">{{customer.name}}</span>
-</h4>
-<img style="margin-top: -425px;float: right;margin-right: 30px;" width="150" class="pr-only"
+
+<div class="row">
+  <div class="col-5">
+    <h4>
+      تحريراً في {{outg_day | arDate }}
+    </h4>
+    <h4>
+      <span style="font-size: .6em;">المطلوب من السيد/ </span> 
+      <span style="font-size: 1.1em;">{{customer.name}}</span>
+    </h4>
+  </div>
+  <div class="col-7">
+    <h3 > كشف حساب </h3>
+    <h2 class="text-center" v-if="daily_out_trans[0]"> حساب سابق : {{ daily_out_trans[0].debt_was | toAR }}</h2>
+  </div>
+</div>
+
+<img style="margin-top: -375px;float: right;margin-right: 30px;" width="150" class="pr-only"
 src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxuJSnqfd3EHT00s84gev-DgYVrJ4a5h' />
-<img style="margin-top: -425px;float: left;margin-left: 30px;" width="150" class="pr-only"
+<img style="margin-top: -375px;float: left;margin-left: 30px;" width="150" class="pr-only"
 src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxuJSnqfd3EHT00s84gev-DgYVrJ4a5h' />
-<h4 class="text-center" v-if="daily_out_trans[0]"> حساب سابق : {{ daily_out_trans[0].debt_was | toAR }}</h4>
+
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me-xx" >
         <thead>
