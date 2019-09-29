@@ -246,7 +246,8 @@ src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxu
               </td>
             </template>
           </tr>
-          <tr :class="{'pr-hideme': !customer_trans_form.amount }" v-if="app_config.shader_name != 'nada'">
+          <tr :class="{'pr-hideme': !customer_trans_form.amount }" 
+          v-if="app_config.shader_name != 'nada'">
             <td ><input v-if="! customer_trans_form.id" 
               v-model="customer_trans_form.amount" class="form-control" placeholder="ادخل مبلغ التحصيل" >
               <span v-if="customer_trans_form.id">({{customer_trans_form.amount | toAR}})</span>
@@ -262,7 +263,12 @@ src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxu
             </td>
           </tr>
           <tr>
-            <td ><b class="border-top border-primary">{{ sum_outgoings_val | ceil5 | toAR }} </b></td>
+            <td >
+              <b class="border-top border-primary">
+                <span v-if="app_config.shader_name == 'magdy'">{{ sum_outgoings_val | ceil5 | toAR }} </span>
+                <span v-else>{{ sum_outgoings_val | round | toAR }} </span>
+              </b>
+            </td>
             <td style="border: none !important;"> اجمالي </td>
           </tr>
         </tbody>
