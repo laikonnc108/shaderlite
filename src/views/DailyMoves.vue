@@ -82,37 +82,54 @@
       </div>
   </section>
   <section v-if="logged_in_user.user_type != 'editor'">
-  <hr>
+
     <div>
+      <hr>
       <h4>اجمالي فواتير الرصد فقط : {{recp_sums.sum_rasd_net | toAR(true) }}</h4>
     </div>
 
-  <hr>
     <div>
+      <hr>
       <h4>اجمالي ايرادات اليوم : {{recp_sums.sum_income | toAR(true) }}</h4>
     </div>
 
-  <hr>
     <div>
+      <hr>
       <h4>اجمالي مصروفات تخصم من ايراد اليوم : {{daily_totals.sum_deducts | toAR(true) }}</h4>
     </div>
-  <hr>
+  
     <div>
+      <hr>
       <h4>صافي الايراد اليومي : {{ (recp_sums.sum_income - daily_totals.sum_deducts) | toAR(true) }}</h4>
     </div>
-  <hr>
+  
+    <div v-if="app_config.shader_name != 'magdy'">
+      <hr>
+      <h4>زمامات اليوم: {{ (daily_totals.out_zm_val + daily_totals.sum_cash_zm) | toAR(true) }}</h4>
+    </div>
+
+    <div v-if="app_config.shader_name != 'magdy'">
+      <hr>
+      <h4>تحصيلات اليوم : {{ daily_totals.sum_collect_zm | toAR(true) }}</h4>
+    </div>
+  
   </section>
 
     <div>
+      <hr>
       <h4>صافي الخزينة : {{ cash_sums.net | toAR(true) }}</h4>
     </div>
   <hr>
   <section class="inout-cashflow">
-    <h2>تحصيلات اليوم</h2>
+    <h2>
+      {{'expenses'| tr_label}} اليوم
+    </h2>
     <CashflowTable :cashflow_arr="cashflow_arr_in" 
     :flags="{type: 'cashflow_in'}" ></CashflowTable>
 
-    <h2>مصروفات اليوم</h2>
+    <h2>
+      {{'menu_collecting' | tr_label}} اليوم
+    </h2>
     <CashflowTable :cashflow_arr="cashflow_arr_out" 
     :flags="{type: 'cashflow_out'}" ></CashflowTable>
   </section>

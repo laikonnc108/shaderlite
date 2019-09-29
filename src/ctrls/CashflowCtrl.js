@@ -73,6 +73,7 @@ export class CashflowCtrl {
       // {withRelated: ['supplier','product','customer']}
     let all = await this.model.where(filter).fetchAll({withRelated: ['outgoing','customer','supplier']})
     return all.map( _=> {
+      console.log(_)
       let cashDAO = new CashflowDAO(_.attributes)
       cashDAO.income_day = _.related('outgoing').get('income_day')
       cashDAO.count = _.related('outgoing').get('count')

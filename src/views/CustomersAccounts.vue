@@ -111,7 +111,9 @@ src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxu
               v-model="customer_trans_form.amount" class="form-control" placeholder="ادخل مبلغ التحصيل" >
               <span v-if="customer_trans_form.id">({{customer_trans_form.amount | toAR}})</span>
               </td>
-            <td style="border: none !important;"> تنزيل </td>
+            <td style="border: none !important;"> 
+            {{'collect' | tr_label}}
+            </td>
 
             <td style="border: none !important;">
                 <button  v-if="customer_trans_form.id"

@@ -80,7 +80,7 @@ export class SuppliersCtrl {
   /**@param {SupplierDAO} data */
   async save(data) {
     data.parseTypes()
-    let record = await this.model.forge(data).save()
+    let record = await this.model.forge(data).fetch({softDelete: false}).save()
     if(! data.id && data.balance >= 0) { // new one with init debt
       let transDAO = new SupplierTransDAO({
         supplier_id: record.id,
@@ -99,7 +99,7 @@ export class SuppliersCtrl {
   /**@param {SupplierTransDAO} transDAO */
   async updateBalanceByTrans(transDAO) {
     /**@type {import('bookshelf').ModelBase} */
-    let instance = await this.model.forge('id',transDAO.supplier_id).fetch()
+    let instance = await this.model.forge('id',transDAO.supplier_id).fetch({softDelete: false})
     let balance = parseFloat(instance.get('balance')) ? parseFloat(instance.get('balance')) : 0
     /*
     if(transDAO.sum === '+') {
@@ -199,7 +199,7 @@ export class SuppliersCtrl {
     let transInstance = await this.supplierTransModel.forge('id', trans_id).fetch()
     let transDAO = new SupplierTransDAO(transInstance.attributes)
     /**@type {import('bookshelf').ModelBase} */
-    let instance = await this.model.forge('id',transDAO.supplier_id).fetch()
+    let instance = await this.model.forge('id',transDAO.supplier_id).fetch({softDelete: false})
     let balance = instance && instance.get('balance') ? instance.get('balance') : 0
     let amount = parseFloat(transDAO.amount)
     console.log(balance, amount)

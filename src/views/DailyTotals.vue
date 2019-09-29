@@ -37,12 +37,14 @@
           <thead>
             <tr>
               <th>اليوم</th>
-              <th> مشال </th>
-              <th> دخان </th>
-              <th>مصاريف </th>
-              <th>عمولة </th>
-              <th>واصل الفلاح </th>
-              <th>خصوم الفلاح </th>
+              <th> 
+                {{'recp_given' | tr_label}}
+              </th>
+              <th> {{'given' | tr_label}} </th>
+              <th> {{'out_cashflow' | tr_label}} </th>
+              <th> {{'comms' | tr_label}} </th>
+              <th> {{'supp_payments' | tr_label}} </th>
+              <th> {{'supp_deducts' | tr_label}} </th>
               <th>رهونات  </th>
               <th>تنزيل رهن</th>
             </tr>

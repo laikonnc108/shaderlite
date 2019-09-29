@@ -72,7 +72,7 @@
               <li class="nav-item">
                 <router-link class="nav-link active" to="/in_cashflow">
                   <span class="fa fa-credit-card"></span>
-                  {{ custom_labels['collecting'] }} 
+                  {{ custom_labels['menu_collecting'] }} 
                 </router-link>
               </li>
             </ul>

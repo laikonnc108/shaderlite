@@ -9,15 +9,6 @@ export class ShaderConfigsCtrl {
     this.model = require('../models/ShaderConfigsModel')(bookshelf)
   }
   
-  async godada(){
-    /**@type {import('bookshelf').ModelBase} */
-    let tata = await this.model.forge({
-        config_name: 'hamoda'
-    }).save()
-
-    console.log(tata.toJSON())
-    console.log(tata.id)
-  }
 
   findAll(filter = {}) {
     

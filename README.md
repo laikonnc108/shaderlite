@@ -26,7 +26,9 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 npm install --save-dev electron-builder
 npm install --save sqlite3
 npm run postinstall
+// You need to remove --arch=ia32 once
 ```
+
 ---
 
 ### Business Constrains (TO REMOVE)
@@ -44,7 +46,7 @@ npm run postinstall
 - SQLiteDatabaseBrowserPortable
 
 ## Manual migration
-mysql -u root -p daily_mngr < file
+mysql -u root -p daily_mngr < {FILE}
 
 **Select duplicates**
 SELECT name FROM customers group by name HAVING COUNT(*) > 1; -- check
@@ -110,8 +112,9 @@ SELECT name FROM products group by name HAVING COUNT(*) > 1; -- check
 
 ```
 UPDATE supplier_trans set sum= '+' ,amount =abs(amount), trans_type= 'supp_payment' where trans_type = 'payment';
-
-
+-- or delete !
+-- update supplier_trans set trans_type = 'supp_recp_expenses' where trans_type = 'out_receipt'; 
+delete from supplier_trans where trans_type = 'out_receipt';
 ```
 **Customer_trans**
 `Delete FROM customer_trans WHERE customer_id not in (select id from customers)`
@@ -124,12 +127,19 @@ UPDATE customer_trans set amount = - (amount) where sum = '-' and amount > 0
 --
 UPDATE customer_trans set sum = '-' where amount < 0
 UPDATE customer_trans set sum = '+' where amount > 0
+--
+update customer_trans set trans_type = 'cust_advance_pay' where trans_type = 'paid'; 
 ```
 
 **Receipts**
 - export sql then import 
 - replace "\" to be valid json string
-- update receipts set serial = 1
+- `update receipts set serial = 1`
+
+**receipts_details**
+- replace receipts_details with receipt_details
+`ALTER TABLE receipts_details DROP COLUMN `date_created`;`
+- export sql then import 
 
 **Incomings**
 - remove product_name, supplier_name, notes, date_created, nolon, given 
@@ -177,6 +187,10 @@ ALTER TABLE `daily_mngr`.`cashflow` DROP COLUMN `state_data`,
 
 ```
 - rename states !
+```
+update cashflow set state = 'cust_advance_pay' where state = 'paid';
+update cashflow set state = 'supp_recp_expenses' where state = 'out_receipt';
+```
 - delete cols : state_data, actor_id, actor_name , date_created
 - replace "\" to be valid json string
 

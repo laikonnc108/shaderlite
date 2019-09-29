@@ -5,6 +5,7 @@
     <h2 class="text-danger"> اصدار رقم {{app_version}}</h2>
     <h3 class="text-danger" v-if="demo_till">* نسخة تجريبية حتي {{demo_till}}</h3>
     <h3 class="text-success" v-if="! demo_till">* نسخة مرخصة</h3>
+    
 
     <section v-if=" working_db">
       <button class="btn btn-danger btn-lg" @click="remove_db()" >
@@ -37,6 +38,7 @@
         اعادة تشغيل البرنامج
       </button>
   </div>
+  {{app_config.shader_name}}
   <div v-if="$store.state.app_config.env.NODE_ENV == 'development' || (shader_configs['logged_in_user'] && shader_configs['logged_in_user'].user_type =='developer')">
     
     <!-- <img alt="Vue logo" src="../assets/logo.png"> 

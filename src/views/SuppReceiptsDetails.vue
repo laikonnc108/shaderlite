@@ -1,9 +1,6 @@
 <template>
   <section class="supp-receipts-details m-3">
   <section class="data-play pr-hideme" v-if="! receipt_d_mode">
-    <button class="btn btn-primary d-print-none pr-hideme" @click="$router.go(-1)">
-        <span class="fa fa-arrow-right"></span> &nbsp;   العودة
-    </button>
 
     <router-link class="mr-3 btn btn-primary d-print-none pr-hideme" :to="{name:'supplier_details', params: {id: supplier.id}}">
         <span class="fa fa-file-import"></span> &nbsp;   ملف العميل
@@ -48,7 +45,7 @@
           </div>
         </div>
 
-        <div v-if="false" class="row detailed" v-b-modal.modal-expenses>
+        <div v-if="app_config.shader_name != 'magdy'" class="row detailed" v-b-modal.modal-expenses>
           <div class="col-6">
             <span class="btn text-primary">
             مصاريف الفاتورة
@@ -59,7 +56,7 @@
             {{ recp_expenses | round2 }}
             </span>
             <span class="fa fa-table"></span>
-            عرض الخصم
+            عرض المصروف
           </div>
         </div>
       </div>
@@ -488,10 +485,10 @@
           <tr v-if="modal_recp.recp_expenses">
             <td colspan="7" style="border: none !important;"></td>
             <td ><b >( {{modal_recp.recp_expenses | round2 | toAR }} )</b></td>
-            <td  style="border: none !important;">خصم الفاتورة</td>
+            <td  style="border: none !important;">مصروف الفاتورة</td>
           </tr>
 
-          <tr>
+          <tr v-if="app_config.shader_name != 'nada'">
             <td colspan="4" style="border: none !important;"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" 
@@ -512,7 +509,9 @@
             <td></td>
             <td></td>
             <td>( {{modal_recp.recp_given | round2 | toAR(true) }} )</td>
-            <th style="border: none !important;">مشال</th>
+            <th style="border: none !important;">
+              {{'recp_given' | tr_label}}
+            </th>
           </tr>
 
           <tr>

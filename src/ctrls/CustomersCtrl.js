@@ -182,11 +182,31 @@ ORDER BY day
     return results.map(_ => new CustomerTransDAO(_))
   }
 
+  async getRestInSelf(customer_id) {
+    let results = await knex.raw(`
+select * from customer_trans where customer_id = ${customer_id} and trans_type = 'outgoing' and 
+(actual_sale is null or actual_sale = 0)
+`)
+    return results.map(_ => new CustomerTransDAO(_))
+  }
+
+  /**@param {CustomerTransDAO} transDAO */
+  async updateDebtBySelfTrans( transDAO ) {
+    let transInstance = await this.customerTransModel.forge('id', transDAO.id).fetch()
+    transInstance.save({actual_sale: transDAO.actual_sale, cashflow_id: transDAO.cashflow_id})
+    /**@type {import('bookshelf').ModelBase} */
+    let customerInstance = await this.model.forge('id',transDAO.customer_id).fetch({softDelete: false})
+    let debt = customerInstance.get('debt')
+    // TODO more organized !
+    debt = parseFloat(debt) - parseFloat(transDAO.actual_sale)
+    await customerInstance.save({debt: debt})
+  }
+
   /**@param {CustomerTransDAO} transDAO */
   async updateDebtByTrans(transDAO) {
     /**@type {import('bookshelf').ModelBase} */
-    let instance = await this.model.forge('id',transDAO.customer_id).fetch()
-    console.log(instance)
+    let instance = await this.model.forge('id',transDAO.customer_id).fetch({softDelete: false})
+
     let debt = instance.get('debt') && parseFloat(instance.get('debt')) ? parseFloat(instance.get('debt')) : 0
     transDAO.debt_was = debt
 
@@ -212,7 +232,7 @@ ORDER BY day
     let transInstance = await this.customerTransModel.forge('id', transDAO.id).fetch()
     transDAO = new CustomerTransDAO(transInstance.attributes)
     /**@type {import('bookshelf').ModelBase} */
-    let customerInstance = await this.model.forge('id',transDAO.customer_id).fetch()
+    let customerInstance = await this.model.forge('id',transDAO.customer_id).fetch({softDelete: false})
     console.log(customerInstance.attributes)
     let debt = customerInstance.get('debt')
     let amount = parseFloat(transDAO.amount)

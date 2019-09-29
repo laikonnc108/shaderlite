@@ -23,7 +23,6 @@
         </table>
 
 
-
   <button v-b-toggle.collapse_collect class="btn btn-success m-1 d-print-none">
     <span class="fa fa-credit-card"></span> &nbsp; 
     حركة نقدية : تحصيل / امانة 
@@ -97,7 +96,7 @@
         v-b-toggle.collapse_sell  @click="sell_rest = item"
         class="btn btn-lg btn-primary m-1 btn-block">
           <span class="fa fa-shopping-cart"></span> &nbsp; 
-          {{item.product_name}}  - 
+          {{products_arr[item.product_id]}}  - 
           عدد ({{item.count}}) - السعر التقديري {{item.amount}}
         </button>
       </div>
@@ -247,12 +246,12 @@ src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxu
               </td>
             </template>
           </tr>
-          <tr :class="{'pr-hideme': !customer_trans_form.amount }">
+          <tr :class="{'pr-hideme': !customer_trans_form.amount }" v-if="app_config.shader_name != 'nada'">
             <td ><input v-if="! customer_trans_form.id" 
               v-model="customer_trans_form.amount" class="form-control" placeholder="ادخل مبلغ التحصيل" >
               <span v-if="customer_trans_form.id">({{customer_trans_form.amount | toAR}})</span>
               </td>
-            <td style="border: none !important;"> تنزيل </td>
+            <td style="border: none !important;"> {{'collect' | tr_label}} </td>
             <td style="border: none !important;">
                 <button  v-if="customer_trans_form.id"
                 class="btn text-danger pr-hideme" @click="removeTrans(customer_trans_form,true)" >
@@ -292,7 +291,7 @@ src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxu
 </template>
 
 <script >
-import { CustomersCtrl, CustomerTransDAO } from '../ctrls/CustomersCtrl'
+import { CustomersCtrl, CustomerTransDAO, CustomerDAO } from '../ctrls/CustomersCtrl'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl'
 import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl'
 import { MainMixin } from '../mixins/MainMixin';
@@ -328,6 +327,9 @@ export default {
       this.customer = await this.customersCtrl.findOne(this.customer_id)
       this.customer_trans = await this.customersCtrl.getCustomerTrans({id: this.customer_id})
       this.trans_types_opts = await this.transTypesCtrl.findAll({category: 'customer_trans', optional: 3 })
+      if(this.customer.is_self ) {
+        this.self_rest_products = await this.customersCtrl.getRestInSelf(this.customer_id)
+      }
     },
     async showOutModal(day = null){
       this.outg_day = day ? day : this.day.iso
@@ -368,6 +370,27 @@ export default {
     },
     async sellRest(evt) {
       evt.preventDefault()
+      let cashflowDAO = new CashflowDAO({
+        day: this.day.iso,
+        amount: parseFloat(this.sell_rest.actual_sale),
+        customer_id: this.customer_id,
+        state: 'cust_collecting',
+        sum: '+',
+        notes: this.sell_rest.notes
+      })
+      let cashflow_id = await new CashflowCtrl().save(cashflowDAO)
+
+      /*
+      await this.customersCtrl.save(new CustomerDAO({id: this.customer_id, 
+        debt: parseFloat(this.customer.debt) - cashflowDAO.amount }))
+        */
+
+      await this.customersCtrl.updateDebtBySelfTrans(new CustomerTransDAO({
+        id: this.sell_rest.id,
+        actual_sale: this.sell_rest.actual_sale,
+        cashflow_id: cashflow_id
+      }))
+      await this.getCustomerDetails()
       this.$root.$emit('bv::toggle::collapse', 'collapse_sell')
     },
     async createCustomerTrans(evt ) {
