@@ -1,11 +1,13 @@
 <template>
 <section class="home p-3">
   <div class="m-3">
-    <h1 class="m-1 text-center">نظام وكالة الخضار والفاكهة</h1>
+    <h1 v-if="app_config.shader_name != 'nada'"
+    class="m-1 text-center">نظام وكالة الخضار والفاكهة</h1>
     <h2 class="text-danger"> اصدار رقم {{app_version}}</h2>
     <h3 class="text-danger" v-if="demo_till">* نسخة تجريبية حتي {{demo_till}}</h3>
-    <h3 class="text-success" v-if="! demo_till">* نسخة مرخصة</h3>
-    
+    <div v-if="app_config.shader_name != 'nada'">
+      <h3 class="text-success" v-if="! demo_till">* نسخة مرخصة</h3>
+    </div>
 
     <section v-if=" working_db">
       <button class="btn btn-danger btn-lg" @click="remove_db()" >
