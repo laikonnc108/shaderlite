@@ -176,7 +176,9 @@ export default {
       this.product_search = (search && search != 'new') ? search : this.product_search
       if(search == 'new') {
         console.log(this.product_search)
-        let product_id = await new ProductsCtrl().save(new ProductDAO({name: this.product_search }))
+        let product_id = await new ProductsCtrl().save(new ProductDAO({name: this.product_search ,
+        product_sell_comm: this.shader_configs['product_sell_comm'] 
+        }))
         let products_arr = await new ProductsCtrl().getProductsArr()
         this.$store.commit(MyStoreMutations.setProductsArr, products_arr)
         this.all_products.push({id: product_id, product_name: this.product_search })

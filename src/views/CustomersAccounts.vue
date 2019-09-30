@@ -136,9 +136,8 @@ src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxu
           </tr>
         </tbody>
       </table>
-      <span>
-        
-      </span>
+      
+      <span></span>
 
       <div class="m-2">
           <button class="btn btn-success pr-hideme" @click="modalSave" >

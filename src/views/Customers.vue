@@ -143,8 +143,10 @@
                 {{item.name}}
                 </router-link>
               </td>
-              <td>{{item.debt | toAR }}</td>
-              <td v-if="false">{{item.sum_debt | toAR }}</td>
+              <td>{{item.debt | toAR }}
+                <span class="text-danger pr-hideme" v-if="(item.sum_debt - item.debt) < -1 ">{{ ( item.sum_debt - item.debt ) | toAR }}</span>
+              </td>
+              
               <td v-if=" flags.zm_mode" >
                 <span class="collect-box "></span>
               </td>
@@ -244,7 +246,9 @@ export default {
   methods: {
     async refresh_all() {
       let soft_delete = this.flags.show_active
-      this.customers_arr = await this.customersCtrl.findAll({},{softDelete: soft_delete, orderByDebt: true})
+      this.customers_arr = await this.customersCtrl.findAll({},{softDelete: soft_delete, 
+        orderByDebt: this.app_config.shader_name == 'magdy'
+      })
       this.collect_dao = new CashflowDAO()
       let {sum_debt} = await this.customersCtrl.sumDebt()
       this.sum_debt = sum_debt

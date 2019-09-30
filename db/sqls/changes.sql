@@ -49,9 +49,9 @@ LEFT JOIN
 	(select day, sum(sell_comm * count) out_sell_comm FROM outgoings GROUP By day) outgoings_day_g
 	ON days.day = outgoings_day_g.day
 LEFT JOIN 
-	(select day, sum(value_calc) out_zm_val FROM outgoings GROUP By day) outgoings_zm
+	(select day, sum(value_calc) out_zm_val FROM outgoings where customer_id > 0 GROUP By day) outgoings_zm
 	ON days.day = outgoings_zm.day;
-
+	
 -- nada changes --
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('recp_header', '<h1 class="text-danger text-center"> أولاد الحاج/ مصطفي ندا مصطفي</h1>
 <h1 class="text-primary text-center">الأستاذ / جمــال نــدا</h1>

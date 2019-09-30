@@ -120,7 +120,7 @@
                 </router-link>
                </td>
               <td>{{item.phone}}</td>
-              <td>{{item.sum_debt - item.balance |  toAR}}</td>
+              <td>{{item.balance |  toAR}}</td>
               <td class="d-print-none">
                 <button class="btn text-danger" @click="archive(item.id)"  v-if="flags.detailed && ! item.deleted_at">
                   <span class="fa fa-archive "></span> 
@@ -219,7 +219,9 @@ export default {
     },
     async refresh_all() {
       let soft_delete = this.show_active ? true : false;
-      this.suppliers_arr = await this.suppliersCtrl.findAll({},{softDelete: soft_delete, orderByBalance: true})
+      this.suppliers_arr = await this.suppliersCtrl.findAll({},{softDelete: soft_delete, 
+        orderByBalance: this.app_config.shader_name == 'magdy'
+      })
       let {sum_debt} = await this.suppliersCtrl.sumDebt()
       this.sum_debt = sum_debt
     }

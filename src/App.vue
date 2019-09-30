@@ -589,7 +589,7 @@ select.form-control {
   .pr-mt-3 {
     margin-top: 3em;
   }
-  .nav-link {
+  .nav-link , a {
     text-decoration: none !important;
     color: black !important;
   }

@@ -414,7 +414,12 @@
   <span style="font-size: .7em;">اسم العميل/ </span> 
   <span style="font-size: 1.1em;">{{supplier.name}}</span>
 </h4>
-<h3 class="text-center" > حساب سابق : {{ modal_recp.balance_was | toAR }}</h3>
+<img style="margin-top: -450px;float: right;margin-right: 30px;" width="170" class="pr-only"
+src='https://i.imgur.com/Ie2KPRE.jpg?1' />
+<img style="margin-top: -450px;float: left;margin-left: 30px;" width="170" class="pr-only"
+src='https://i.imgur.com/Ie2KPRE.jpg?1' />
+
+<h3 class="text-center" v-if="app_config.shader_name == 'magdy'" > حساب سابق : {{ modal_recp.balance_was | toAR }}</h3>
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me-xx" >
         <thead>
@@ -455,7 +460,8 @@
           </tr>
           <tr>
             <td ><b class="border-top border-primary">{{modal_recp.sale_value | round2 | toAR }} </b></td>
-            <td colspan="6" style="border: none !important;"></td>
+            <td ><b class="border-top border-primary">{{ counts.total_count | toAR }} </b></td>
+            <td colspan="5" style="border: none !important;"></td>
           </tr>
           </tbody>
           </table>
@@ -817,6 +823,15 @@ export default {
     })
     let suppliersCtrl = new SuppliersCtrl()
     this.supplier = await suppliersCtrl.findById(this.supplier_id)
+  },
+  computed: {
+    counts: function() {
+      let counts = { total_count: 0}
+      this.modal_recp.details.forEach( item => {
+        counts.total_count += item.count
+      })
+      return counts
+    }
   },
   watch: {
     modal_recp: {

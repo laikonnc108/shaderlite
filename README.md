@@ -75,24 +75,23 @@ update customers set deleted_at = 1 where deleted_at = 0;
 
 ```
 SELECT MAX(ID),group_concat(id), group_concat(active) , name FROM suppliers GROUP BY name HAVING count(*) > 1;
-update suppliers set name = CONCAT(name, ' 2') where id = 106 or id=322 or id=468 or id=67 or id=126 or id=380 or id=73 or id=138 or id=97 or id=383 or id=22 or id=23 or id=4 or id=76 or id=74 or id=3 or id=2 or id=306 or id=273 or id=374 or id=203 or id=194 or id=110 or id=10 or id = 393 or id = 18 or id = 107 or id = 251 ;
+update suppliers set name = CONCAT(name, ' 2') where id = 106 or id=322 or id=468 or id=67 or id=126 or id=380 or id=73 or id=138 or id=97 or id=383 or id=22 or id=23 or id=4 or id=76 or id=74 or id=3 or id=2 or id=306 or id=273 or id=374 or id=203 or id=194 or id=110 or id=10 or id = 393 or id = 18 or id = 107 or id = 251 or id = 578;
 update suppliers set name = CONCAT(name, ' 3') where id = 410 or id=11 or id=504 ;
 delete from suppliers where id= 141 ;
-```
-- remove active not null and remove date_crated, total_count and rename active to deleted_at 
-`ALTER TABLE suppliers DROP COLUMN `date_created`, DROP COLUMN `total_count`, CHANGE COLUMN `active` `deleted_at` TINYINT(1) UNSIGNED;`
-```
+-- remove active not null and remove date_crated, total_count and rename active to deleted_at 
+ALTER TABLE suppliers DROP COLUMN `date_created`, DROP COLUMN `total_count`, CHANGE COLUMN `active` `deleted_at` TINYINT(1) UNSIGNED;
 update suppliers set deleted_at = NULL where deleted_at = 1;
 update suppliers set deleted_at = 1 where deleted_at = 0;
+update suppliers set balance = -(balance)
 ```
 - export sql then import 
 
 **Products**
 - rename active to deleted_at and remove active not null , remove date_created
-`ALTER TABLE products CHANGE COLUMN `active` `deleted_at` TINYINT(1) UNSIGNED,
-DROP COLUMN `date_created`;`
-
 ```
+ALTER TABLE products CHANGE COLUMN `active` `deleted_at` TINYINT(1) UNSIGNED,
+DROP COLUMN `date_created`;
+
 update products set name = CONCAT(name, ' P') where id = 211 or id = 7 or id = 93 or id = 31 or id = 184 or id = 127 or id = 175 or id = 5 or id = 248 or id= 233 or id= 300;
 update products set name = CONCAT(name, ' PP') where id = 26 ;
 update products set deleted_at = NULL where deleted_at = 1;
@@ -105,13 +104,13 @@ SELECT name FROM products group by name HAVING COUNT(*) > 1; -- check
 
 **Supplier_trans**
 - remove d_product, date_created
-`ALTER TABLE `dailymngr_bktest`.`supplier_trans` DROP COLUMN `date_created`,
- DROP COLUMN `d_product`;`
+`ALTER TABLE supplier_trans DROP COLUMN `date_created`, DROP COLUMN `d_product`;`
 - export sql then import 
 - rename trans_types
 
 ```
-UPDATE supplier_trans set sum= '+' ,amount =abs(amount), trans_type= 'supp_payment' where trans_type = 'payment';
+UPDATE supplier_trans set sum= '+' , amount =abs(amount), trans_type= 'supp_payment' where trans_type = 'payment';
+UPDATE supplier_trans set sum= '-' , amount = -(amount) where trans_type = 'supp_collect';
 -- or delete !
 -- update supplier_trans set trans_type = 'supp_recp_expenses' where trans_type = 'out_receipt'; 
 delete from supplier_trans where trans_type = 'out_receipt';
@@ -123,7 +122,7 @@ delete from supplier_trans where trans_type = 'out_receipt';
 - TODO remove product_name , count
 - rename trans_types
 ```
-UPDATE customer_trans set amount = - (amount) where sum = '-' and amount > 0
+--UPDATE customer_trans set amount = - (amount) where sum = '-' and amount > 0
 --
 UPDATE customer_trans set sum = '-' where amount < 0
 UPDATE customer_trans set sum = '+' where amount > 0
@@ -173,14 +172,14 @@ update outgoings set customer_id = Null where customer_id = 0;
 **Cashflow**
 - move actor_id to supplier_id / customer_id
 ```
-ALTER TABLE `daily_mngr`.`cashflow` ADD COLUMN `supplier_id` INTEGER UNSIGNED AFTER `d_product`,
+ALTER TABLE cashflow ADD COLUMN `supplier_id` INTEGER UNSIGNED AFTER `d_product`,
  ADD COLUMN `customer_id` INTEGER UNSIGNED AFTER `supplier_id`;
 
 update cashflow set supplier_id = actor_id where state = 'nolon' or state = 'given' or state = 'recp_paid' or state = 'supp_payment' or state = 'out_receipt' or state = 'supp_collect';
 
 update cashflow set customer_id = actor_id where state = 'paid' or state = 'collecting' or state = 'acc_rest' or state = 'acc_rest';
 
-ALTER TABLE `daily_mngr`.`cashflow` DROP COLUMN `state_data`,
+ALTER TABLE cashflow DROP COLUMN `state_data`,
  DROP COLUMN `actor_id`,
  DROP COLUMN `actor_name`,
  DROP COLUMN `date_created`;

@@ -23,7 +23,8 @@
               <th>بياعة + عمولة</th>
               <th>فرق فواتير</th>
               <th>نوالين</th>
-              <th>خصم</th>
+              <th v-if="app_config.shader_name == 'magdy'">خصم</th>
+              <th v-if="app_config.shader_name == 'nada'">مصاريف</th>
               <th>وهبة الكاتب</th>
               <th>صافي فواتير</th>
             </tr>
@@ -58,7 +59,8 @@
               </td>
               
               <td>{{item.sum_total_nolon | round2 }}</td>
-              <td>{{item.sum_recp_deducts | round2 }}</td>
+              <td v-if="app_config.shader_name == 'magdy'">{{item.sum_recp_deducts | round2 }}</td>
+              <td v-if="app_config.shader_name == 'nada'">{{item.sum_recp_expenses | round2 }}</td>
               <td>{{item.sum_recp_given | round2 }}</td>
               <td>{{item.sum_net_value | round2 }}</td>
             </tr>
@@ -66,16 +68,16 @@
               <td></td>
               <th>المجموع</th>
               <td></td>
-              <td>{{recp_sums.sum_out_comm | round2 }}</td>
-              <td>{{recp_sums.sum_recp_comm | round2 }}</td>
-              <td>{{recp_sums.sum_comms | round2 }}</td>
+              <td>{{recp_sums.sum_out_comm | round }}</td>
+              <td>{{recp_sums.sum_recp_comm | round }}</td>
+              <td>{{recp_sums.sum_comms | round }}</td>
               <th>
                 <span v-if="recp_sums.sum_diffs  > 0">+</span>
-                {{recp_sums.sum_diffs | round2 }}
+                {{recp_sums.sum_diffs | round }}
               </th>
-              <th>{{recp_sums.sum_nolons_sum | round2 }}</th>
+              <th>{{recp_sums.sum_nolons | round }}</th>
               <td></td>
-              <th>{{recp_sums.sum_givens | round2 }}</th>
+              <th>{{recp_sums.sum_givens | round }}</th>
             </tr>
           </tbody>
         </table>
@@ -85,32 +87,32 @@
 
     <div>
       <hr>
-      <h4>اجمالي فواتير الرصد فقط : {{recp_sums.sum_rasd_net | toAR(true) }}</h4>
+      <h4>اجمالي فواتير الرصد فقط : {{recp_sums.sum_rasd_net | round | toAR }}</h4>
     </div>
 
     <div>
       <hr>
-      <h4>اجمالي ايرادات اليوم : {{recp_sums.sum_income | toAR(true) }}</h4>
+      <h4>اجمالي ايرادات اليوم : {{recp_sums.sum_income | round | toAR }}</h4>
     </div>
 
     <div>
       <hr>
-      <h4>اجمالي مصروفات تخصم من ايراد اليوم : {{daily_totals.sum_deducts | toAR(true) }}</h4>
+      <h4>اجمالي مصروفات تخصم من ايراد اليوم : {{daily_totals.sum_deducts | round | toAR }}</h4>
     </div>
   
     <div>
       <hr>
-      <h4>صافي الايراد اليومي : {{ (recp_sums.sum_income - daily_totals.sum_deducts) | toAR(true) }}</h4>
+      <h4>صافي الايراد اليومي : {{ (recp_sums.sum_income - daily_totals.sum_deducts) | round | toAR }}</h4>
     </div>
   
     <div v-if="app_config.shader_name != 'magdy'">
       <hr>
-      <h4>زمامات اليوم: {{ (daily_totals.out_zm_val + daily_totals.sum_cash_zm) | toAR(true) }}</h4>
+      <h4>زمامات اليوم: {{ (daily_totals.out_zm_val + daily_totals.sum_cash_zm) | round | toAR }}</h4>
     </div>
 
     <div v-if="app_config.shader_name != 'magdy'">
       <hr>
-      <h4>تحصيلات اليوم : {{ daily_totals.sum_collect_zm | toAR(true) }}</h4>
+      <h4>تحصيلات اليوم : {{ daily_totals.sum_collect_zm | round | toAR }}</h4>
     </div>
   
   </section>
@@ -122,13 +124,13 @@
   <hr>
   <section class="inout-cashflow">
     <h2>
-      {{'expenses'| tr_label}} اليوم
+      {{'menu_collecting'| tr_label}} اليوم
     </h2>
     <CashflowTable :cashflow_arr="cashflow_arr_in" 
     :flags="{type: 'cashflow_in'}" ></CashflowTable>
 
     <h2>
-      {{'menu_collecting' | tr_label}} اليوم
+      {{'expenses' | tr_label}} اليوم
     </h2>
     <CashflowTable :cashflow_arr="cashflow_arr_out" 
     :flags="{type: 'cashflow_out'}" ></CashflowTable>
@@ -226,7 +228,7 @@ export default {
       this.daily_receipts.forEach( recp => {
         recp_sums.sum_count += parseInt(recp.sum_total_count)
         recp_sums.sum_diffs += ( recp.sum_out_value - recp.sum_sale_value )
-        recp_sums.sum_nolons += recp.sum_total_nolon
+        recp_sums.sum_nolons += parseFloat(recp.sum_total_nolon)
         recp_sums.sum_net += recp.sum_net_value
         recp_sums.sum_income += recp.sum_sell_comm + recp.sum_recp_comm + ( recp.sum_out_value - recp.sum_sale_value )
         recp_sums.sum_comms += recp.sum_sell_comm + recp.sum_recp_comm 

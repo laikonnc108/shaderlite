@@ -80,7 +80,7 @@ export class SuppliersCtrl {
   /**@param {SupplierDAO} data */
   async save(data) {
     data.parseTypes()
-    let record = await this.model.forge(data).fetch({softDelete: false}).save()
+    let record = await this.model.forge(data).save()
     if(! data.id && data.balance >= 0) { // new one with init debt
       let transDAO = new SupplierTransDAO({
         supplier_id: record.id,
