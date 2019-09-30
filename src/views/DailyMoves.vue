@@ -203,11 +203,9 @@ export default {
         net: 0
       }
       this.cashflow_arr_in.forEach( item => {
-        console.log(item.amount, item.sum)
         cash_sums.net += parseFloat(item.amount)
       })
       this.cashflow_arr_out.forEach( item => {
-        console.log(item.amount, item.sum)
         cash_sums.net -= parseFloat(item.amount)
       })
       return cash_sums

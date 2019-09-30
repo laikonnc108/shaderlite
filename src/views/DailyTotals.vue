@@ -37,36 +37,77 @@
           <thead>
             <tr>
               <th>اليوم</th>
-              <th> 
-                {{'recp_given' | tr_label}}
-              </th>
-              <th> {{'given' | tr_label}} </th>
+              <th v-if="show_totals.includes('recp_given')"> {{'recp_given' | tr_label}} </th>
+              <th v-if="show_totals.includes('given')"> {{'given' | tr_label}} </th>
+              <th v-if="show_totals.includes('comms')"> {{'comms' | tr_label}} </th>
+              <th v-if="show_totals.includes('recp_diff')"> {{'recp_diff' | tr_label}} </th>
+              <th v-if="show_totals.includes('net_income')"> {{'net_income' | tr_label}} </th>
               <th> {{'out_cashflow' | tr_label}} </th>
-              <th> {{'comms' | tr_label}} </th>
               <th> {{'supp_payments' | tr_label}} </th>
               <th> {{'supp_deducts' | tr_label}} </th>
-              <th>رهونات  </th>
-              <th>تنزيل رهن</th>
+              <th> {{'rahn' | tr_label}}  </th>
+              <th> {{'repay_rahn' | tr_label}} </th>
             </tr>
           </thead>
+<!--
+recp_sum_net,
+recp_sum_given,
+recp_sum_rasd_net,
+recp_sum_comm,
+recp_sum_expenses,
+recp_sum_deducts,
+recp_sum_sale,
+sum_out_value,
+out_sell_comm,
+out_zm_val,
+sum_collect_zm,
+sum_cash_zm,
+sum_deducts,
+sum_given,
+sum_nolon,
+sum_supp_payment,
+sum_product_rahn,
+sum_repay_rahn,
+sum_rahn_down
+-->
           <tbody>
             <tr v-for="(item, idx) in daily_totals" :key='idx'>
               <td>{{item.day | arDate }}</td>
-              <td>{{item.recp_sum_given | round2 }}</td>
-              <td>{{item.sum_given | round2 }}</td>
-              <td>{{item.sum_deducts | round2 }}</td>
-              <td>{{item.recp_sum_comm +item.out_sell_comm | round2 }}</td>
-              <td>{{item.sum_supp_payment | round2 }}</td>
-              <td>{{item.recp_sum_deducts | round2 }}</td>
-              <td>{{item.sum_product_rahn | round2 }}</td>
-              <td>{{item.sum_repay_rahn + item.sum_rahn_down | round2 }}</td>
+              <td v-if="show_totals.includes('recp_given')">
+                {{item.recp_sum_given | round }}
+              </td>
+              <td v-if="show_totals.includes('given')">
+                {{item.sum_given | round }}
+              </td>
+              <td v-if="show_totals.includes('comms')">
+                {{item.recp_sum_comm + item.out_sell_comm | round }}
+              </td>
+              <td v-if="show_totals.includes('recp_diff')">
+                {{item.sum_out_value - item.recp_sum_sale | round }}
+              </td>
+              <td v-if="show_totals.includes('net_income')">
+                {{item.recp_sum_comm + item.out_sell_comm + (item.sum_out_value - item.recp_sum_sale) - item.sum_deducts | round }}
+              </td>
+              <td>{{item.sum_deducts | round }}</td>
+              <td>{{item.sum_supp_payment | round }}</td>
+              <td>{{item.recp_sum_deducts | round }}</td>
+              <td>{{item.sum_product_rahn | round }}</td>
+              <td>{{item.sum_repay_rahn + item.sum_rahn_down | round }}</td>
             </tr>
             <tr >
               <th>المجموع</th>
-              <th>{{sum_totals.recp_sum_given | round}}</th>
-              <th>{{sum_totals.sum_given | round}}</th>
+              <th v-if="show_totals.includes('recp_given')">
+                {{sum_totals.recp_sum_given | round}}
+              </th>
+              <th v-if="show_totals.includes('given')">
+                {{sum_totals.sum_given | round}}
+              </th>
+              <th v-if="show_totals.includes('comms')" >
+                {{sum_totals.sum_comm_plus_sell_comm | round}}
+              </th>
+              <th v-if="show_totals.includes('recp_diff')"></th>
+              <th v-if="show_totals.includes('net_income')"></th>
               <th>{{sum_totals.sum_deducts | round}}</th>
-              <th>{{sum_totals.sum_comm_plus_sell_comm | round}}</th>
               <th>{{sum_totals.sum_supp_payment | round}}</th>
               <th>{{sum_totals.recp_sum_deducts | round}}</th>
               <th>{{sum_totals.sum_product_rahn | round}}</th>
@@ -153,7 +194,8 @@ export default {
       from_day: '',
       to_day: '',
       max_datetime: '',
-      show_daily: 'daily_totals'
+      show_daily: 'daily_totals',
+      show_totals: '',
     }
   },
   mixins:[MainMixin],
@@ -192,6 +234,7 @@ export default {
   },
   async mounted() {
     this.refresh_all()
+    this.show_totals = this.shader_configs['show_totals']
   },
   computed: {
     sum_totals: function() {

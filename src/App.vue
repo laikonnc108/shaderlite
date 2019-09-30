@@ -213,9 +213,12 @@ export default {
     }
     this.$store.commit(MyStoreMutations.setCustomLabels, custom_labels)
     
-    let app_configs = await this.shaderConfigsCtrl.getAppCongifs()
-    this.$store.commit(MyStoreMutations.setShaderConfigs, app_configs)
-    this.require_login = app_configs['require_login'] ? app_configs['require_login'] : false
+    let shader_conf = await this.shaderConfigsCtrl.getAppCongifs()
+    this.$store.commit(MyStoreMutations.setShaderConfigs, shader_conf)
+    this.require_login = shader_conf['require_login'] ? shader_conf['require_login'] : false
+    if(this.app_config.env.NODE_ENV && this.app_config.env.NODE_ENV == 'development') {
+      this.require_login = false
+    }
     if(this.require_login) {
       this.$bvModal.show('login-modal')
     }
@@ -223,7 +226,7 @@ export default {
     // to get current local time correctly
     moment.locale('en')
     let dateTime = DateTime.fromISO(moment().format('YYYY-MM-DD'))
-    if(app_configs['new_day_opens'] && moment().format('HH') >= app_configs['new_day_opens']){
+    if(shader_conf['new_day_opens'] && moment().format('HH') >= shader_conf['new_day_opens']){
       // Open new Day
       dateTime = DateTime.fromISO(moment().add(1,'days').format('YYYY-MM-DD'))
     }

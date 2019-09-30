@@ -48,7 +48,7 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
           <span class="text-danger" v-if="item.total_current_rest">{{item.total_current_rest}}</span>
         </td>
         -->
-        <td>{{row.products_concat}}</td>
+        <td width="25%">{{row.products_concat}}</td>
         <td>{{row.total_nolon}}</td>
         <td>{{row.sum_inc_count}}</td>
         <td>{{row.sum_sold_count}}</td>

@@ -38,7 +38,7 @@
           </div>
           <div class="col-6 btn text-primary">
             <span >
-            {{ total_nolon| round2 }}
+            {{ total_nolon | round2 }}
             </span>
             <span class="fa fa-table"></span>
             عرض النوالين
@@ -364,7 +364,7 @@
   </div>
 </b-modal>
 
-<!-- Nolons Modal -->
+<!-- expenses Modal -->
 <b-modal id="modal-expenses"  
  hide-footer hide-header-close hide-backdrop>
   <template slot="modal-title">
@@ -415,8 +415,10 @@
   <span style="font-size: 1.1em;">{{supplier.name}}</span>
 </h4>
 <img style="margin-top: -450px;float: right;margin-right: 30px;" width="170" class="pr-only"
+v-if="app_config.shader_name != 'magdy'"
 src='https://i.imgur.com/Ie2KPRE.jpg?1' />
 <img style="margin-top: -450px;float: left;margin-left: 30px;" width="170" class="pr-only"
+v-if="app_config.shader_name != 'magdy'"
 src='https://i.imgur.com/Ie2KPRE.jpg?1' />
 
 <h3 class="text-center" v-if="app_config.shader_name == 'magdy'" > حساب سابق : {{ modal_recp.balance_was | toAR }}</h3>
@@ -465,13 +467,25 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
           </tr>
           </tbody>
           </table>
+    <div v-if="modal_recp.recp_paid < 1">
+      <div v-for="(incom, idx) in inc_headers" :key='idx' class="text-danger" >
+        <span v-if="incom.sold_count != incom.recp_in_count "> <span class="fa fa-error"></span> &nbsp;
+        صنف {{incom.product_name}} تم بيع {{incom.sold_count | default0 }} طرد  - تم انشاء فواتير بعدد {{incom.recp_in_count | default0}} طرد
+        فقط
+        <span class="text-primary"
+        @click="newRecpDetial(incom)"> اضافة {{incom.sold_count - incom.recp_in_count }}</span>
+        </span>
+        <br/>
+      </div>
+    </div>
+        <br/>
         <table class="table  table-sm pr-me-xx" >
         <tbody>
           <tr>
             <td colspan="4" style="border: none !important;"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" 
-              style="font-weight: 100;font-size: x-small;" 
+              :class="{'font-small': app_config.shader_name == 'magdy'}"
               v-model="modal_recp.comm_rate" class="form-control"  >
             </td>
             <td></td>
@@ -535,7 +549,11 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
             <span class="fa fa-check "></span> &nbsp;
             حفظ 
           </button>
-
+          &nbsp;
+          <button class="btn btn-danger pr-hideme" 
+          @click="print_mode=false;$bvModal.hide('modal-recp');receipt_d_mode= false;">
+          <span class="fa fa-sign-out-alt "></span> &nbsp; اغلاق
+          </button>
           &nbsp;
           <button class="btn btn-primary pr-hideme" v-if="modal_recp.id && modal_recp.paid != 2"
           @click="setRecpPaid(modal_recp, 2)" >
@@ -547,11 +565,7 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
             @click="modal_recp.printed = 1 ;print_mode=true;saveAll();print_co()">
             <span class="fa fa-print"></span> طباعة
           </button>
-          &nbsp;
-          <button class="btn btn-danger pr-hideme" 
-          @click="print_mode=false;$bvModal.hide('modal-recp');receipt_d_mode= false;">
-          <span class="fa fa-sign-out-alt "></span> &nbsp; اغلاق
-          </button>
+
           &nbsp;
           <button class="btn btn-primary pr-hideme" v-if="modal_recp.id && modal_recp.paid != 1"
           @click="setRecpPaid(modal_recp, 1)" >
@@ -623,8 +637,12 @@ export default {
       this.total_nolon = await this.cashflowCtrl.getSupplierNolons({supplier_id: this.supplier_id, day: this.recp_day})
       // TODO ظبط
       this.recp_expenses_dao = await this.cashflowCtrl.getSupplierRecpExpenses({supplier_id: this.supplier_id, day: this.recp_day})
-      this.recp_expenses_dao = this.recp_expenses_dao ? this.recp_expenses_dao : new CashflowDAO(CashflowDAO.RECP_EXPENSES)
-      this.recp_expenses = this.recp_expenses_dao.amount ? this.recp_expenses_dao.amount : 0
+      this.recp_expenses_dao = this.recp_expenses_dao ? this.recp_expenses_dao : new CashflowDAO({
+        state: 'supp_recp_expenses',
+        sum: '-',
+        amount: 0
+      })
+      this.recp_expenses = this.recp_expenses_dao.amount 
       this.outgoings_sums = await this.outgoingsCtrl.findSuppDaySums({supplier_id: this.supplier_id, day: this.recp_day})
       this.inc_headers = await this.inoutHeadCtrl.findAll({supplier_id: this.supplier_id, day: this.recp_day})
       let receipts = await this.receiptsCtrl.findAll({supplier_id: this.supplier_id, day: this.recp_day})
@@ -636,7 +654,15 @@ export default {
       })
 
       this.today_nolons = await this.cashflowCtrl.findAll({supplier_id: this.supplier_id, day: this.recp_day, state: 'nolon'})
-      
+      if(! this.today_nolons.length) {
+        this.today_nolons.push(new CashflowDAO({
+          state: 'nolon',
+          sum: '-',
+          supplier_id: this.supplier.id,
+          day: this.day.iso,
+          amount: 0
+        }))
+      }
     },
     async recp_changed(){
 
@@ -746,6 +772,17 @@ export default {
         this.$bvModal.show('modal-recp')
         this.receipt_d_mode = true
       }
+    },
+    async newRecpDetial(incom) {
+      console.log(incom)
+      this.modal_recp.details.push({
+        supplier_id: this.supplier.id,
+        receipt_id: this.modal_recp.id,
+        day: this.modal_recp.day,
+        count: incom.sold_count - incom.recp_in_count,
+        product_id: incom.product_id,
+        product_name: incom.product_name,
+      })
     },
     async watchit(){
       this.inc_headers = await this.inoutHeadCtrl.findAll({supplier_id: this.supplier_id, day: this.recp_day})
@@ -873,6 +910,9 @@ export default {
 </script>
 
 <style >
+.font-small {
+  font-size: x-small
+}
 .receipt {
   background-color: #cee;
   border-radius: 10px;

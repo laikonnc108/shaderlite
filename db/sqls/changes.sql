@@ -1,11 +1,15 @@
 -- new view --
+
 CREATE VIEW v_daily_sums AS 
 SELECT days.day as day,
 recp_sum_net,
 recp_sum_given,
 recp_sum_rasd_net,
 recp_sum_comm,
+recp_sum_expenses,
 recp_sum_deducts,
+recp_sum_sale,
+sum_out_value,
 out_sell_comm,
 out_zm_val,
 sum_collect_zm,
@@ -24,6 +28,8 @@ LEFT JOIN
 	round(sum(recp_given),2) recp_sum_given,
 	round(sum(recp_comm),2) recp_sum_comm,
 	round(sum(net_value),2) recp_sum_net,
+	sum(sale_value) recp_sum_sale,
+	sum(recp_expenses) recp_sum_expenses,
 	sum(recp_deducts) recp_sum_deducts,
 	round(sum(CASE  WHEN recp_paid = 1 THEN net_value ELSE 0 END),2) recp_sum_rasd_net
 	FROM receipts GROUP By day ) recp_day_g
@@ -50,7 +56,10 @@ LEFT JOIN
 	ON days.day = outgoings_day_g.day
 LEFT JOIN 
 	(select day, sum(value_calc) out_zm_val FROM outgoings where customer_id > 0 GROUP By day) outgoings_zm
-	ON days.day = outgoings_zm.day;
+	ON days.day = outgoings_zm.day
+LEFT JOIN
+	(select income_day, sum(kg_price *weight) sum_out_value FROM outgoings GROUP By income_day) outg_incday_g
+	ON days.day = outg_incday_g.income_day;
 	
 -- nada changes --
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('recp_header', '<h1 class="text-danger text-center"> أولاد الحاج/ مصطفي ندا مصطفي</h1>
@@ -64,22 +73,37 @@ INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_veri
 </h4>', '', 'nada', 'config');
 
 ----------------------------------------------------------------------------
--- 0.1.15 -- 
+
 INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category") VALUES ('rahn_down', 'تنزيل في رهن', 'default', '-', '', 'cashflow');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('kashf_cust', 'كشف وجبة', '', 'default', 'label');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('kashf_cust', 'كشف حساب', '', 'magdy', 'label');
 
-INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('expenses', 'مخرجات', '', 'nada', 'label');
-INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('recp_given', 'وهبة فاتورة', '', 'nada', 'label');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('show_totals', 'recp_given,
+given,
+comms,
+net_income,
+out_cashflow,
+supp_payments,
+supp_deducts,
+rahn,
+repay_rahn', '', 'magdy', 'config');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('rahn', 'رهن', '', 'default', 'label');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('repay_rahn', 'رد رهن', '', 'default', 'label');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('repay_rahn', 'تنزيل رهن', '', 'magdy', 'label');
+
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('expenses', 'مخرجات', '', 'default', 'label');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('recp_given', 'وهبة فاتورة', '', 'default', 'label');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('recp_given', 'مشال', '', 'magdy', 'label');
-INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('collect', 'تحصيل', '', 'nada', 'label');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('collect', 'تحصيل', '', 'default', 'label');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('collect', 'تنزيل', '', 'magdy', 'label');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('customers_accounts', 'معاملات التجار', '', 'magdy', 'label');
-INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('customers_accounts', 'حسابات البائعين', '', 'nada', 'label');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('customers_accounts', 'حسابات البائعين', '', 'default', 'label');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('menu_collecting', 'تحصيل', '', 'magdy', 'label');
-INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('comms', 'عمولات + بياعة', '', 'nada', 'label');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('comms', 'عمولات + بياعة', '', 'default', 'label');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('comms', 'عمولة', '', 'magdy', 'label');
-INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('supp_payments', 'دفعات عملاء', '', 'nada', 'label');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('supp_payments', 'دفعات عملاء', '', 'default', 'label');
+
+-- 0.1.15 -- 
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('supp_payments', 'واصل فلاح', '', 'magdy', 'label');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('supp_deducts', 'خصوم فلاح', '', 'magdy', 'label');
 -- change حساب البرجالة

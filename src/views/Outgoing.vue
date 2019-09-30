@@ -236,6 +236,11 @@ class="btn btn-lg  m-1 btn-block"
                 </button>
               </td>
             </tr>
+            <tr v-if="! search_term">
+              <td></td>
+              <th>المجموع</th>              
+              <th>{{out_sums.total_count}}</th>
+            </tr>
           </tbody>
         </table>
         <button class="btn btn-primary pr-hideme" v-if="flags.detailed === false" @click="flags.detailed = true"> عرض التفاصيل </button>
@@ -402,6 +407,13 @@ export default {
       this.outgoing_form.sell_comm > 0 && this.outgoing_form.sell_comm <= 10 &&
       this.outgoing_form.weight > 0 &&
       this.outgoing_form.kg_price > 0
+    },
+    out_sums: function() {
+      let out_sums = {total_count: 0}
+      this.outgoings_arr.forEach( item => {
+        out_sums.total_count += item.count
+      })
+      return out_sums
     }
   },
 }
