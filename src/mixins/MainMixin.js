@@ -20,9 +20,9 @@ export const MainMixin = {
     ])
   },
   methods: {
-    print_co(){
+    async print_co(){
       const contents = remote.getCurrentWebContents()
-      contents.print({silent: false })
+      contents.print({silent: this.$store.state.shader_configs['silent_print'] ? this.$store.state.shader_configs['silent_print'] : false })
     },
   }
 }

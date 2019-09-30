@@ -16,11 +16,11 @@
               value="men_account">حساب الرجالة</option>
               <option value="act_pymnt">دفعات لا تخصم من الايراد</option>
               <option value="rahn_down">تنزيل في رهن</option>
+              <option v-if="app_config.shader_name == 'magdy'" value="كاتب مجدي">مجدي</option>
+              <option v-if="app_config.shader_name == 'magdy'" value="كاتب حمادة">حمادة</option>
               <option v-if="app_config.shader_name == 'magdy'" value="كاتب 1">كاتب 1</option>
               <option v-if="app_config.shader_name == 'magdy'" value="كاتب 2">كاتب 2</option>
               <option v-if="app_config.shader_name == 'magdy'" value="كاتب 3">كاتب 3</option>
-              <option v-if="app_config.shader_name == 'magdy'" value="كاتب 4">كاتب 4</option>
-              <option v-if="app_config.shader_name == 'magdy'" value="كاتب 5">كاتب 5</option>
             </select>
             </div>
           </div>

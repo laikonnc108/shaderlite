@@ -143,7 +143,7 @@
 
         <main role="main" class="col-md-9 mr-sm-auto col-lg-10 px-0 col-print-12" >
           
-          <router-view/>
+          <router-view :key="$route.fullPath"></router-view>
         </main>
         
 

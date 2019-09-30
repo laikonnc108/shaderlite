@@ -61,22 +61,6 @@ LEFT JOIN
 	(select income_day, sum(kg_price *weight) sum_out_value FROM outgoings GROUP By income_day) outg_incday_g
 	ON days.day = outg_incday_g.income_day;
 	
--- nada changes --
-INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('recp_header', '<h1 class="text-danger text-center"> أولاد الحاج/ مصطفي ندا مصطفي</h1>
-<h1 class="text-primary text-center">الأستاذ / جمــال نــدا</h1>
-<h3 class="text-danger text-center"> لتجارة وتسويق الفاكهة </h3>
-<h4 class="text-primary text-center">
-سوق العبور - القاهرة - محل رقم ١٥٠ عنبر ٤ فاكهة س.ت :٢٨٤٠٤٠
-</h4>
-<h4 class="text-primary text-center">
-ت : ٤٤٧٧٠١٨٠ المعلم سلامة : ٠١١١٨٣٥٧٧٥٠ الأستاذ محمد : ٠١٠٢٣٩٢٩٢٢٣
-</h4>', '', 'nada', 'config');
-
-----------------------------------------------------------------------------
-
-INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category") VALUES ('rahn_down', 'تنزيل في رهن', 'default', '-', '', 'cashflow');
-INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('kashf_cust', 'كشف وجبة', '', 'default', 'label');
-INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('kashf_cust', 'كشف حساب', '', 'magdy', 'label');
 
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('show_totals', 'recp_given,
 given,
@@ -99,14 +83,35 @@ INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_veri
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('customers_accounts', 'معاملات التجار', '', 'magdy', 'label');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('customers_accounts', 'حسابات البائعين', '', 'default', 'label');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('menu_collecting', 'تحصيل', '', 'magdy', 'label');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('net_income', 'صافي الايراد', '', 'default', 'label');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('comms', 'عمولات + بياعة', '', 'default', 'label');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('comms', 'عمولة', '', 'magdy', 'label');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('supp_payments', 'دفعات عملاء', '', 'default', 'label');
-
--- 0.1.15 -- 
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('silent_print', 'true', '', 'magdy', 'config');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('supp_payments', 'واصل فلاح', '', 'magdy', 'label');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('supp_deducts', 'خصوم فلاح', '', 'magdy', 'label');
--- change حساب البرجالة
+
+
+-- 0.1.15 -- 
+
+-- nada changes --
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('recp_header', '<h1 class="text-danger text-center"> أولاد الحاج/ مصطفي ندا مصطفي</h1>
+<h1 class="text-primary text-center">الأستاذ / جمــال نــدا</h1>
+<h3 class="text-danger text-center"> لتجارة وتسويق الفاكهة </h3>
+<h4 class="text-primary text-center">
+سوق العبور - القاهرة - محل رقم ١٥٠ عنبر ٤ فاكهة س.ت :٢٨٤٠٤٠
+</h4>
+<h4 class="text-primary text-center">
+ت : ٤٤٧٧٠١٨٠ المعلم سلامة : ٠١١١٨٣٥٧٧٥٠ الأستاذ محمد : ٠١٠٢٣٩٢٩٢٢٣
+</h4>', '', 'nada', 'config');
+
+----------------------------------------------------------------------------
+
+INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category") VALUES ('rahn_down', 'تنزيل في رهن', 'default', '-', '', 'cashflow');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('kashf_cust', 'كشف وجبة', '', 'default', 'label');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('kashf_cust', 'كشف حساب', '', 'magdy', 'label');
+
+
 ALTER TABLE receipts add balance_was REAL;
 
 DROP VIEW IF EXISTS v_daily_sums ;

@@ -90,11 +90,15 @@
     
     <div class="m-1 pr-hideme">
       <br/>
-      <button  class="btn btn-danger " @click="flags.show_active=false;refresh_all()" v-if="flags.show_active">
+      <router-link  class="btn btn-primary " :to="{ path : 'customers', query: { refresh: true } }">
+        <span class="fa fa-sync-alt"></span>&nbsp;
+        تحديث الصفحة
+      </router-link>
+      <button  class="btn btn-danger mr-2" @click="flags.show_active=false;refresh_all()" v-if="flags.show_active">
       عرض الارشيف
       &nbsp; <span class="fa fa-archive"></span>
       </button>
-      <button  class="btn btn-success " @click="flags.show_active=true;refresh_all()" v-if="! flags.show_active">
+      <button  class="btn btn-success mr-2" @click="flags.show_active=true;refresh_all()" v-if="! flags.show_active">
         اغلاق الارشيف   &nbsp; <span class="fa fa-external-link-square-alt"></span>
       </button>
 
@@ -258,7 +262,10 @@ export default {
       this.$root.$emit('bv::toggle::collapse', 'collapse_form')
     },
     async zmMode() {
-      this.customers_arr = await this.customersCtrl.findAll({},{orderByName: true})
+      this.customers_arr = await this.customersCtrl.findAll({},{
+        orderByName: this.app_config.shader_name != 'magdy',
+        orderByDebt: this.app_config.shader_name == 'magdy'
+      })
       this.flags.zm_mode = true
     },
     setSelected(){

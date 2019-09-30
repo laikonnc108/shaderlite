@@ -41,8 +41,9 @@
               <th v-if="show_totals.includes('given')"> {{'given' | tr_label}} </th>
               <th v-if="show_totals.includes('comms')"> {{'comms' | tr_label}} </th>
               <th v-if="show_totals.includes('recp_diff')"> {{'recp_diff' | tr_label}} </th>
+              <th v-if="show_totals.includes('out_cashflow')"> {{'out_cashflow' | tr_label}} </th>
               <th v-if="show_totals.includes('net_income')"> {{'net_income' | tr_label}} </th>
-              <th> {{'out_cashflow' | tr_label}} </th>
+              
               <th> {{'supp_payments' | tr_label}} </th>
               <th> {{'supp_deducts' | tr_label}} </th>
               <th> {{'rahn' | tr_label}}  </th>
@@ -72,7 +73,11 @@ sum_rahn_down
 -->
           <tbody>
             <tr v-for="(item, idx) in daily_totals" :key='idx'>
-              <td>{{item.day | arDate }}</td>
+              <td>
+                <span class="text-primary" @click="change_today_date(item.day)">
+                  {{item.day | arDate }}
+                </span>
+              </td>
               <td v-if="show_totals.includes('recp_given')">
                 {{item.recp_sum_given | round }}
               </td>
@@ -85,10 +90,12 @@ sum_rahn_down
               <td v-if="show_totals.includes('recp_diff')">
                 {{item.sum_out_value - item.recp_sum_sale | round }}
               </td>
+              <td v-if="show_totals.includes('out_cashflow')">
+                {{item.sum_deducts | round }}
+              </td>
               <td v-if="show_totals.includes('net_income')">
                 {{item.recp_sum_comm + item.out_sell_comm + (item.sum_out_value - item.recp_sum_sale) - item.sum_deducts | round }}
               </td>
-              <td>{{item.sum_deducts | round }}</td>
               <td>{{item.sum_supp_payment | round }}</td>
               <td>{{item.recp_sum_deducts | round }}</td>
               <td>{{item.sum_product_rahn | round }}</td>
@@ -106,8 +113,11 @@ sum_rahn_down
                 {{sum_totals.sum_comm_plus_sell_comm | round}}
               </th>
               <th v-if="show_totals.includes('recp_diff')"></th>
+              <th v-if="show_totals.includes('out_cashflow')">
+                {{sum_totals.sum_deducts | round}}
+              </th>
               <th v-if="show_totals.includes('net_income')"></th>
-              <th>{{sum_totals.sum_deducts | round}}</th>
+
               <th>{{sum_totals.sum_supp_payment | round}}</th>
               <th>{{sum_totals.recp_sum_deducts | round}}</th>
               <th>{{sum_totals.sum_product_rahn | round}}</th>
@@ -175,7 +185,7 @@ sum_rahn_down
 </template>
 <script>
 import { MainMixin } from '../mixins/MainMixin'
-import { knex } from '../main'
+import { knex, moment } from '../main'
 import { Settings, DateTime } from 'luxon'
 
 Settings.defaultLocale = 'ar'
@@ -206,6 +216,24 @@ export default {
     async refresh_all(){
       this.daily_totals = await knex('v_daily_sums').orderBy('day',"asc")
       this.expenses_items = await knex.raw(`SELECT DISTINCT(notes) notes from cashflow where state = 'expenses' or state = 'act_pymnt' group by notes HAVING COUNT(*) > 1`)
+    },
+    async change_today_date(date){
+      let dateTime = DateTime.fromISO(date)
+      if(dateTime.valueOf()) {
+        let new_day = {
+          ts: dateTime.valueOf(),
+          iso: dateTime.toISODate(),
+          d_week: dateTime.toLocaleString({ weekday: 'long'}),
+          arab: moment(dateTime.toISODate()).format('LL') 
+        }
+        this.$store.commit('setDay' , new_day)
+        //let ok = alert('تم تغيير اليوم الحالي الي'+ new_day.arab)
+        const { dialog } = require('electron').remote
+        const response = dialog.showMessageBox({
+          message: 'تم تغيير اليوم الحالي الي'+ new_day.arab
+        });
+        console.log(response);
+      }
     },
     async showSelected(){
       let fromDateTime = DateTime.fromISO(this.from_day)
