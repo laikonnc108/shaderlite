@@ -18,7 +18,7 @@
       </table>
     </section>
     <section class="row">
-      <div class="col-5">
+      <div class="col-5 pr-hideme">
         <router-link class="btn btn-primary mr-3" :to="{name:'supp_recp_details', params: {supplier_id: supplier.id}}">
          فواتير اليوم
         </router-link>
@@ -144,11 +144,11 @@
           <thead>
             <tr>
               <th>م </th>
-              <th>صافي الفاتورة</th>
-              <th>عدد الطرود</th>
+              <th>صافي </th>
+              <th>عدد </th>
               <th>الاصناف</th>
               <th>التاريخ</th>
-              <th>حالة الفاتورة</th>
+              <th>فاتورة</th>
               <th></th>
             </tr>
           </thead>
@@ -159,14 +159,14 @@
                 {{receipt.net_value | round2 | toAR}}
               </td>
               <td>{{receipt.total_count | toAR}}</td>
-              <td>{{receipt.products_arr | productsFilter }}</td>
+              <td width="35%">{{receipt.products_arr | productsFilter }}</td>
               <td>{{receipt.day | arDate}}</td>
               <td>
                 <span v-if="receipt.recp_paid == 1">رصد</span> 
                 <span v-if="receipt.recp_paid == 2">صرف</span> 
                 <span v-if="receipt.printed"> - {{'printed' | tr_label }} </span>
                 <br>
-          <router-link class="nav-link " :to="{name:'supp_recp_details', params: {supplier_id: receipt.supplier_id, day: receipt.day}}">
+          <router-link class="nav-link pr-hideme" :to="{name:'supp_recp_details', params: {supplier_id: receipt.supplier_id, day: receipt.day}}">
           عرض  
           </router-link>
               </td>
@@ -181,8 +181,11 @@
             </tr>
           </tbody>
         </table>
-<div class="m-3">اجمالي فواتير الرصد فقط = <b>{{supp_recps_sums.total_rasd | round2 | toAR}}</b> </div>
+        <div class="m-3">اجمالي فواتير الرصد فقط = <b>{{supp_recps_sums.total_rasd | round2 | toAR}}</b> </div>
         <div class="text-center">
+        <button class="btn btn-printo pr-hideme"  @click="print_co">
+          <span class="fa fa-print"></span> طباعة
+        </button>
           <!--
           <button class="btn btn-printo pr-hideme" @click="vue_window.print()">
             <span class="fa fa-print"></span> طباعة 
@@ -199,6 +202,7 @@ import { SupplierDAO, SuppliersCtrl, SupplierTransDAO } from '../ctrls/Suppliers
 import { ReceiptsCtrl, ReceiptDAO } from '../ctrls/ReceiptsCtrl'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl';
 import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl';
+import { MainMixin } from '../mixins/MainMixin';
 
 Settings.defaultLocale = 'ar'
 Settings.defaultZoneName = 'UTC'
@@ -218,6 +222,7 @@ export default {
       trans_form: {trans_type: 'supp_payment'},
     }
   },
+  mixins: [MainMixin],
   methods: {
     async refresh_all(){
       let {dao, trans} = await this.suppliersCtrl.getSupplierDetails(this.supplier_id)
