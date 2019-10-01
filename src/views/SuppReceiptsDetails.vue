@@ -473,7 +473,7 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
         صنف {{incom.product_name}} تم بيع {{incom.sold_count | default0 }} طرد  - تم انشاء فواتير بعدد {{incom.recp_in_count | default0}} طرد
         فقط
         <span class="text-primary"
-        @click="newRecpDetial(incom)"> اضافة {{incom.sold_count - incom.recp_in_count }}</span>
+        @click="newRecpDetial(incom)"> اضافة {{parseInt(incom.sold_count) - parseInt(incom.recp_in_count) }}</span>
         </span>
         <br/>
       </div>
@@ -779,7 +779,7 @@ export default {
         supplier_id: this.supplier.id,
         receipt_id: this.modal_recp.id,
         day: this.modal_recp.day,
-        count: incom.sold_count - incom.recp_in_count,
+        count: parseInt(incom.sold_count) - parseInt(incom.recp_in_count),
         product_id: incom.product_id,
         product_name: incom.product_name,
       })
@@ -792,7 +792,7 @@ export default {
         let index = this.inc_headers.findIndex( _ => _.product_id === item.product_id )
         if(index >= 0){
           this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count ? parseInt(this.inc_headers[index].recp_in_count) : 0
-          this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count + item.count
+          this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count + parseInt(item.count)
         }
         this.recp_1.total_count += parseInt(item.count)
       })
