@@ -162,7 +162,7 @@
               <td>رصيد المديونية الحالي</td>
               <td></td>
               <td>
-                <b>{{customer.debt | toAR(true)}}</b>
+                <b>{{sum_debt_cmpt | round | toAR}}</b>
               </td>
             </tr>
           </tbody>
@@ -449,6 +449,13 @@ export default {
       if(this.customer_trans_form.amount && parseFloat(this.customer_trans_form.amount) && this.customer_trans_form.trans_type){
         return true
       }
+    },
+    sum_debt_cmpt: function() {
+      let sum_debt = 0
+      this.customer_trans.forEach( trans => {
+        sum_debt += parseFloat(trans.amount)
+      })
+      return sum_debt
     },
     sum_outgoings_val: function() {
       let sum = 0

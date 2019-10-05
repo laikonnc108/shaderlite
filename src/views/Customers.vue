@@ -10,7 +10,7 @@
           </div>
           <div class="col-6 btn text-primary">
             <span class="h3">
-            {{ sum_debt| round2 | toAR}}
+            {{ sum_debt| round | toAR}}
             </span>
             <span class="fa fa-table"></span>
           </div>
@@ -124,6 +124,9 @@
     <span v-if="! flags.show_active"> {{custom_labels['archive']}} </span>
     {{custom_labels['customers']}}
   </h2>
+  <h3 v-if="flags.zm_mode">
+    {{now_day}} - {{now_hour}}
+  </h3>
       <div class="table-responsive">
         <table class="table table-striped table-sm">
           <thead>
@@ -147,8 +150,8 @@
                 {{item.name}}
                 </router-link>
               </td>
-              <td>{{item.debt | toAR }}
-                <span class="text-danger pr-hideme" v-if="(item.sum_debt - item.debt) < -1 ">{{ ( item.sum_debt - item.debt ) | toAR }}</span>
+              <td>{{item.sum_debt | round | toAR }}
+                <span class="text-danger pr-hideme" v-if="false && (item.sum_debt - item.debt) < -1 ">{{ ( item.sum_debt - item.debt ) | toAR }}</span>
               </td>
               
               <td v-if=" flags.zm_mode" >

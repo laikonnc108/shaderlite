@@ -28,21 +28,28 @@
     <br>
   </div>
 
-<button v-for="(incom, idx) in fltrd_avilable_incomings" :key="idx" 
-v-b-toggle.collapse2 
-@click="setSelectedInc(incom)"
-class="btn btn-lg  m-1 btn-block" 
-:class="{'btn-primary': incom.day === day.iso, 'btn-danger': incom.day !== day.iso}">
-  <span class="fa fa-shopping-cart"></span> &nbsp; 
-  {{incom.product_name}} - 
-  زرع <b> {{incom.supplier_name}} </b> 
-  <br/>
-  متبقي ({{incom.diff}}) 
-  <span v-if="incom.day !== day.iso"> -
-وارد {{incom.day | arDate }}
-  </span>
-  
-</button>
+<div v-for="(incom, idx) in fltrd_avilable_incomings" :key="idx" class="row m-1">
+  <button  v-b-toggle.collapse2 
+  @click="setSelectedInc(incom)"
+  class="btn btn-lg btn-block col-10" 
+  :class="{'btn-primary': incom.day === day.iso, 'btn-danger': incom.day !== day.iso}">
+    <span class="fa fa-shopping-cart"></span> &nbsp; 
+    {{incom.product_name}} - 
+    زرع <b> {{incom.supplier_name}} </b> 
+    <br/>
+    متبقي ({{incom.diff}}) 
+    <span v-if="incom.day !== day.iso"> -
+  وارد {{incom.day | arDate }}
+    </span>
+  </button>
+
+  <button  class="btn text-danger col-2" @click="removeRestIncom(incom, idx)" >
+    <span class="fa fa-caret-square-down "></span> 
+    <template v-if="! confirm_step_rest[idx]">  </template>
+    <template v-if="confirm_step_rest[idx]"> تأكيد </template>
+  </button>
+</div>
+
 </div>
 
 
@@ -262,6 +269,7 @@ import { InoutHeadCtrl } from '../ctrls/InoutHeadCtrl'
 import { OutgoingDAO, OutgoingsCtrl } from '../ctrls/OutgoingsCtrl'
 import { CustomersCtrl, CustomerDAO } from '../ctrls/CustomersCtrl';
 import { MainMixin } from '../mixins/MainMixin';
+import { IncomingsCtrl } from '../ctrls/IncomingsCtrl';
 
 export default {
   name: 'outgoings',
@@ -280,6 +288,7 @@ export default {
       outgoing_form: new OutgoingDAO({ day: this.$store.state.day.iso, ...OutgoingDAO.INIT_DAO}),
       flags:{detailed: false},
       confirm_step: [],
+      confirm_step_rest: [],
       discard_success: false,
       search_term_incomings: ''
     }
@@ -310,6 +319,18 @@ export default {
       else {
         this.confirm_step = []
         this.confirm_step[id] = true
+      }
+    },
+    async removeRestIncom(incom, idx) {
+
+      if( this.confirm_step_rest[idx] ) {
+        await new IncomingsCtrl().removeRestInc(incom)
+        this.confirm_step_rest = []
+        this.refresh_all()
+      }
+      else {
+        this.confirm_step_rest = []
+        this.confirm_step_rest[idx] = true
       }
     },
     async out_redirect(item) {

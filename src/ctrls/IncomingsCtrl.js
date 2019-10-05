@@ -153,6 +153,19 @@ export class IncomingsCtrl {
     }
   }
 
+  async removeRestInc(incom) {
+    let instance = await this.model.query(q => {
+      q.where({
+        supplier_id: incom.supplier_id,
+        day: incom.day,
+        product_id: incom.product_id
+      })
+      q.andWhere('count','>=' , incom.diff)
+    }).fetch()
+    let rest = parseInt(instance.get('count') - parseInt(incom.diff))
+    await instance.save({count: rest})
+  }
+
   async findAll(filter = {}) {
     let all = await this.model.where(filter).fetchAll({withRelated: ['supplier','product','cashflows']})
     return all.map( _=> {

@@ -193,7 +193,7 @@ select * from customer_trans where customer_id = ${customer_id} and trans_type =
   /**@param {CustomerTransDAO} transDAO */
   async updateDebtBySelfTrans( transDAO ) {
     let transInstance = await this.customerTransModel.forge('id', transDAO.id).fetch()
-    transInstance.save({actual_sale: transDAO.actual_sale, cashflow_id: transDAO.cashflow_id})
+    await transInstance.save({actual_sale: transDAO.actual_sale, cashflow_id: transDAO.cashflow_id})
     /**@type {import('bookshelf').ModelBase} */
     let customerInstance = await this.model.forge('id',transDAO.customer_id).fetch({softDelete: false})
     let debt = customerInstance.get('debt')

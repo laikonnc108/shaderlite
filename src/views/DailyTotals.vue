@@ -133,7 +133,7 @@ sum_rahn_down
         <div v-if="daily_expenses.length == 0">
           <div class="row m-2">
             <template v-for="(item, idx) in expenses_items" class=" p-2 col-3">
-              <span v-if="item.notes && item.notes.includes('كاتب')" :key='idx' class=" p-2 col-3">
+              <span v-if="item.notes && (item.notes.includes('كاتب') || item.notes.includes('حج'))" :key='idx' class=" p-2 col-3">
                 <input class="pr-hideme" :id="item.notes" :value="item.notes" type="checkbox" v-model="checkedItems" />
                 {{item.notes}}
               </span>

@@ -16,10 +16,10 @@
               value="men_account">حساب الرجالة</option>
               <option value="act_pymnt">دفعات لا تخصم من الايراد</option>
               <option value="rahn_down">تنزيل في رهن</option>
-              <option v-if="app_config.shader_name == 'magdy'" value="كاتب مجدي">مجدي</option>
+              <option v-if="app_config.shader_name == 'magdy'" value="حج مجدي">حج مجدي</option>
               <option v-if="app_config.shader_name == 'magdy'" value="كاتب حمادة">حمادة</option>
               <option v-if="app_config.shader_name == 'magdy'" value="كاتب 1">كاتب 1</option>
-              <option v-if="app_config.shader_name == 'magdy'" value="كاتب 2">كاتب 2</option>
+              <option v-if="app_config.shader_name == 'magdy'" value="كاتب زكاة مال">كاتب زكاة مال</option>
               <option v-if="app_config.shader_name == 'magdy'" value="كاتب 3">كاتب 3</option>
             </select>
             </div>
@@ -116,7 +116,9 @@ export default {
       let cashDAO = new CashflowDAO(this.cashflow_form)
       cashDAO.day = this.store_day.iso
       
-      if(cashDAO.state && cashDAO.state.includes('كاتب')) {
+      if(cashDAO.state && 
+      (cashDAO.state.includes('كاتب') || cashDAO.state.includes('حج'))
+      ) {
         cashDAO.notes = cashDAO.state
         cashDAO.state = 'expenses'
       }

@@ -462,7 +462,12 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
           </tr>
           <tr>
             <td ><b class="border-top border-primary">{{modal_recp.sale_value | round2 | toAR }} </b></td>
-            <td ><b class="border-top border-primary">{{ counts.total_count | toAR }} </b></td>
+            <td >
+              <b v-if="modal_recp.details.length && modal_recp.details.length > 1"
+              class="border-top border-primary">
+                {{ counts.total_count | toAR }}
+                </b>
+            </td>
             <td colspan="5" style="border: none !important;"></td>
           </tr>
           </tbody>
@@ -549,11 +554,7 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
             <span class="fa fa-check "></span> &nbsp;
             حفظ 
           </button>
-          &nbsp;
-          <button class="btn btn-danger pr-hideme" 
-          @click="print_mode=false;$bvModal.hide('modal-recp');receipt_d_mode= false;">
-          <span class="fa fa-sign-out-alt "></span> &nbsp; اغلاق
-          </button>
+
           &nbsp;
           <button class="btn btn-primary pr-hideme" v-if="modal_recp.id && modal_recp.paid != 2"
           @click="setRecpPaid(modal_recp, 2)" >
@@ -564,6 +565,12 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
           <button class="btn btn-printo pr-hideme" 
             @click="modal_recp.printed = 1 ;print_mode=true;saveAll();print_co()">
             <span class="fa fa-print"></span> طباعة
+          </button>
+
+          &nbsp;
+          <button class="btn btn-danger pr-hideme" 
+          @click="print_mode=false;$bvModal.hide('modal-recp');receipt_d_mode= false;">
+          <span class="fa fa-sign-out-alt "></span> &nbsp; اغلاق
           </button>
 
           &nbsp;
@@ -865,7 +872,7 @@ export default {
     counts: function() {
       let counts = { total_count: 0}
       this.modal_recp.details.forEach( item => {
-        counts.total_count += item.count
+        counts.total_count += parseInt(item.count)
       })
       return counts
     }

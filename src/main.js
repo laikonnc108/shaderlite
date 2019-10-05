@@ -31,7 +31,7 @@ store.commit('setAppConfig',{
   curr_dir: path.dirname(app.getAppPath()),
   user_data_path: app.getPath('userData'),
   db_path: dbFile,
-  shader_name: 'nada',
+  shader_name: 'magdy',
   env:process.env
 })
 
