@@ -6,7 +6,7 @@ import { sync_exec } from'./tools'
 import { format as formatUrl } from 'url'
 import {
   createProtocol,
-  installVueDevtools
+  //installVueDevtools
 } from 'vue-cli-plugin-electron-builder/lib'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -72,7 +72,7 @@ app.on('activate', () => {
 app.on('ready', async () => {
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
-    await installVueDevtools()
+    //await installVueDevtools()
   }
   mainWindow = createMainWindow()
   mainWindow.on('close', async (e)=> {
