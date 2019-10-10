@@ -246,19 +246,19 @@ src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxu
               </td>
             </template>
           </tr>
-          <tr :class="{'pr-hideme': !customer_trans_form.amount }" 
+          <tr :class="{'pr-hideme': !d_collect_form.amount }" 
           v-if="app_config.shader_name != 'nada'">
-            <td ><input v-if="! customer_trans_form.id" 
-              v-model="customer_trans_form.amount" class="form-control" placeholder="ادخل مبلغ التحصيل" >
-              <span v-if="customer_trans_form.id">({{customer_trans_form.amount | toAR}})</span>
+            <td ><input v-if="! d_collect_form.id" 
+              v-model="d_collect_form.amount" class="form-control" placeholder="ادخل مبلغ التحصيل" >
+              <span v-if="d_collect_form.id">({{d_collect_form.amount | toAR}})</span>
               </td>
             <td style="border: none !important;"> {{'collect' | tr_label}} </td>
             <td style="border: none !important;">
-                <button  v-if="customer_trans_form.id"
-                class="btn text-danger pr-hideme" @click="removeTrans(customer_trans_form,true)" >
+                <button  v-if="d_collect_form.id"
+                class="btn text-danger pr-hideme" @click="removeTrans(d_collect_form,true)" >
                   <span class="fa fa-archive "></span> 
-                  <template v-if="! confirm_step[customer_trans_form.id]"> حذف </template>
-                  <template v-if="confirm_step[customer_trans_form.id]"> تأكيد </template>
+                  <template v-if="! confirm_step[d_collect_form.id]"> حذف </template>
+                  <template v-if="confirm_step[d_collect_form.id]"> تأكيد </template>
                 </button>
             </td>
           </tr>
@@ -286,7 +286,7 @@ src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxu
           <span class="fa fa-print"></span> طباعة
         </button>
         &nbsp;
-        <button class="btn btn-danger pr-hideme" @click="$bvModal.hide('modal-daily');customer_trans_form= {}" >
+        <button class="btn btn-danger pr-hideme" @click="$bvModal.hide('modal-daily');d_collect_form= {}" >
           <span class="fa fa-close "></span> &nbsp;
           اغلاق
         </button>
@@ -297,7 +297,7 @@ src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxu
 </template>
 
 <script >
-import { CustomersCtrl, CustomerTransDAO, CustomerDAO } from '../ctrls/CustomersCtrl'
+import { CustomersCtrl, CustomerTransDAO } from '../ctrls/CustomersCtrl'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl'
 import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl'
 import { MainMixin } from '../mixins/MainMixin';
@@ -312,6 +312,7 @@ export default {
       customersCtrl: new CustomersCtrl(),
       transTypesCtrl: new TransTypesCtrl(),
       customer_trans_form: {id:null , trans_type:'cust_collecting', amount: null , notes: null},
+      d_collect_form: {id:null , trans_type:'cust_collecting', amount: null , notes: null},
       trans_types_opts : [],
       customer_trans: [],
       daily_out_trans: [],
@@ -343,16 +344,16 @@ export default {
       // TODO show incollect_trans amount
       let filtered_incollect = this.daily_out_trans.filter(item => item.trans_type === 'cust_in_collecting')
       if(filtered_incollect.length > 0){
-        this.customer_trans_form.amount = Math.abs(filtered_incollect[0].amount)
-        this.customer_trans_form.id = filtered_incollect[0].id
+        this.d_collect_form.amount = Math.abs(filtered_incollect[0].amount)
+        this.d_collect_form.id = filtered_incollect[0].id
       }
       this.$bvModal.show('modal-daily')
     },
     async modalSave(evt){
-      if(! this.customer_trans_form.id && this.customer_trans_form.amount ) {
+      if(! this.d_collect_form.id && this.d_collect_form.amount ) {
         // await this.customersCtrl.removeCustomerTrans(this.customer_trans_form)
-        this.customer_trans_form.trans_type = 'cust_in_collecting'
-        await this.createCustomerTrans(evt)
+        this.d_collect_form.trans_type = 'cust_in_collecting'
+        await this.createCustomerTrans(evt, this.d_collect_form)
       }
       await this.showOutModal(this.outg_day)
     },
@@ -362,7 +363,7 @@ export default {
         this.confirm_step = []
         this.getCustomerDetails()
         if(in_kashf) {
-          this.customer_trans_form = {}
+          this.d_collect_form = {}
           this.showOutModal(this.outg_day)
         }
       }
@@ -399,10 +400,11 @@ export default {
       await this.getCustomerDetails()
       this.$root.$emit('bv::toggle::collapse', 'collapse_sell')
     },
-    async createCustomerTrans(evt ) {
+    async createCustomerTrans(evt , trans_form = null ) {
       evt.preventDefault()
-      
-      let selectedTrans = await this.transTypesCtrl.findOne({name: this.customer_trans_form.trans_type , category: 'customer_trans'})
+      if(! trans_form)
+        trans_form = this.customer_trans_form
+      let selectedTrans = await this.transTypesCtrl.findOne({name: trans_form.trans_type , category: 'customer_trans'})
       // create customer trans
       if(selectedTrans) {
         let cashflow_id = null
@@ -411,7 +413,7 @@ export default {
           let cashflowTrans = await this.transTypesCtrl.findOne({name: selectedTrans.map_cashflow , category: 'cashflow'})
           
           let newCashflow = new CashflowDAO({
-            amount: this.customer_trans_form.amount,
+            amount: trans_form.amount,
             day: this.$store.state.day.iso,
             customer_id: this.customer_id,
           })
@@ -421,7 +423,7 @@ export default {
           cashflow_id = await cashflowCtrl.save(newCashflow)
         }
 
-        let custtransDAO = new CustomerTransDAO(this.customer_trans_form)
+        let custtransDAO = new CustomerTransDAO(trans_form)
         custtransDAO.day = this.$store.state.day.iso
         custtransDAO.customer_id = this.customer_id
         custtransDAO.cashflow_id = cashflow_id
@@ -430,7 +432,7 @@ export default {
       }
       
       this.getCustomerDetails()
-      this.customer_trans_form = {trans_type:'cust_collecting', amount: null , notes: null}
+      trans_form = {trans_type:'cust_collecting', amount: null , notes: null}
       this.$root.$emit('bv::toggle::collapse', 'collapse_collect')
     }
   },

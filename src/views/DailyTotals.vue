@@ -72,6 +72,29 @@ sum_repay_rahn,
 sum_rahn_down
 -->
           <tbody>
+            <tr v-if="app_config.shader_name == 'magdy'">
+              <th>المجموع</th>
+              <th v-if="show_totals.includes('recp_given')">
+                {{sum_totals.recp_sum_given | round}}
+              </th>
+              <th v-if="show_totals.includes('given')">
+                {{sum_totals.sum_given | round}}
+              </th>
+              <th v-if="show_totals.includes('comms')" >
+                {{sum_totals.sum_comm_plus_sell_comm | round}}
+              </th>
+              <th v-if="show_totals.includes('recp_diff')"></th>
+              <th v-if="show_totals.includes('out_cashflow')">
+                {{sum_totals.sum_deducts | round}}
+              </th>
+              <th v-if="show_totals.includes('net_income')"></th>
+
+              <th>{{sum_totals.sum_supp_payment | round}}</th>
+              <th>{{sum_totals.recp_sum_deducts | round}}</th>
+              <th>{{sum_totals.sum_product_rahn | round}}</th>
+              <th>{{sum_totals.sum_repay_rahn | round}} </th>
+              <th></th>
+            </tr>
             <tr v-for="(item, idx) in daily_totals" :key='idx'>
               <td>
                 <span class="text-primary" @click="change_today_date(item.day)">
