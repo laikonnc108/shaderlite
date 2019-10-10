@@ -107,7 +107,9 @@ export class CashflowCtrl {
     else if(filter.state == 'recp_paid' && filter.supplier_id && filter.day)
       await knex.raw(`delete from cashflow where state= 'recp_paid' and day='${filter.day}' and supplier_id= ${filter.supplier_id}`)
     else if(filter.receipt_id)
-      await knex.raw(`delete from cashflow where receipt_id= ${filter.receipt_id}`)      
+      await knex.raw(`delete from cashflow where receipt_id= ${filter.receipt_id}`)   
+    else if (filter.cashflow_id)   
+      await knex.raw(`delete from cashflow where id= ${filter.cashflow_id}`)   
   }
   async deleteById(id){
     let instance = await this.model.where('id',id).fetch()

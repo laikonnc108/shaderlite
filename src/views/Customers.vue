@@ -253,6 +253,11 @@ export default {
   methods: {
     async refresh_all() {
       let soft_delete = this.flags.show_active
+      // load 20 tasbera
+      this.customers_arr = await this.customersCtrl.findAll({limit: 20},{softDelete: soft_delete, 
+        orderByDebt: this.app_config.shader_name == 'magdy'
+      })
+
       this.customers_arr = await this.customersCtrl.findAll({},{softDelete: soft_delete, 
         orderByDebt: this.app_config.shader_name == 'magdy'
       })

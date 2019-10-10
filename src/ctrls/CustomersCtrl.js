@@ -1,6 +1,7 @@
 import { bookshelf, knex } from '../main'
 import { store } from '../store';
 import { TransTypesCtrl } from './TransTypesCtrl';
+import { CashflowCtrl } from './CashflowCtrl';
 
 export class CustomerDAO {
 
@@ -109,14 +110,16 @@ export class CustomersCtrl {
     // TODO Add Customer Trans with debt
   }
 
-  async findAll(filter = {}, options = {orderByName: false, orderByDebt: false, softDelete: false}) {
+  async findAll(filter = {limit: null}, options = {orderByName: false, orderByDebt: false, softDelete: false}) {
     //let all = await this.model.where(filter).fetchAll(options)
     // let results = await knex(`v_customers`)
     
 let query = `select * from (select * from customers ${options.softDelete ? 'where deleted_at is null': ''}) customers_g
 LEFT JOIN ( select customer_id, sum(amount) as sum_debt from customer_trans group by customer_id ) customer_trans_g
 ON customers_g.id = customer_trans_g.customer_id 
-${ options.orderByName ? 'order by name ': ''}  ${options.orderByDebt ? 'order by debt desc' : ''}` 
+${ options.orderByName ? 'order by name ': ''}  ${options.orderByDebt ? 'order by debt desc' : ''} 
+${ filter.limit ? 'limit '+parseInt(filter.limit) :'' }
+` 
 
     let results = await knex.raw(query)
     return results.map( _=> new CustomerDAO(_))
@@ -241,7 +244,7 @@ select * from customer_trans where customer_id = ${customer_id} and trans_type =
     debt = parseFloat(debt) - amount
 
     await customerInstance.save({debt: debt})
-    
+    await new CashflowCtrl().rawDelete({cashflow_id: transDAO.cashflow_id})
     await transInstance.destroy()
     return true 
   }
