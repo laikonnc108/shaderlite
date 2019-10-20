@@ -1,60 +1,65 @@
 <template>
   <div id="app">
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow d-print-none">
-      <b class="navbar-brand col-sm-3 col-md-2 mr-0" >
-         Shader
-      </b>
+      <b class="navbar-brand col-sm-3 col-md-2 mr-0">Shader</b>
     </nav>
-    <div class="container-fluid " >
+    <div class="container-fluid">
       <div class="row" style="max-width: 100%;">
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar d-print-none" >
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar d-print-none">
           <div class="sidebar-sticky mt-3" v-if="! require_login">
-            <div class="pl-2 pr-2" v-if="false">
-              مرحباً {{logged_in_user.username}}
-            </div>
-            <h4 class="d-flex justify-content-between align-items-center px-3  mb-1 text-muted">
-              <router-link to="/daily" > {{ day.arab }} </router-link>
+            <div class="pl-2 pr-2" v-if="false">مرحباً {{logged_in_user.username}}</div>
+            <h4 class="d-flex justify-content-between align-items-center px-3 mb-1 text-muted">
+              <router-link to="/daily">{{ day.arab }}</router-link>
             </h4>
             <div class="p-3">
-            <b >
-              {{ day.d_week }}
-            </b>
-            <b >
-              <router-link class="text-danger" to="/daily" style="float:left;padding: 0 5px;">
-              تغيير اليوم
-              </router-link>
-            </b>
+              <b>{{ day.d_week }}</b>
+              <b>
+                <router-link
+                  class="text-danger"
+                  to="/daily"
+                  style="float:left;padding: 0 5px;"
+                >تغيير اليوم</router-link>
+              </b>
             </div>
-
 
             <div class="p-2"></div>
             <!--
             <datetime v-model="luxon_date" @close="change_luxon_date"></datetime>
             -->
             <ul class="nav flex-column">
-
-              <li class="nav-item bg-incoming ">
+              <li class="nav-item bg-incoming">
                 <router-link class="nav-link active" to="/incomings">
-                  <span class="fa fa-sign-in-alt "></span>
-                  {{ custom_labels['incomings'] }} <span class="sr-only">(current)</span>
+                  <span class="fa fa-sign-in-alt"></span>
+                  {{ custom_labels['incomings'] }}
+                  <span class="sr-only">(current)</span>
                 </router-link>
               </li>
-              <li class="nav-item bg-outgoing ">
+              <li class="nav-item bg-outgoing">
                 <router-link class="nav-link active" to="/outgoing">
                   <span class="fa fa-sign-out-alt"></span>
-                  {{ custom_labels['outgoings'] }}  <span class="sr-only">(current)</span>
+                  {{ custom_labels['outgoings'] }}
+                  <span class="sr-only">(current)</span>
                 </router-link>
               </li>
-              <li class="nav-item bg-dailymoves" >
+              <li class="nav-item bg-dailymoves">
                 <router-link class="nav-link active" to="/daily_moves">
                   <span class="fa fa-dolly"></span>
-                  {{ custom_labels['daily_moves'] }} <span class="sr-only">(current)</span>
+                  {{ custom_labels['daily_moves'] }}
+                  <span
+                    class="sr-only"
+                  >(current)</span>
                 </router-link>
               </li>
               <li class="nav-item bg-receipts">
                 <router-link class="nav-link active" to="/suppliers_receipts">
                   <span class="fa fa-receipt"></span>
                   {{ custom_labels['suppliers_receipts'] }}
+                </router-link>
+              </li>
+              <li class="nav-item bg-receipts" v-if="app_config.shader_name == 'magdy' ">
+                <router-link class="nav-link active" to="/ctg_receipts">
+                  <span class="fa fa-receipt"></span>
+                  فواتير الرصد
                 </router-link>
               </li>
               <li class="nav-item bg-accounts">
@@ -66,13 +71,13 @@
               <li class="nav-item">
                 <router-link class="nav-link active" to="/out_cashflow">
                   <span class="fa fa-money-bill-wave"></span>
-                  {{ custom_labels['expenses'] }} 
+                  {{ custom_labels['expenses'] }}
                 </router-link>
               </li>
               <li class="nav-item">
                 <router-link class="nav-link active" to="/in_cashflow">
                   <span class="fa fa-credit-card"></span>
-                  {{ custom_labels['menu_collecting'] }} 
+                  {{ custom_labels['menu_collecting'] }}
                 </router-link>
               </li>
             </ul>
@@ -87,25 +92,25 @@
               <li class="nav-item">
                 <router-link class="nav-link active" to="/suppliers">
                   <span class="fa fa-th-list"></span>
-                  {{ custom_labels['manage_suppliers'] }} 
+                  {{ custom_labels['manage_suppliers'] }}
                 </router-link>
               </li>
               <li class="nav-item">
                 <router-link class="nav-link active" to="/customers">
                   <span class="fa fa-handshake"></span>
-                  {{ custom_labels['manage_customers'] }} 
+                  {{ custom_labels['manage_customers'] }}
                 </router-link>
               </li>
               <li class="nav-item">
                 <router-link class="nav-link active" to="/products">
                   <span class="fa fa-apple-alt"></span>
-                  {{ custom_labels['manage_products'] }} 
+                  {{ custom_labels['manage_products'] }}
                 </router-link>
               </li>
               <li class="nav-item">
                 <router-link class="nav-link active" to="/users">
                   <span class="fa fa-code"></span>
-                   {{ custom_labels['manage_users'] }} 
+                  {{ custom_labels['manage_users'] }}
                 </router-link>
               </li>
 
@@ -119,54 +124,58 @@
               <li class="nav-item" v-if="logged_in_user.user_type != 'editor'">
                 <router-link class="nav-link active" to="/developer">
                   <span class="fa fa-database"></span>
-                    بيانات البرنامج<span class="sr-only">(current)</span>
+                  بيانات البرنامج
+                  <span class="sr-only">(current)</span>
                 </router-link>
               </li>
             </ul>
-
           </div>
         </nav>
 
-        <b-modal id="login-modal" hide-footer no-close-on-esc no-close-on-backdrop hide-header-close  class="p-4">
+        <b-modal
+          id="login-modal"
+          hide-footer
+          no-close-on-esc
+          no-close-on-backdrop
+          hide-header-close
+          class="p-4"
+        >
           <form @submit="loginSubmit">
             <p class="h4 text-center mb-4">تسجيل الدخول</p>
             <label for="defaultFormLoginEmailEx" class="grey-text">اسم المستخدم</label>
-            <input v-model="user.username" class="form-control"/>
-            <br/>
+            <input v-model="user.username" class="form-control" />
+            <br />
             <label for="defaultFormLoginPasswordEx" class="grey-text">كلمة المرور</label>
-            <input type="password" v-model="user.password" class="form-control"/>
+            <input type="password" v-model="user.password" class="form-control" />
             <div class="text-center mt-4">
               <button class="btn btn-success" type="submit">دخـول</button>
             </div>
           </form>
         </b-modal>
 
-        <main role="main" class="col-md-9 mr-sm-auto col-lg-10 px-0 col-print-12" >
-          
+        <main role="main" class="col-md-9 mr-sm-auto col-lg-10 px-0 col-print-12">
           <router-view :key="$route.fullPath"></router-view>
         </main>
-        
-
       </div>
     </div>
   </div>
 </template>
 <script>
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-import 'vue-select/dist/vue-select.css'
-import { Settings, DateTime } from 'luxon'
-import { ShaderConfigsCtrl } from './ctrls/ShaderConfigsCtrl'
-import { ProductsCtrl } from './ctrls/ProductsCtrl'
-import { TransTypesCtrl } from './ctrls/TransTypesCtrl'
-import { MyStoreMutations, knex } from './main.js'
-import { UsersCtrl } from './ctrls/UsersCtrl';
-import { MainMixin } from './mixins/MainMixin';
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap-vue/dist/bootstrap-vue.css";
+import "vue-select/dist/vue-select.css";
+import { Settings, DateTime } from "luxon";
+import { ShaderConfigsCtrl } from "./ctrls/ShaderConfigsCtrl";
+import { ProductsCtrl } from "./ctrls/ProductsCtrl";
+import { TransTypesCtrl } from "./ctrls/TransTypesCtrl";
+import { MyStoreMutations, knex } from "./main.js";
+import { UsersCtrl } from "./ctrls/UsersCtrl";
+import { MainMixin } from "./mixins/MainMixin";
 
-Settings.defaultLocale = 'ar'
-Settings.defaultZoneName = 'UTC'
+Settings.defaultLocale = "ar";
+Settings.defaultZoneName = "UTC";
 
-const moment = require('moment')
+const moment = require("moment");
 
 export default {
   data() {
@@ -174,74 +183,86 @@ export default {
       require_login: true,
       shaderConfigsCtrl: new ShaderConfigsCtrl(),
       usersCtrl: new UsersCtrl(),
-      user: {username: null, password: null}
-    }
+      user: { username: null, password: null }
+    };
   },
-  mixins:[MainMixin],
+  mixins: [MainMixin],
   methods: {
     async loginSubmit(evt) {
-      evt.preventDefault()
+      evt.preventDefault();
       //console.log(this.user)
-      let logged_in = await this.usersCtrl.login(this.user)
-      if(logged_in){
+      let logged_in = await this.usersCtrl.login(this.user);
+      if (logged_in) {
         // Store logged in user
-        this.require_login = false
-        this.$store.commit(MyStoreMutations.setLoggedInUser, logged_in)
-        this.$bvModal.hide('login-modal')
+        this.require_login = false;
+        this.$store.commit(MyStoreMutations.setLoggedInUser, logged_in);
+        this.$bvModal.hide("login-modal");
       } else {
-        console.log('logged_in else ')
+        console.log("logged_in else ");
       }
-    },
+    }
   },
-  async mounted(){
-    let products_arr = await new ProductsCtrl().getProductsArr()
-    this.$store.commit(MyStoreMutations.setProductsArr, products_arr)
+  async mounted() {
+    let products_arr = await new ProductsCtrl().getProductsArr();
+    this.$store.commit(MyStoreMutations.setProductsArr, products_arr);
 
-    let transNames = await new TransTypesCtrl().getTranstypesArr()
-    this.$store.commit(MyStoreMutations.setTranstypesArr, transNames)
+    let transNames = await new TransTypesCtrl().getTranstypesArr();
+    this.$store.commit(MyStoreMutations.setTranstypesArr, transNames);
   },
-  async beforeMount () {
-    let custom_labels = null
+  async beforeMount() {
+    let custom_labels = null;
     try {
-      await knex.raw('PRAGMA integrity_check;')
-      custom_labels = await this.shaderConfigsCtrl.getAppLabels()
+      await knex.raw("PRAGMA integrity_check;");
+      custom_labels = await this.shaderConfigsCtrl.getAppLabels();
     } catch (error) {
-      console.error(error)
-      window.alert("لم يتم ربط قاعدة البيانات")
-      this.$router.push('developer')
-      return
+      console.error(error);
+      window.alert("لم يتم ربط قاعدة البيانات");
+      this.$router.push("developer");
+      return;
     }
-    this.$store.commit(MyStoreMutations.setCustomLabels, custom_labels)
-    
-    let shader_conf = await this.shaderConfigsCtrl.getAppCongifs()
-    this.$store.commit(MyStoreMutations.setShaderConfigs, shader_conf)
-    this.require_login = shader_conf['require_login'] ? shader_conf['require_login'] : false
-    if(this.app_config.env.NODE_ENV && this.app_config.env.NODE_ENV == 'development') {
-      this.require_login = false
+    this.$store.commit(MyStoreMutations.setCustomLabels, custom_labels);
+
+    let shader_conf = await this.shaderConfigsCtrl.getAppCongifs();
+    this.$store.commit(MyStoreMutations.setShaderConfigs, shader_conf);
+    this.require_login = shader_conf["require_login"]
+      ? shader_conf["require_login"]
+      : false;
+    if (
+      this.app_config.env.NODE_ENV &&
+      this.app_config.env.NODE_ENV == "development"
+    ) {
+      this.require_login = false;
     }
-    if(this.require_login) {
-      this.$bvModal.show('login-modal')
+    if (this.require_login) {
+      this.$bvModal.show("login-modal");
     }
 
     // to get current local time correctly
-    moment.locale('en')
-    let dateTime = DateTime.fromISO(moment().format('YYYY-MM-DD'))
-    if(shader_conf['new_day_opens'] && moment().format('HH') >= shader_conf['new_day_opens']){
+    moment.locale("en");
+    let dateTime = DateTime.fromISO(moment().format("YYYY-MM-DD"));
+    if (
+      shader_conf["new_day_opens"] &&
+      moment().format("HH") >= shader_conf["new_day_opens"]
+    ) {
       // Open new Day
-      dateTime = DateTime.fromISO(moment().add(1,'days').format('YYYY-MM-DD'))
+      dateTime = DateTime.fromISO(
+        moment()
+          .add(1, "days")
+          .format("YYYY-MM-DD")
+      );
     }
 
-    moment.locale('ar')
+    moment.locale("ar");
 
     const day = {
       ts: dateTime.valueOf(),
       iso: dateTime.toISODate(),
-      d_week: dateTime.toLocaleString({ weekday: 'long'}),
-      arab: moment(dateTime.toISODate()).format('LL')
-    }
-    this.$store.commit('setDay' , day)
+      d_week: dateTime.toLocaleString({ weekday: "long" }),
+      arab: moment(dateTime.toISODate()).format("LL")
+    };
+    this.$store.commit("setDay", day);
   }
-}
+};
 </script>
 <style>
 body {
@@ -251,8 +272,12 @@ body {
   font-size: 1.2em;
 }
 
-h1,h2,h3,h4,h5 {
-  color: #666
+h1,
+h2,
+h3,
+h4,
+h5 {
+  color: #666;
 }
 
 pre {
@@ -277,7 +302,7 @@ pre {
   right: 0;
   z-index: 100; /* Behind the navbar */
   padding: 48px 0 0; /* Height of navbar */
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
 }
 
 .sidebar-sticky {
@@ -285,7 +310,7 @@ pre {
   font-size: large;
   top: 0;
   height: calc(100vh - 48px);
-  padding-top: .5rem;
+  padding-top: 0.5rem;
   overflow-x: hidden;
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
 }
@@ -322,7 +347,7 @@ pre {
 }
 
 .sidebar-heading {
-  font-size: .75rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
 }
 
@@ -345,15 +370,15 @@ pre {
  */
 
 .navbar-brand {
-  padding-top: .75rem;
-  padding-bottom: .75rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
   font-size: 1rem;
-  background-color: rgba(0, 0, 0, .25);
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+  background-color: rgba(0, 0, 0, 0.25);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
 }
 
 .navbar .form-control {
-  padding: .75rem 1rem;
+  padding: 0.75rem 1rem;
   border-width: 0;
   border-radius: 0;
 }
@@ -376,13 +401,13 @@ select.form-control {
 
 .form-control-dark {
   color: #fff;
-  background-color: rgba(255, 255, 255, .1);
-  border-color: rgba(255, 255, 255, .1);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .form-control-dark:focus {
   border-color: transparent;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
 }
 .minh90 {
   min-height: 90vh;
@@ -390,29 +415,28 @@ select.form-control {
 
 .bg-incoming {
   background-color: #cff9c4;
-  border-radius: 0 10px 10px 0 ;
+  border-radius: 0 10px 10px 0;
 }
 .bg-outgoing {
   background-color: #f5c5b6;
-  border-radius: 0 10px 10px 0 ;
+  border-radius: 0 10px 10px 0;
 }
 .bg-receipts {
   background-color: #f1e1e1;
-  border-radius: 0 10px 10px 0 ;
+  border-radius: 0 10px 10px 0;
 }
 .bg-accounts {
   background-color: #d1dbf3;
-  border-radius: 0 10px 10px 0 ;
+  border-radius: 0 10px 10px 0;
 }
 .bg-dailymoves {
   /*
   background-color: #e1e6b3;
   */
-  border-radius: 0 10px 10px 0 ;
+  border-radius: 0 10px 10px 0;
 }
 
-
-.vdatetime-input{
+.vdatetime-input {
   padding: 8px 10px;
   font-size: 18px;
   border: solid 1px #ddd;
@@ -427,7 +451,7 @@ select.form-control {
   border: 2px solid;
 }
 .pr-only {
-  display: none
+  display: none;
 }
 .recp-header {
   font-family: arial;
@@ -437,7 +461,12 @@ select.form-control {
   border: 0;
   height: 2px;
   margin: 6px;
-  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+  background-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0.75),
+    rgba(0, 0, 0, 0)
+  );
 }
 .h-shadow {
   color: white !important;
@@ -500,70 +529,96 @@ select.form-control {
 @media print {
   .col-print-1 {
     flex: 0 0 8.33333%;
-    max-width: 8.33333%; } }
+    max-width: 8.33333%;
+  }
+}
 
 @media print {
   .col-print-2 {
     flex: 0 0 16.66667%;
-    max-width: 16.66667%; } }
+    max-width: 16.66667%;
+  }
+}
 
 @media print {
   .col-print-3 {
     flex: 0 0 25%;
-    max-width: 25%; } }
+    max-width: 25%;
+  }
+}
 
 @media print {
   .col-print-4 {
     flex: 0 0 33.33333%;
-    max-width: 33.33333%; } }
+    max-width: 33.33333%;
+  }
+}
 
 @media print {
   .col-print-5 {
     flex: 0 0 41.66667%;
-    max-width: 41.66667%; } }
+    max-width: 41.66667%;
+  }
+}
 
 @media print {
   .col-print-6 {
     flex: 0 0 50%;
-    max-width: 50%; } }
+    max-width: 50%;
+  }
+}
 
 @media print {
   .col-print-7 {
     flex: 0 0 58.33333%;
-    max-width: 58.33333%; } }
+    max-width: 58.33333%;
+  }
+}
 
 @media print {
   .col-print-8 {
     flex: 0 0 66.66667%;
-    max-width: 66.66667%; } }
+    max-width: 66.66667%;
+  }
+}
 
 @media print {
   .col-print-9 {
     flex: 0 0 75%;
-    max-width: 75%; } }
+    max-width: 75%;
+  }
+}
 
 @media print {
   .col-print-10 {
     flex: 0 0 83.33333%;
-    max-width: 83.33333%; } }
+    max-width: 83.33333%;
+  }
+}
 
 @media print {
   .col-print-11 {
     flex: 0 0 91.66667%;
-    max-width: 91.66667%; } }
+    max-width: 91.66667%;
+  }
+}
 
 @media print {
   .col-print-12 {
     flex: 0 0 100%;
-    max-width: 100%; } }
+    max-width: 100%;
+  }
+}
 
 @media print {
-  h1, h2 {
+  h1,
+  h2 {
     margin: 1rem;
     font-size: 3rem;
     color: black !important;
   }
-  h3, h4 {
+  h3,
+  h4 {
     margin: 1rem;
     font-size: 2rem;
     color: black !important;
@@ -581,10 +636,10 @@ select.form-control {
     font-size: xx-large;
   }
   .pr-hideme {
-    display: none
+    display: none;
   }
   .pr-only {
-    display: block
+    display: block;
   }
   .pr-mt-2 {
     margin-top: 2em;
@@ -592,22 +647,23 @@ select.form-control {
   .pr-mt-3 {
     margin-top: 3em;
   }
-  .nav-link , a {
+  .nav-link,
+  a {
     text-decoration: none !important;
     color: black !important;
   }
-  .table thead tr , .table thead tr td  {
+  .table thead tr,
+  .table thead tr td {
     border-top-width: 2px;
     border-top-style: solid;
 
     border-bottom-style: solid;
     border-color: black;
-    -webkit-print-color-adjust:exact;
+    -webkit-print-color-adjust: exact;
     -webkit-border-vertical-spacing: 0px !important;
   }
   a:not(.btn) {
-    text-decoration: none !important; 
+    text-decoration: none !important;
   }
-
 }
 </style>

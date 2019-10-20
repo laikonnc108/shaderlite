@@ -252,6 +252,7 @@ export default {
   mixins: [MainMixin],
   methods: {
     async refresh_all() {
+      let init_time = new Date().getTime()
       let soft_delete = this.flags.show_active
       // load 20 tasbera
       this.customers_arr = await this.customersCtrl.findAll({limit: 20},{softDelete: soft_delete, 
@@ -264,6 +265,7 @@ export default {
       this.collect_dao = new CashflowDAO()
       let {sum_debt} = await this.customersCtrl.sumDebt()
       this.sum_debt = sum_debt
+      console.log('⌚ Time to refresh_all in ms = ' , new Date().getTime() - init_time)
     },
     fresh_form(){
       this.customer_form = new CustomerDAO(CustomerDAO.INIT_DAO)

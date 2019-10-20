@@ -196,10 +196,8 @@ hide-header hide-footer hide-header-close hide-backdrop>
   </div>
 </div>
 
-<img style="margin-top: -375px;float: right;margin-right: 30px;" width="150" class="pr-only"
-src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxuJSnqfd3EHT00s84gev-DgYVrJ4a5h' />
-<img style="margin-top: -375px;float: left;margin-left: 30px;" width="150" class="pr-only"
-src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxuJSnqfd3EHT00s84gev-DgYVrJ4a5h' />
+<img :src='`https://i.imgur.com/HieletO.png`' style="margin-top: -375px;float: right;margin-right: 30px;" width="150" class="pr-only" />
+<img :src='`https://i.imgur.com/HieletO.png`'  style="margin-top: -375px;float: left;margin-left: 30px;" width="150" class="pr-only"/>
 
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me-xx" >
@@ -247,8 +245,9 @@ src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxu
             </template>
           </tr>
           <tr :class="{'pr-hideme': !d_collect_form.amount }" 
-          v-if="app_config.shader_name != 'nada'">
-            <td ><input v-if="! d_collect_form.id" 
+          v-if="app_config.shader_name != 'nada' ">
+            <td ><input 
+              v-if="! d_collect_form.id && outg_day == day.iso" 
               v-model="d_collect_form.amount" class="form-control" placeholder="ادخل مبلغ التحصيل" >
               <span v-if="d_collect_form.id">({{d_collect_form.amount | toAR}})</span>
               </td>
@@ -259,6 +258,23 @@ src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxu
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[d_collect_form.id]"> حذف </template>
                   <template v-if="confirm_step[d_collect_form.id]"> تأكيد </template>
+                </button>
+            </td>
+          </tr>
+          <tr :class="{'pr-hideme': !msh_collect_form.amount }" 
+          v-if="app_config.shader_name != 'nada' ">
+            <td ><input 
+              v-if="! msh_collect_form.id && outg_day == day.iso" 
+              v-model="msh_collect_form.amount" class="form-control" placeholder="ادخل مبلغ المشال" >
+              <span v-if="msh_collect_form.id">{{msh_collect_form.amount | toAR}}</span>
+              </td>
+            <td style="border: none !important;"> {{'mashal' | tr_label}} </td>
+            <td style="border: none !important;">
+                <button  v-if="msh_collect_form.id"
+                class="btn text-danger pr-hideme" @click="removeTrans(msh_collect_form,true)" >
+                  <span class="fa fa-archive "></span> 
+                  <template v-if="! confirm_step[msh_collect_form.id]"> حذف </template>
+                  <template v-if="confirm_step[msh_collect_form.id]"> تأكيد </template>
                 </button>
             </td>
           </tr>
@@ -286,7 +302,7 @@ src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAE1p7UH2Beo1u_bkhcxu
           <span class="fa fa-print"></span> طباعة
         </button>
         &nbsp;
-        <button class="btn btn-danger pr-hideme" @click="$bvModal.hide('modal-daily');d_collect_form= {}" >
+        <button class="btn btn-danger pr-hideme" @click="$bvModal.hide('modal-daily');d_collect_form= {};msh_collect_form= {}" >
           <span class="fa fa-close "></span> &nbsp;
           اغلاق
         </button>
@@ -312,7 +328,8 @@ export default {
       customersCtrl: new CustomersCtrl(),
       transTypesCtrl: new TransTypesCtrl(),
       customer_trans_form: {id:null , trans_type:'cust_collecting', amount: null , notes: null},
-      d_collect_form: {id:null , trans_type:'cust_collecting', amount: null , notes: null},
+      d_collect_form: {id:null , trans_type:'cust_in_collecting', amount: null , notes: null},
+      msh_collect_form: {id:null , trans_type:'mashal', amount: null , notes: null},
       trans_types_opts : [],
       customer_trans: [],
       daily_out_trans: [],
@@ -347,6 +364,11 @@ export default {
         this.d_collect_form.amount = Math.abs(filtered_incollect[0].amount)
         this.d_collect_form.id = filtered_incollect[0].id
       }
+      let filtered_mashal = this.daily_out_trans.filter(item => item.trans_type === 'mashal')
+      if(filtered_mashal.length > 0){
+        this.msh_collect_form.amount = Math.abs(filtered_mashal[0].amount)
+        this.msh_collect_form.id = filtered_mashal[0].id
+      }
       this.$bvModal.show('modal-daily')
     },
     async modalSave(evt){
@@ -355,15 +377,22 @@ export default {
         this.d_collect_form.trans_type = 'cust_in_collecting'
         await this.createCustomerTrans(evt, this.d_collect_form)
       }
+      if(! this.msh_collect_form.id && this.msh_collect_form.amount) {
+        this.msh_collect_form.trans_type = 'mashal'
+        await this.createCustomerTrans(evt, this.msh_collect_form)
+      }
       await this.showOutModal(this.outg_day)
     },
     async removeTrans(trans, in_kashf = false) {
       if( this.confirm_step[trans.id] ) {
+        let init_time = new Date().getTime()
         this.discard_success = await this.customersCtrl.removeCustomerTrans(trans)
+        console.log('⌚ Time to removeCustomerTrans in ms = ' , new Date().getTime() - init_time)
         this.confirm_step = []
         this.getCustomerDetails()
         if(in_kashf) {
           this.d_collect_form = {}
+          this.msh_collect_form = {}
           this.showOutModal(this.outg_day)
         }
       }
@@ -402,6 +431,7 @@ export default {
     },
     async createCustomerTrans(evt , trans_form = null ) {
       evt.preventDefault()
+      console.log(trans_form)
       if(! trans_form)
         trans_form = this.customer_trans_form
       let selectedTrans = await this.transTypesCtrl.findOne({name: trans_form.trans_type , category: 'customer_trans'})

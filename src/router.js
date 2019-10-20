@@ -1,113 +1,119 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import Vue from "vue";
+import Router from "vue-router";
 
-import Daily from './views/Daily.vue'
-import Developer from './views/Developer.vue'
-import Incomings from './views/Incomings.vue'
-import Customers from './views/Customers.vue'
-import Suppliers from './views/Suppliers.vue'
-import Products from './views/Products.vue'
-import CustomerDetails from './views/CustomerDetails.vue'
-import Outgoing from './views/Outgoing.vue'
-import SuppliersReceipts from './views/SuppliersReceipts.vue'
-import SupplierDetails from './views/SupplierDetails.vue'
-import SuppReceiptsDetails from './views/SuppReceiptsDetails.vue'
-import CustomersAccounts from './views/CustomersAccounts.vue'
-import Cashflow from './views/Cashflow.vue'
-import DailyMoves from './views/DailyMoves.vue'
-import Users from './views/Users.vue'
-import DailyTotals from './views/DailyTotals.vue'
+import Daily from "./views/Daily.vue";
+import Developer from "./views/Developer.vue";
+import Incomings from "./views/Incomings.vue";
+import Customers from "./views/Customers.vue";
+import Suppliers from "./views/Suppliers.vue";
+import Products from "./views/Products.vue";
+import CustomerDetails from "./views/CustomerDetails.vue";
+import Outgoing from "./views/Outgoing.vue";
+import SuppliersReceipts from "./views/SuppliersReceipts.vue";
+import SupplierDetails from "./views/SupplierDetails.vue";
+import SuppReceiptsDetails from "./views/SuppReceiptsDetails.vue";
+import CustomersAccounts from "./views/CustomersAccounts.vue";
+import Cashflow from "./views/Cashflow.vue";
+import DailyMoves from "./views/DailyMoves.vue";
+import Users from "./views/Users.vue";
+import DailyTotals from "./views/DailyTotals.vue";
+import CtgReceipts from "./views/CtgReceipts.vue";
 
-Vue.use(Router)
+Vue.use(Router);
 
 export default new Router({
   // mode: 'history',
   base: process.env.BASE_URL,
   routes: [
     {
-      path: '/developer',
-      name: 'developer',
+      path: "/developer",
+      name: "developer",
       component: Developer
     },
     {
-      path: '/daily',
-      name: 'daily',
+      path: "/daily",
+      name: "daily",
       component: Daily
     },
     {
-      path: '/daily_totals',
-      name: 'daily_totals',
+      path: "/daily_totals",
+      name: "daily_totals",
       component: DailyTotals
     },
     {
-      path: '/incomings',
-      name: 'incomings',
+      path: "/ctg_receipts",
+      name: "ctg_receipts",
+      component: CtgReceipts
+    },
+    {
+      path: "/incomings",
+      name: "incomings",
       component: Incomings
     },
     {
-      path: '/suppliers_receipts',
-      name: 'suppliers_receipts',
+      path: "/suppliers_receipts",
+      name: "suppliers_receipts",
       component: SuppliersReceipts
     },
     {
-      path: '/supplier_details',
-      name: 'supplier_details',
+      path: "/supplier_details",
+      name: "supplier_details",
       component: SupplierDetails
     },
     {
-      path: '/daily_moves',
-      name: 'daily_moves',
+      path: "/daily_moves",
+      name: "daily_moves",
       component: DailyMoves
     },
     {
-      path: '/supp_recp_details',
-      name: 'supp_recp_details',
+      path: "/supp_recp_details",
+      name: "supp_recp_details",
       component: SuppReceiptsDetails
     },
     {
-      path: '/customers_accounts',
-      name: 'customers_accounts',
+      path: "/customers_accounts",
+      name: "customers_accounts",
       component: CustomersAccounts
     },
     {
-      path: '/outgoing',
-      name: 'outgoing',
+      path: "/outgoing",
+      name: "outgoing",
       component: Outgoing
     },
     {
-      path: '/customers',
-      name: 'customers',
+      path: "/customers",
+      name: "customers",
       component: Customers
     },
     {
-      path: '/suppliers',
-      name: 'suppliers',
+      path: "/suppliers",
+      name: "suppliers",
       component: Suppliers
     },
     {
-      path: '/products',
-      name: 'products',
+      path: "/products",
+      name: "products",
       component: Products
     },
     {
-      path: '/users',
-      name: 'users',
+      path: "/users",
+      name: "users",
       component: Users
     },
     {
-      path: '/customer_details/:id',
-      name: 'customer_details',
+      path: "/customer_details/:id",
+      name: "customer_details",
       component: CustomerDetails
     },
     {
-      path: '/out_cashflow',
-      name: 'out_cashflow',
+      path: "/out_cashflow",
+      name: "out_cashflow",
       component: Cashflow
     },
     {
-      path: '/in_cashflow',
-      name: 'in_cashflow',
+      path: "/in_cashflow",
+      name: "in_cashflow",
       component: Cashflow
-    },
+    }
   ]
-})
+});

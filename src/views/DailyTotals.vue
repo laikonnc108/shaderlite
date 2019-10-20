@@ -90,7 +90,7 @@ sum_rahn_down
               <th v-if="show_totals.includes('net_income')"></th>
 
               <th>{{sum_totals.sum_supp_payment | round}}</th>
-              <th>{{sum_totals.recp_sum_deducts | round}}</th>
+              <th>{{sum_totals.recp_sum_deducts + sum_totals.sum_supp_collect | round}}</th>
               <th>{{sum_totals.sum_product_rahn | round}}</th>
               <th>{{sum_totals.sum_repay_rahn | round}} </th>
               <th></th>
@@ -120,7 +120,7 @@ sum_rahn_down
                 {{item.recp_sum_comm + item.out_sell_comm + (item.sum_out_value - item.recp_sum_sale) - item.sum_deducts | round }}
               </td>
               <td>{{item.sum_supp_payment | round }}</td>
-              <td>{{item.recp_sum_deducts | round }}</td>
+              <td>{{item.recp_sum_deducts+ item.sum_supp_collect | round }}</td>
               <td>{{item.sum_product_rahn | round }}</td>
               <td>{{item.sum_repay_rahn + item.sum_rahn_down | round }}</td>
             </tr>
@@ -305,7 +305,7 @@ export default {
         sum_totals.sum_deducts += one.sum_deducts
         sum_totals.sum_comm_plus_sell_comm += one.recp_sum_comm +one.out_sell_comm
         sum_totals.sum_supp_payment += one.sum_supp_payment
-        sum_totals.recp_sum_deducts += one.recp_sum_deducts
+        sum_totals.recp_sum_deducts += one.recp_sum_deducts + one.sum_supp_collect
         sum_totals.sum_product_rahn += one.sum_product_rahn
         sum_totals.sum_repay_rahn += one.sum_repay_rahn + one.sum_rahn_down
       })  
