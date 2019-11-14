@@ -408,7 +408,7 @@
 
 </h4>
 <h4 >
-  تحريراً في {{day.arab }}
+  تحريراً في {{recp_day | arDate }}
 </h4>
 <h4>
   <span style="font-size: .7em;">اسم العميل/ </span> 
@@ -421,7 +421,7 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
 v-if="app_config.shader_name != 'magdy'"
 src='https://i.imgur.com/Ie2KPRE.jpg?1' />
 
-<h3 class="text-center" v-if="app_config.shader_name == 'magdy'" > حساب سابق : {{ modal_recp.balance_was | toAR }}</h3>
+<h3 class="text-center" v-if="app_config.shader_name == 'magdy'" > حساب سابق : {{ day_balance_was | toAR }}</h3>
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me-xx" >
         <thead>
@@ -601,7 +601,7 @@ import { SupplierDAO, SuppliersCtrl } from '../ctrls/SuppliersCtrl'
 import draggable  from 'vuedraggable'
 import { MainMixin } from '../mixins/MainMixin'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl'
-
+import {knex} from '../main'
 const { ipcRenderer } = require('electron')
 
 export default {
@@ -630,12 +630,18 @@ export default {
       recp_2: new ReceiptDAO({}),
       recp_3: new ReceiptDAO({}),
       modal_recp: {},
+      day_balance_was: 0,
       print_mode: false,
     }
   },
   mixins: [MainMixin],
   methods: {
     async refresh_all(){
+      let calc_balance_was = await knex.raw(`select sum(amount) as balance_was from supplier_trans where supplier_id = ${this.supplier_id} and day < '${this.recp_day}'`);
+      if(calc_balance_was && calc_balance_was[0]){
+        if(calc_balance_was[0].balance_was)
+        this.day_balance_was = parseFloat(calc_balance_was[0].balance_was)
+      }
       this.recp_1 = new ReceiptDAO({serial: 1, comm_rate: this.recp_init_comm_rate, ...ReceiptDAO.INIT_DAO})
       this.recp_2 = new ReceiptDAO({serial: 2, comm_rate: this.recp_init_comm_rate, ...ReceiptDAO.INIT_DAO})
       this.recp_3 = new ReceiptDAO({serial: 3, comm_rate: this.recp_init_comm_rate, ...ReceiptDAO.INIT_DAO})

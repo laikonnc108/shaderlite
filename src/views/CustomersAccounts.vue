@@ -315,8 +315,7 @@ export default {
         custtransDAO.transType = selectedTrans;
         await this.customersCtrl.updateDebtByTrans(custtransDAO);
       }
-      this.d_collect_form = {};
-      this.msh_collect_form = {};
+      trans_form = {trans_type:trans_form.trans_type, amount: null , notes: null}
       this.showOutModal(this.customer.id);
     },
     async print_done(outg_day, customer_id) {

@@ -462,7 +462,7 @@ export default {
       }
       
       this.getCustomerDetails()
-      trans_form = {trans_type:'cust_collecting', amount: null , notes: null}
+      trans_form = {trans_type:trans_form.trans_type, amount: null , notes: null}
       this.$root.$emit('bv::toggle::collapse', 'collapse_collect')
     }
   },

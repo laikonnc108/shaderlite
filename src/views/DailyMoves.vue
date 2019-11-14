@@ -100,6 +100,11 @@
       <h4>اجمالي مصروفات تخصم من ايراد اليوم : {{daily_totals.sum_deducts | round | toAR }}</h4>
     </div>
   
+      <div>
+      <hr>
+      <h4>اجمالي مشال التجار  : {{daily_totals.sum_mashal | round | toAR }}</h4>
+    </div>
+
     <div>
       <hr>
       <h4>صافي الايراد اليومي : {{ (recp_sums.sum_income - daily_totals.sum_deducts) | round | toAR }}</h4>
