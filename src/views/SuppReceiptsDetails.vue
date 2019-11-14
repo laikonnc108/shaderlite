@@ -148,6 +148,10 @@
           <label> وهبة الفاتورة</label>
           <span> {{recp_1.recp_given | round2}} </span>
         </div>
+        <div class="row-detail">
+          <label> مبالغ اخري</label>
+          <span> {{recp_1.recp_others | round2}} </span>
+        </div>
         <hr>
         <div class="row-detail">
           <label> صافي الفاتورة</label>
@@ -209,6 +213,10 @@
         <div class="row-detail">
           <label> وهبة الفاتورة</label>
           <span> {{recp_2.recp_given | round2}} </span>
+        </div>
+        <div class="row-detail">
+          <label> مبالغ اخري</label>
+          <span> {{recp_2.recp_others | round2}} </span>
         </div>
         <hr>
         <div class="row-detail">
@@ -272,6 +280,10 @@
         <div class="row-detail">
           <label> وهبة الفاتورة</label>
           <span> {{recp_3.recp_given | round2}} </span>
+        </div>
+        <div class="row-detail">
+          <label> مبالغ اخري</label>
+          <span> {{recp_3.recp_others | round2}} </span>
         </div>
         <hr>
         <div class="row-detail">
@@ -529,7 +541,7 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
             <td colspan="4" style="border: none !important;"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" 
-              v-model="modal_recp.recp_given" class="form-control" placeholder="ادخل مبلغ الوهبة" >
+              v-model="modal_recp.recp_given" class="form-control"  >
             </td>
             <td></td>
             <td></td>
@@ -540,10 +552,38 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
           </tr>
 
           <tr>
+            <td colspan="4" style="border: none !important;"></td>
+            <td >
+              <input v-if="! print_mode && ! modal_recp.recp_paid" 
+              v-model="modal_recp.recp_others" class="form-control"  >
+            </td>
+            <td></td>
+            <td></td>
+            <td>( {{modal_recp.recp_others | round2 | toAR(true) }} )</td>
+            <th style="border: none !important;">
+              {{'recp_others' | tr_label}}
+            </th>
+          </tr>
+          <tr v-if="app_config.shader_name != 'nada'">
+            <td colspan="4" style="border: none !important;"></td>
+            <td >
+            </td>
+            <td></td>
+            <td></td>
+            <td class="text-danger">( {{ modal_recp.recp_comm +
+               modal_recp.total_nolon +
+               modal_recp.recp_expenses + 
+               modal_recp.recp_deducts + 
+               modal_recp.recp_given +
+               modal_recp.recp_others | toAR(true)  }})</td>
+            <th style="border: none !important;">
+              {{'total_disc' | tr_label}}
+            </th>
+          </tr>
+          <tr>
             <td colspan="2" style="border: none !important;"></td>
             <td style="border: none !important;">صافي الفاتورة</td>
             <td ><b class="border-top border-primary">{{modal_recp.net_value | round2 | toAR }} </b></td>
-            
           </tr>
         </tbody>
       </table>
@@ -860,9 +900,9 @@ export default {
       dao.recp_expenses = dao.recp_expenses ? dao.recp_expenses : 0
       dao.recp_deducts = dao.recp_deducts ? dao.recp_deducts : 0
       dao.recp_given = dao.recp_given ? dao.recp_given : 0 
+      dao.recp_others = dao.recp_others ? dao.recp_others : 0 
       dao.total_nolon = dao.total_nolon ? dao.total_nolon : 0
-      dao.net_value = sale_value - dao.recp_comm - dao.recp_given - dao.recp_expenses - dao.recp_deducts -  dao.total_nolon
-      //console.log("dao after ",sale_value , dao.recp_comm , dao.recp_given , dao.recp_expenses - dao.total_nolon)
+      dao.net_value = sale_value - dao.recp_comm - dao.recp_given -  dao.recp_others - dao.recp_expenses - dao.recp_deducts -  dao.total_nolon
     }
   },
   async mounted(){

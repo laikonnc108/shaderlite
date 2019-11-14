@@ -129,15 +129,17 @@
           <thead>
             <tr>
               <th>التاريخ</th>
+              <th>سابق</th>
               <th>مبلغ</th>
               <th>الحركة</th>              
               <th></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(trans, idx) in customer_trans" :key='idx'>
+            <tr v-for="(trans, idx) in comp_customer_trans" :key='idx'>
               <td>{{trans.day | arDate }}</td>
-              <td>{{trans.amount | toAR}}</td>
+              <td class="text-primary">{{trans.c_debt_was | round | toAR}}</td>
+              <td>{{trans.amount | round | toAR}}</td>
               <td>
                 {{trans.trans_type | tr_label('trans_types')}}
                 <span v-if="trans.notes">- {{trans.notes}} </span> 
@@ -481,6 +483,16 @@ export default {
       if(this.customer_trans_form.amount && parseFloat(this.customer_trans_form.amount) && this.customer_trans_form.trans_type){
         return true
       }
+    },
+    comp_customer_trans: function() {
+      let new_customer_trans = []
+      let prev = 0
+      this.customer_trans.forEach ( trans => {
+        trans.c_debt_was = prev
+        prev = prev + trans.amount
+        new_customer_trans.push(trans)
+      })
+      return new_customer_trans
     },
     sum_debt_cmpt: function() {
       let sum_debt = 0

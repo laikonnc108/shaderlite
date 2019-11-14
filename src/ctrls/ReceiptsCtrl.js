@@ -18,6 +18,7 @@ export class ReceiptDAO {
   recp_comm;
   out_sale_value;
   recp_expenses;
+  recp_others;
   recp_deducts;
   details = [];
   products_arr;
@@ -111,7 +112,7 @@ export class ReceiptsCtrl {
     let all = await this.model
       .where(filter)
       .fetchAll({ withRelated: ["supplier", "details"] });
-    return all.map( _ => {
+    return all.map(_ => {
       let dao = new ReceiptDAO(_.attributes);
       dao.supplier_name = _.related("supplier").get("name");
       /**@type {Array} */
@@ -121,7 +122,7 @@ export class ReceiptsCtrl {
       });
       console.log(dao);
       // calc balance_was
-      
+
       return dao;
     });
   }

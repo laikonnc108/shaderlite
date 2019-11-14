@@ -1,3 +1,6 @@
+-- 0.1.24
+ALTER TABLE receipts add recp_others REAL;
+
 -- 0.1.23
 
 CREATE VIEW v_daily_sums AS
