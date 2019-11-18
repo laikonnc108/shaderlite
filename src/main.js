@@ -1,171 +1,165 @@
-import Vue from 'vue'
-import App from './App.vue'
-import router from './router'
-import {store, MyStoreMutations} from './store'
-import BootstrapVue from 'bootstrap-vue'
-import vSelect from 'vue-select'
+import Vue from "vue";
+import App from "./App.vue";
+import router from "./router";
+import { store, MyStoreMutations } from "./store";
+import BootstrapVue from "bootstrap-vue";
+import vSelect from "vue-select";
 
-Vue.use(BootstrapVue)
-Vue.component('v-select', vSelect)
+Vue.use(BootstrapVue);
+Vue.component("v-select", vSelect);
 
-require('events').EventEmitter.defaultMaxListeners = 25
+require("events").EventEmitter.defaultMaxListeners = 25;
 
 // Import vue-datetime with specific loader for CSS files
-import Datetime from 'vue-datetime'
-import 'vue-datetime/dist/vue-datetime.css'
-Vue.use(Datetime)
+import Datetime from "vue-datetime";
+import "vue-datetime/dist/vue-datetime.css";
+Vue.use(Datetime);
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
-const {app} = require('electron').remote
-const path = require('path')
-const log = require('electron-log')
+const { app } = require("electron").remote;
+const path = require("path");
+const log = require("electron-log");
 
+const dbFile = path.resolve(app.getPath("userData"), "db/shaderlite.db");
 
-const dbFile = path.resolve(app.getPath('userData'), 'db/shaderlite.db')
+log.info("dbFile", dbFile);
 
-log.info('dbFile',dbFile)
-
-store.commit('setAppConfig',{
+store.commit("setAppConfig", {
   app_path: app.getAppPath(),
   curr_dir: path.dirname(app.getAppPath()),
-  user_data_path: app.getPath('userData'),
+  user_data_path: app.getPath("userData"),
   db_path: dbFile,
-  shader_name: 'magdy',
-  env:process.env
-})
+  shader_name: "nada",
+  env: process.env
+});
 
 let sqlite_config = {
-  client: 'sqlite3',
+  client: "sqlite3",
   connection: {
     filename: dbFile
   },
   useNullAsDefault: true
-}
+};
 
-const knex = require('knex')(sqlite_config)
-Object.defineProperty(knex, "name", { value: "knex" })
+const knex = require("knex")(sqlite_config);
+Object.defineProperty(knex, "name", { value: "knex" });
 
-let bookshelf= require('bookshelf')(knex)
-bookshelf.plugin(require('bookshelf-soft-delete'))
+let bookshelf = require("bookshelf")(knex);
+bookshelf.plugin(require("bookshelf-soft-delete"));
 
 export { knex, sqlite_config, bookshelf, MyStoreMutations, log };
-export * from './tools';
-import {moment} from './tools'
+export * from "./tools";
+import { moment } from "./tools";
 
-Vue.filter('arDate' , function(date) {
-  return moment(date).format('LL')
-})
+Vue.filter("arDate", function(date) {
+  return moment(date).format("LL");
+});
 
-Vue.filter('tr_label' , function(string, collection) {
+Vue.filter("tr_label", function(string, collection) {
+  if (!collection)
+    return store.state.custom_labels[string]
+      ? store.state.custom_labels[string]
+      : string;
+  else if (collection == "trans_types")
+    return store.state.transtypes_arr[string]
+      ? store.state.transtypes_arr[string]
+      : string;
+});
 
-  if(! collection)
-    return (store.state.custom_labels[string])? store.state.custom_labels[string] : string
-  else if (collection == 'trans_types')
-    return (store.state.transtypes_arr[string])? store.state.transtypes_arr[string] : string
-})
+String.prototype.toAR = function() {
+  return this.replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
+};
 
-String.prototype.toAR= function() {
-  return this.replace(/\d/g, d =>  '٠١٢٣٤٥٦٧٨٩'[d])
-}
-
-Vue.filter('toAR' , function(number, fixed) {
-  let num = ( number || number === 0 ) ? parseFloat(number) : '--'
-  let minmax = fixed ? {minimumFractionDigits: 2, maximumFractionDigits: 2} : {}
-  return num.toLocaleString('ar-EG', {useGrouping: false, ...minmax})
-})
+Vue.filter("toAR", function(number, fixed) {
+  let num = number || number === 0 ? parseFloat(number) : "--";
+  let minmax = fixed
+    ? { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+    : {};
+  return num.toLocaleString("ar-EG", { useGrouping: false, ...minmax });
+});
 
 function roundOf(n, p) {
   const n1 = n * Math.pow(10, p + 1);
   const n2 = Math.floor(n1 / 10);
-  if (n1 >= (n2 * 10 + 5)) {
-      return (n2 + 1) / Math.pow(10, p);
+  if (n1 >= n2 * 10 + 5) {
+    return (n2 + 1) / Math.pow(10, p);
   }
   return n2 / Math.pow(10, p);
 }
 
-Vue.filter('round', function(value, decimals) {
-  if(!value) 
-    value = 0;
+Vue.filter("round", function(value, decimals) {
+  if (!value) value = 0;
 
-  if(!decimals) 
-    decimals = 0;
+  if (!decimals) decimals = 0;
 
-  value = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)
-  return value
+  value = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+  return value;
 });
 
-Vue.filter('round2' , function(number) {
-  let rounded = number? parseFloat(number) : 0
-  return roundOf(rounded,2).toFixed(2)
-})
+Vue.filter("round2", function(number) {
+  let rounded = number ? parseFloat(number) : 0;
+  return roundOf(rounded, 2).toFixed(2);
+});
 
-Vue.filter('ceil5' , function(number) {
-  number = number? parseFloat(number) : 0
-  let ceil_5 = Math.ceil(number/5)*5
-  let last_res = (ceil_5 - number) <= 2 ?  ceil_5 : Math.ceil(number)
-  return last_res
-})
+Vue.filter("ceil5", function(number) {
+  number = number ? parseFloat(number) : 0;
+  let ceil_5 = Math.ceil(number / 5) * 5;
+  let last_res = ceil_5 - number <= 2 ? ceil_5 : Math.ceil(number);
+  return last_res;
+});
 
+Vue.filter("default0", function(number) {
+  return parseInt(number) ? parseInt(number) : 0;
+});
 
-Vue.filter('default0' , function(number) {
-  return parseInt(number)? parseInt(number) : 0
-})
+Vue.filter("concat_recp_paid", function(concat_recp_paid) {
+  return concat_recp_paid;
+});
 
-Vue.filter('concat_recp_paid' , function(concat_recp_paid) {
-  
-  return concat_recp_paid
-})
-
-function testJSON(text){
-  if (typeof text!=="string" || parseInt(text) > 0 || parseInt(text) === 0){
+function testJSON(text) {
+  if (typeof text !== "string" || parseInt(text) > 0 || parseInt(text) === 0) {
     return false;
   }
-  try{
+  try {
     JSON.parse(text);
     return true;
-  }
-  catch (error){
+  } catch (error) {
     return false;
   }
 }
 
-Vue.filter('productsFilter' , function(products , separator = ' , ') {
-  let only_prod_names = []
-  products = products ? products : ''
+Vue.filter("productsFilter", function(products, separator = " , ") {
+  let only_prod_names = [];
+  products = products ? products : "";
   //console.log('productsFilter', products , separator)
-  if(testJSON(products)) {
-    let all_products = JSON.parse(products)
+  if (testJSON(products)) {
+    let all_products = JSON.parse(products);
     all_products.forEach(prod => {
       //console.log("prod",prod)
-      if(prod.product)
-        only_prod_names.push(prod.product)
-      else if (prod.product_name)
-        only_prod_names.push(prod.product_name)
+      if (prod.product) only_prod_names.push(prod.product);
+      else if (prod.product_name) only_prod_names.push(prod.product_name);
     });
-    let uniqueItems = [...new Set(only_prod_names)]
-    return uniqueItems.join(separator)
-  } 
-  else if(products.includes(',') && products.indexOf(',') > -1) {
-    let products_ids = products.split(',')
+    let uniqueItems = [...new Set(only_prod_names)];
+    return uniqueItems.join(separator);
+  } else if (products.includes(",") && products.indexOf(",") > -1) {
+    let products_ids = products.split(",");
     products_ids.forEach(id => {
-      only_prod_names.push(store.state.products_arr[id])
-    })
-    return only_prod_names.join(separator)
+      only_prod_names.push(store.state.products_arr[id]);
+    });
+    return only_prod_names.join(separator);
+  } else if (parseInt(products) > 0) {
+    return store.state.products_arr[parseInt(products)];
+  } else {
+    return products;
   }
-  else if (parseInt(products) > 0) {
-    return store.state.products_arr[parseInt(products)]
-  }
-  else {
-    return products
-  }
-})
+});
 
 new Vue({
   router,
   store,
   render: h => h(App)
-}).$mount('#app')
+}).$mount("#app");
 
-Vue.prototype.vue_window = window
-Vue.prototype.vue_document = document
+Vue.prototype.vue_window = window;
+Vue.prototype.vue_document = document;

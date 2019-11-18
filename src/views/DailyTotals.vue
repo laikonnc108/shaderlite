@@ -44,10 +44,10 @@
               <th v-if="show_totals.includes('out_cashflow')"> {{'out_cashflow' | tr_label}} </th>
               <th v-if="show_totals.includes('net_income')"> {{'net_income' | tr_label}} </th>
               
-              <th> {{'supp_payments' | tr_label}} </th>
-              <th> {{'supp_deducts' | tr_label}} </th>
-              <th> {{'rahn' | tr_label}}  </th>
-              <th> {{'repay_rahn' | tr_label}} </th>
+              <th v-if="show_totals.includes('supp_payments')"> {{'supp_payments' | tr_label}} </th>
+              <th v-if="show_totals.includes('supp_deducts')"> {{'supp_deducts' | tr_label}} </th>
+              <th v-if="show_totals.includes('rahn')"> {{'rahn' | tr_label}}  </th>
+              <th v-if="show_totals.includes('repay_rahn')"> {{'' | tr_label}} </th>
             </tr>
           </thead>
 <!--
@@ -87,12 +87,22 @@ sum_rahn_down
               <th v-if="show_totals.includes('out_cashflow')">
                 {{sum_totals.sum_deducts | round}}
               </th>
-              <th v-if="show_totals.includes('net_income')"></th>
+              <th v-if="show_totals.includes('net_income')">
 
-              <th>{{sum_totals.sum_supp_payment | round}}</th>
-              <th>{{sum_totals.recp_sum_deducts + sum_totals.sum_supp_collect | round}}</th>
-              <th>{{sum_totals.sum_product_rahn | round}}</th>
-              <th>{{sum_totals.sum_repay_rahn | round}} </th>
+              </th>
+
+              <th v-if="show_totals.includes('supp_payments')">
+                {{sum_totals.sum_supp_payment | round}}
+              </th>
+              <th v-if="show_totals.includes('supp_deducts')">
+                {{sum_totals.recp_sum_deducts + sum_totals.sum_supp_collect | round}}
+              </th>
+              <th v-if="show_totals.includes('rahn')">
+                {{sum_totals.sum_product_rahn | round}}
+              </th>
+              <th v-if="show_totals.includes('repay_rahn')">
+                {{sum_totals.sum_repay_rahn | round}}
+              </th>
               <th></th>
             </tr>
             <tr v-for="(item, idx) in daily_totals" :key='idx'>
@@ -119,10 +129,18 @@ sum_rahn_down
               <td v-if="show_totals.includes('net_income')">
                 {{item.recp_sum_comm + item.out_sell_comm + (item.sum_out_value - item.recp_sum_sale) - item.sum_deducts | round }}
               </td>
-              <td>{{item.sum_supp_payment | round }}</td>
-              <td>{{item.recp_sum_deducts+ item.sum_supp_collect | round }}</td>
-              <td>{{item.sum_product_rahn | round }}</td>
-              <td>{{item.sum_repay_rahn + item.sum_rahn_down | round }}</td>
+              <td v-if="show_totals.includes('supp_payments')">
+                {{item.sum_supp_payment | round }}
+              </td>
+              <td v-if="show_totals.includes('supp_deducts')">
+                {{item.recp_sum_deducts+ item.sum_supp_collect | round }}
+              </td>
+              <td v-if="show_totals.includes('rahn')">
+                {{item.sum_product_rahn | round }}
+              </td>
+              <td v-if="show_totals.includes('repay_rahn')">
+                {{item.sum_repay_rahn + item.sum_rahn_down | round }}
+              </td>
             </tr>
             <tr >
               <th>المجموع</th>
@@ -139,12 +157,22 @@ sum_rahn_down
               <th v-if="show_totals.includes('out_cashflow')">
                 {{sum_totals.sum_deducts | round}}
               </th>
-              <th v-if="show_totals.includes('net_income')"></th>
+              <th v-if="show_totals.includes('net_income')">
 
-              <th>{{sum_totals.sum_supp_payment | round}}</th>
-              <th>{{sum_totals.recp_sum_deducts | round}}</th>
-              <th>{{sum_totals.sum_product_rahn | round}}</th>
-              <th>{{sum_totals.sum_repay_rahn | round}} </th>
+              </th>
+
+              <th v-if="show_totals.includes('supp_payments')">
+                {{sum_totals.sum_supp_payment | round}}
+              </th>
+              <th v-if="show_totals.includes('supp_deducts')">
+                {{sum_totals.recp_sum_deducts + sum_totals.sum_supp_collect | round}}
+              </th>
+              <th v-if="show_totals.includes('rahn')">
+                {{sum_totals.sum_product_rahn | round}}
+              </th>
+              <th v-if="show_totals.includes('repay_rahn')">
+                {{sum_totals.sum_repay_rahn | round}}
+              </th>
               <th></th>
             </tr>
           </tbody>

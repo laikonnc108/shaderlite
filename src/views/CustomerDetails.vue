@@ -32,6 +32,16 @@
     <span class="fa fa-table"></span> &nbsp; 
     عرض {{'kashf_cust' | tr_label}} اليوم
   </button>
+  <div>
+    <h3>عرض الحركات بعد يوم</h3>
+        <datetime 
+    v-model="show_trans_after" 
+    :auto="true" 
+    class="datetime" 
+    min-datetime="2019-01-01"
+    max-datetime="2030-01-01">
+    </datetime>
+  </div>
 
 
   <!-- Element to collapse -->
@@ -136,7 +146,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(trans, idx) in comp_customer_trans" :key='idx'>
+            <template v-for="(trans, idx) in comp_customer_trans" >
+            <tr :key='idx' v-if="! show_trans_after || Date.parse(trans.day) > Date.parse(show_trans_after)">
               <td>{{trans.day | arDate }}</td>
               <td class="text-primary">{{trans.c_debt_was | round | toAR}}</td>
               <td>{{trans.amount | round | toAR}}</td>
@@ -159,6 +170,7 @@
                 </button>
               </td>
             </tr>
+            </template>
             <tr>
               <td></td>
               <td>رصيد المديونية الحالي</td>
@@ -342,7 +354,8 @@ export default {
       flags: {modal_closed: true },
       discard_success: false,
       sell_rest: {actual_sale: 0 , notes: ''},
-      outg_day: {}
+      outg_day: {},
+      show_trans_after: ''
     }
   },
   mixins: [MainMixin],
