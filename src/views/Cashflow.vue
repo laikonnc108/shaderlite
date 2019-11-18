@@ -71,6 +71,7 @@ import { CashflowCtrl , CashflowDAO } from '../ctrls/CashflowCtrl'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl';
 import CashflowTable from '@/components/CashflowTable.vue'
 import { MainMixin } from '../mixins/MainMixin'
+import { knex } from '../main';
 
 export default {
   name: 'cashflow',
@@ -101,14 +102,10 @@ export default {
         sum = '+'
       }
       this.cashflow_arr = await this.cashflowCtrl.findAll({sum: sum, day: this.$store.state.day.iso})
-      /*
-      this.cashflow_arr = await CashflowDB.getAll({
-        // state:this.$route.name
-        day: this.$store.state.day.iso,
-        states: states
-      })
-      this.day_count = await DailyDB.getTodayCount(this.store_day.iso)
-      */
+      let day_count_res = await knex.raw(`SELECT sum(count) as sum_count FROM outgoings where day='${this.$store.state.day.iso}'`)
+
+      if(day_count_res && day_count_res [0] && day_count_res[0].sum_count)
+        this.day_count = day_count_res[0].sum_count
       
     },
     async addCashflow(evt) {

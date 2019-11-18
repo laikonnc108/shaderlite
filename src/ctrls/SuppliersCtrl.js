@@ -220,6 +220,11 @@ export class SuppliersCtrl {
       return null
   }
 
+  async permenentDeleteById(id) {
+    await knex.raw(`delete from suppliers where id = ${id}`)
+  }
+
+
   async resotreById(id) {
     /**@type import('bookshelf').ModelBase */
     let instance = await this.model.where('id',id).fetch({softDelete: false})

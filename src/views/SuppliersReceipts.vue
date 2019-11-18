@@ -35,7 +35,8 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(row, idx) in fltrd_today_suppliers_arr" :key='idx'>
+      <template v-for="(row, idx) in fltrd_today_suppliers_arr">
+      <tr :key='idx' v-if="app_config.shader_name != 'nada' || row.day == day.iso">
         <td>
           <router-link class="nav-link " :to="{name:'supplier_details', params: {id: row.supplier_id}}">
             {{row.supplier_name}}
@@ -70,7 +71,7 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
           </router-link>
         </td>
       </tr>
-
+      </template>
     </tbody>
   </table>
   </section>

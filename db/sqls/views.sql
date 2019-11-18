@@ -154,5 +154,5 @@ FROM
   ON  
     recp_gsums.day = out_gsums.income_day and recp_gsums.supplier_id = out_gsums.supplier_id
   JOIN
-    suppliers on recp_gsums.supplier_id = suppliers.id
+    suppliers on recp_gsums.supplier_id = suppliers.id;
 

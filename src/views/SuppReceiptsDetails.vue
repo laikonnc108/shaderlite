@@ -148,7 +148,7 @@
           <label> وهبة الفاتورة</label>
           <span> {{recp_1.recp_given | round2}} </span>
         </div>
-        <div class="row-detail">
+        <div class="row-detail" v-if="app_config.shader_name != 'nada' ">
           <label> مبالغ اخري</label>
           <span> {{recp_1.recp_others | round2}} </span>
         </div>
@@ -551,7 +551,7 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
             </th>
           </tr>
 
-          <tr>
+          <tr v-if="app_config.shader_name != 'nada'">
             <td colspan="4" style="border: none !important;"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" 
@@ -622,6 +622,9 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
       </div>
 
   </div>
+          <p class="text-danger pr-me">
+          * خالص بيد حامله ولا تلغي أي شيكات أو ايصالات امانة
+        </p>
       <span> ف
         {{modal_recp.recp_paid}}
         (م {{modal_recp.serial}})

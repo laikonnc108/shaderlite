@@ -33,7 +33,7 @@
     عرض {{'kashf_cust' | tr_label}} اليوم
   </button>
   <div>
-    <h3>عرض الحركات بعد يوم</h3>
+    <h3>عرض الحركات من يوم</h3>
         <datetime 
     v-model="show_trans_after" 
     :auto="true" 
@@ -147,7 +147,7 @@
           </thead>
           <tbody>
             <template v-for="(trans, idx) in comp_customer_trans" >
-            <tr :key='idx' v-if="! show_trans_after || Date.parse(trans.day) > Date.parse(show_trans_after)">
+            <tr :key='idx' v-if="! show_trans_after || Date.parse(trans.day) >= Date.parse(show_trans_after)">
               <td>{{trans.day | arDate }}</td>
               <td class="text-primary">{{trans.c_debt_was | round | toAR}}</td>
               <td>{{trans.amount | round | toAR}}</td>

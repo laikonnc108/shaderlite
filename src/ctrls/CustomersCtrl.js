@@ -333,6 +333,10 @@ select * from customer_trans where customer_id = ${customer_id} and trans_type =
     else return null;
   }
 
+  async permenentDeleteById(id) {
+    await knex.raw(`delete from customers where id = ${id}`)
+  }
+
   async resotreById(id) {
     /**@type import('bookshelf').ModelBase */
     let instance = await this.model
