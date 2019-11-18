@@ -204,7 +204,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
       <span style="font-size: 1.1em;">{{customer.name}}</span>
     </h4>
   </div>
-  <div class="col-7">
+  <div class="col-7"  v-if="app_config.shader_name != 'nada' ">
     <h3 > {{'kashf_cust' | tr_label}} </h3>
     <h2 class="text-center" v-if="daily_out_trans[0]"> حساب سابق : {{ daily_out_trans[0].debt_was | toAR }}</h2>
   </div>
