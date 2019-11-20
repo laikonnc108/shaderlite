@@ -1,6 +1,6 @@
 <template>
   <section class="customer-details p-3 pr-me row">
-    <div class="col-5 pr-hideme">
+    <div class="col-4 pr-hideme">
         <button class="btn btn-primary d-print-none pr-hideme" @click="$router.go(-1)">
             <span class="fa fa-arrow-right"></span> &nbsp;   العودة
         </button>
@@ -107,7 +107,7 @@
         class="btn btn-lg btn-primary m-1 btn-block">
           <span class="fa fa-shopping-cart"></span> &nbsp; 
           {{products_arr[item.product_id]}}  - 
-          عدد ({{item.count}}) - السعر التقديري {{item.amount}}
+          عدد ({{item.count}}) <br/> السعر التقديري {{item.amount}}
         </button>
       </div>
         <b-collapse id="collapse_sell" class="d-print-none p-1">
@@ -131,7 +131,7 @@
         </b-collapse>
       </div>
 
-      <div class="table-responsive col-7 " v-if="flags.modal_closed">
+      <div class="table-responsive col-8 " v-if="flags.modal_closed">
 
         <h1 class="pr-only">كشف مديونية  {{customer.name}}</h1>
 
@@ -140,7 +140,7 @@
             <tr>
               <th>التاريخ</th>
               <th>سابق</th>
-              <th>مبلغ</th>
+              <th>مبلغ</th>     
               <th>الحركة</th>              
               <th></th>
             </tr>
@@ -365,6 +365,7 @@ export default {
       // TODO get trans dynamicly
       this.customer = await this.customersCtrl.findOne(this.customer_id)
       this.customer_trans = await this.customersCtrl.getCustomerTrans({id: this.customer_id})
+      console.log(this.customer_trans)
       this.trans_types_opts = await this.transTypesCtrl.findAll({category: 'customer_trans', optional: 3 })
       if(this.customer.is_self ) {
         this.self_rest_products = await this.customersCtrl.getRestInSelf(this.customer_id)
