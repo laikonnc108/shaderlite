@@ -159,47 +159,68 @@ ${filter.limit ? "limit " + parseInt(filter.limit) : ""}
   }
 
   async getDailyOutTrans(filter = { id: null, day: "" }) {
+    /*
     let daily_out_trans = await this.customerTransModel
-
       .query(
         {
           whereRaw: `customer_id = ${filter.id} and day = '${filter.day}' and trans_type in ('outgoing','cust_in_collecting','mashal')`
         }
-        /*whereRaw(
-        "
-      )
-      {
-        where: {
-          customer_id: filter.id,
-          day: filter.day,
-        },
-        orWhere: {
-          customer_id: filter.id,
-          day: filter.day,
-          trans_type: "cust_in_collecting"
-        },
-      }
-      */
       )
       .fetchAll({ withRelated: ["outgoing", "product"] });
-
-    let trans_arr = daily_out_trans.map(_ => {
-      let transDAO = new CustomerTransDAO(_.attributes);
-      if (_.related("outgoing")) {
-        transDAO.kg_price = _.related("outgoing").get("kg_price");
-        transDAO.weight = _.related("outgoing").get("weight");
-        transDAO.count = _.related("outgoing").get("count");
-        transDAO.product_name = _.related("product").get("name");
+    
+    let trans_arr = daily_out_trans.map(item => {
+      
+      let transDAO = new CustomerTransDAO(item.attributes);
+      if (item.related("outgoing")) {
+        transDAO.kg_price = item.related("outgoing").get("kg_price");
+        transDAO.weight = item.related("outgoing").get("weight");
+        transDAO.count = item.related("outgoing").get("count");
+        transDAO.product_name = item.related("product").get("name");
       }
+      console.log(transDAO);
       return transDAO;
     });
 
+    */
+   // Grouping Transes
+    let daily_out_trans = await knex.raw(`select 
+v_trans.id,
+v_trans.day,
+v_trans.customer_id,
+outgoing_id,
+cashflow_id,
+sum(amount) as amount,
+trans_type,
+actual_sale,
+v_outgoings.kg_price,
+sum(v_outgoings.weight) as weight,
+sum(v_outgoings.count) as count,
+v_outgoings.product_id,
+v_products.name as product_name
+
+from (SELECT * from customer_trans 
+where customer_id = ${filter.id} and day = '${filter.day}'
+and trans_type in ('outgoing','cust_in_collecting','mashal')
+ ) as v_trans
+left join (select * from outgoings  ) as v_outgoings 
+on v_trans.outgoing_id = v_outgoings.id
+left join (select * from products ) as v_products
+on v_trans.product_id = v_products.id
+
+GROUP by kg_price, v_outgoings.product_id, trans_type`);
+
+    let trans_arr = daily_out_trans.map(item => {
+      let transDAO = new CustomerTransDAO(item);
+      console.log(transDAO)
+      return transDAO;
+    });
+    /**/
     let product_rahn_trans = await knex.raw(`select day, customer_id, trans_type, sum(amount) amount
     from customer_trans where customer_id= ${filter.id} and
     trans_type= 'product_rahn' and
     day= '${filter.day}'`);
-    product_rahn_trans.map(_ => {
-      if (_ && _.amount) trans_arr.push(new CustomerTransDAO(_));
+    product_rahn_trans.map(item => {
+      if (item && item.amount) trans_arr.push(new CustomerTransDAO(item));
     });
 
     return trans_arr;
@@ -334,7 +355,7 @@ select * from customer_trans where customer_id = ${customer_id} and trans_type =
   }
 
   async permenentDeleteById(id) {
-    await knex.raw(`delete from customers where id = ${id}`)
+    await knex.raw(`delete from customers where id = ${id}`);
   }
 
   async resotreById(id) {
