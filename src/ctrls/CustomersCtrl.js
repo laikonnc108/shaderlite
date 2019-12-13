@@ -159,7 +159,7 @@ ${filter.limit ? "limit " + parseInt(filter.limit) : ""}
   }
 
   async getDailyOutTrans(filter = { id: null, day: "" }) {
-    /*
+    
     let daily_out_trans = await this.customerTransModel
       .query(
         {
@@ -181,7 +181,7 @@ ${filter.limit ? "limit " + parseInt(filter.limit) : ""}
       return transDAO;
     });
 
-    */
+    /*
    // Grouping Transes
     let daily_out_trans = await knex.raw(`select 
 v_trans.id,
