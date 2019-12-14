@@ -459,6 +459,11 @@ export default {
       let fromDateTime = DateTime.fromISO(this.from_day)
       let toDateTime = DateTime.fromISO(this.to_day)
 
+      let inits_record = await knex.raw(`SELECT * from shader_configs where config_name='init-totals'`);
+      let init_record_values = inits_record[0] ? JSON.parse(inits_record[0].config_value): null;
+      if( init_record_values && this.from_day < init_record_values.day ) {
+        this.past_init_vals = null
+      }
       if( this.from_day && ! this.to_day) {
         this.daily_totals = await knex('v_daily_sums').where('day','>=',fromDateTime.toISODate()).orderBy('day',"asc")
       }
