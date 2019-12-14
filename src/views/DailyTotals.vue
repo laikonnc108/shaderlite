@@ -21,15 +21,46 @@
         </datetime>
       </div>
       <div class="col-4 mt-3">
-      <button  class="btn btn-primary " @click="show_daily='daily_expenses';" v-if="show_daily == 'daily_totals'">
+      <button v-if="show_daily == 'daily_totals'" class="btn btn-primary " @click="show_daily='daily_expenses';" >
         عرض المصاريف اليومية
         &nbsp; <span class="fa fa-money-bill"></span>
       </button>
-      <button  class="btn btn-primary " @click="show_daily='daily_totals';daily_expenses = []" v-if="show_daily == 'daily_expenses'">
+      <button v-if="show_daily == 'daily_expenses'" class="btn btn-primary " @click="show_daily='daily_totals';daily_expenses = []" >
         عرض المجمعات اليومية   &nbsp; <span class="fa fa-calendar-alt"></span>
       </button>
+      <br/><br/>
+      <button  class="btn btn-primary " @click="showInitModal" >
+        ادخال ارصدة اول المدة
+        &nbsp; <span class="fa fa-money-bill-wave"></span>
+      </button>
+
       </div>
     </div>
+
+    <b-modal id="init-modal" size="lg" class="col-print-12" hide-footer >
+<h2 class="m-2">ارصدة اول المدة</h2>
+<div class="row m-4">
+  <form  class="">
+    <div class="form-group row">
+      <label class="col-sm-2">التاريخ</label>
+      <div class="col-sm-10">
+        <input v-model="init_data.day" class="form-control" disabled>
+      </div>
+    </div>
+        <div class="form-group row">
+      <label class="col-sm-2">رصيد {{'given' | tr_label}}</label>
+      <div class="col-sm-10">
+        <input v-model="init_data.given" class="form-control">
+      </div>
+    </div>
+    <!-- prevent enter to supmit -->
+    <button type="button" @click="saveInitData" class="btn btn-success" >ادخال الارصدة</button>
+    &nbsp;
+    <button type="button" @click="$bvModal.hide('init-modal');" class="btn btn-danger"> الغاء </button>
+    
+  </form>
+</div>
+    </b-modal>
     <section class="m-2" v-if="show_daily == 'daily_totals'">
     <h2>المجاميع اليومية</h2>
       <div class="table-responsive">
@@ -252,6 +283,7 @@ export default {
       confirm_step: [],
       expenses_items : [],
       single: {},
+      init_data: {day: this.$store.state.day.iso},
       from_day: '',
       to_day: '',
       max_datetime: '',
@@ -263,6 +295,13 @@ export default {
   methods: {
     async save(evt) {
       evt.preventDefault()
+    },
+    async showInitModal(customer_id) {
+      this.$bvModal.show("init-modal");
+    },
+    async saveInitData(){
+      console.log(this.init_data);
+      this.$bvModal.hide("init-modal");
     },
     async refresh_all(){
       this.daily_totals = await knex('v_daily_sums').orderBy('day',"asc")
