@@ -36,23 +36,91 @@
 
       </div>
     </div>
+<!--
+recp_given
+given
+comms
+out_cashflow
+net_income
+supp_payments
+supp_deducts
+rahn
+repay_rahn
 
+-->
     <b-modal id="init-modal" size="lg" class="col-print-12" hide-footer >
 <h2 class="m-2">ارصدة اول المدة</h2>
 <div class="row m-4">
   <form  class="">
     <div class="form-group row">
-      <label class="col-sm-2">التاريخ</label>
-      <div class="col-sm-10">
+      <label class="col-sm-5">التاريخ</label>
+      <div class="col-sm-7">
         <input v-model="init_data.day" class="form-control" disabled>
       </div>
     </div>
-        <div class="form-group row">
-      <label class="col-sm-2">رصيد {{'given' | tr_label}}</label>
-      <div class="col-sm-10">
+    <div class="form-group row">
+      <label class="col-sm-5">رصيد {{'recp_given' | tr_label}}</label>
+      <div class="col-sm-7">
+        <input v-model="init_data.recp_given" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-5">رصيد {{'given' | tr_label}}</label>
+      <div class="col-sm-7">
         <input v-model="init_data.given" class="form-control">
       </div>
     </div>
+
+    <div class="form-group row">
+      <label class="col-sm-5">رصيد {{'comms' | tr_label}}</label>
+      <div class="col-sm-7">
+        <input v-model="init_data.comms" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-5">رصيد {{'out_cashflow' | tr_label}}</label>
+      <div class="col-sm-7">
+        <input v-model="init_data.out_cashflow" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-5">رصيد {{'net_income' | tr_label}}</label>
+      <div class="col-sm-7">
+        <input v-model="init_data.net_income" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-5">رصيد {{'supp_payments' | tr_label}}</label>
+      <div class="col-sm-7">
+        <input v-model="init_data.supp_payments" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-5">رصيد {{'supp_deducts' | tr_label}}</label>
+      <div class="col-sm-7">
+        <input v-model="init_data.supp_deducts" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-5">رصيد {{'rahn' | tr_label}}</label>
+      <div class="col-sm-7">
+        <input v-model="init_data.rahn" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-5">رصيد {{'repay_rahn' | tr_label}}</label>
+      <div class="col-sm-7">
+        <input v-model="init_data.repay_rahn" class="form-control">
+      </div>
+    </div>
+
     <!-- prevent enter to supmit -->
     <button type="button" @click="saveInitData" class="btn btn-success" >ادخال الارصدة</button>
     &nbsp;
@@ -103,7 +171,7 @@ sum_repay_rahn,
 sum_rahn_down
 -->
           <tbody>
-            <tr v-if="app_config.shader_name == 'magdy'">
+            <tr v-if="app_config.shader_name == 'magdy' && ! past_init_vals">
               <th>المجموع</th>
               <th v-if="show_totals.includes('recp_given')">
                 {{sum_totals.recp_sum_given | round}}
@@ -134,7 +202,42 @@ sum_rahn_down
               <th v-if="show_totals.includes('repay_rahn')">
                 {{sum_totals.sum_repay_rahn | round}}
               </th>
-              <th></th>
+
+            </tr>
+
+            <tr v-if="past_init_vals">
+              <th>ارصدة اول المدة</th>
+              <th v-if="show_totals.includes('recp_given')">
+                {{past_init_vals.recp_given | round}}
+              </th>
+              <th v-if="show_totals.includes('given')">
+                {{past_init_vals.given | round}}
+              </th>
+              <th v-if="show_totals.includes('comms')" >
+                {{past_init_vals.comms | round}}
+              </th>
+              <th v-if="show_totals.includes('recp_diff')">
+                
+              </th>
+              <th v-if="show_totals.includes('out_cashflow')">
+                {{past_init_vals.out_cashflow | round}}
+              </th>
+              <th v-if="show_totals.includes('net_income')">
+                {{past_init_vals.net_income | round}}
+              </th>
+
+              <th v-if="show_totals.includes('supp_payments')">
+                {{past_init_vals.supp_payments | round}}
+              </th>
+              <th v-if="show_totals.includes('supp_deducts')">
+                {{past_init_vals.supp_deducts | round}}
+              </th>
+              <th v-if="show_totals.includes('rahn')">
+                {{past_init_vals.rahn | round}}
+              </th>
+              <th v-if="show_totals.includes('repay_rahn')">
+                {{past_init_vals.repay_rahn | round}}
+              </th>
             </tr>
             <tr v-for="(item, idx) in daily_totals" :key='idx'>
               <td>
@@ -204,7 +307,6 @@ sum_rahn_down
               <th v-if="show_totals.includes('repay_rahn')">
                 {{sum_totals.sum_repay_rahn | round}}
               </th>
-              <th></th>
             </tr>
           </tbody>
         </table>
@@ -284,6 +386,7 @@ export default {
       expenses_items : [],
       single: {},
       init_data: {day: this.$store.state.day.iso},
+      past_init_vals: null,
       from_day: '',
       to_day: '',
       max_datetime: '',
@@ -296,16 +399,32 @@ export default {
     async save(evt) {
       evt.preventDefault()
     },
-    async showInitModal(customer_id) {
+    async showInitModal() {
       this.$bvModal.show("init-modal");
     },
     async saveInitData(){
       console.log(this.init_data);
+      await knex.raw(`delete from shader_configs where config_name = 'init-totals';`);
+      await knex.raw(`INSERT into shader_configs ( "config_name", "config_value", "config_verify") 
+      VALUES (
+       'init-totals','${JSON.stringify(this.init_data)}','${this.init_data.day}'
+      )`);
       this.$bvModal.hide("init-modal");
     },
     async refresh_all(){
-      this.daily_totals = await knex('v_daily_sums').orderBy('day',"asc")
-      this.expenses_items = await knex.raw(`SELECT DISTINCT(notes) notes from cashflow where state = 'expenses' or state = 'act_pymnt' group by notes HAVING COUNT(*) > 1`)
+      
+      this.expenses_items = await knex.raw(`SELECT DISTINCT(notes) notes from cashflow where state = 'expenses' or state = 'act_pymnt' group by notes HAVING COUNT(*) > 1`);
+      let inits_record = await knex.raw(`SELECT * from shader_configs where config_name='init-totals'`);
+      let init_record_values = inits_record[0] ? JSON.parse(inits_record[0].config_value): null;
+      if(init_record_values && this.$store.state.day.iso >= init_record_values.day ) {
+        // Set init vals
+        this.past_init_vals = init_record_values;
+        this.from_day = init_record_values.day;
+        let fromDateTime = DateTime.fromISO(this.from_day);
+        this.daily_totals = await knex('v_daily_sums').where('day','>=',fromDateTime.toISODate()).orderBy('day',"asc");
+      } else {
+        this.daily_totals = await knex('v_daily_sums').orderBy('day',"asc")
+      }
     },
     async change_today_date(date){
       let dateTime = DateTime.fromISO(date)
@@ -356,6 +475,7 @@ export default {
   },
   computed: {
     sum_totals: function() {
+
       let sum_totals = {
         recp_sum_given: 0,
         sum_given: 0,
@@ -366,10 +486,25 @@ export default {
         sum_product_rahn: 0,
         sum_repay_rahn: 0
       }
+
+      if(this.past_init_vals) {
+        let past_init_vals = this.past_init_vals
+        sum_totals = {
+          recp_sum_given: parseFloat( past_init_vals.recp_given ? past_init_vals.recp_given : 0),
+          sum_given: parseFloat( past_init_vals.given ? past_init_vals.given : 0),
+          sum_deducts: parseFloat( past_init_vals.out_cashflow ? past_init_vals.out_cashflow : 0),
+          sum_comm_plus_sell_comm: parseFloat( past_init_vals.comms ? past_init_vals.comms : 0),
+          sum_supp_payment: parseFloat( past_init_vals.supp_payments ? past_init_vals.supp_payments : 0),
+          recp_sum_deducts: parseFloat( past_init_vals.supp_deducts ? past_init_vals.supp_deducts : 0),
+          sum_product_rahn: parseFloat( past_init_vals.rahn ? past_init_vals.rahn : 0),
+          sum_repay_rahn: parseFloat( past_init_vals.repay_rahn ? past_init_vals.repay_rahn : 0)
+        }
+      }
+
       this.daily_totals.forEach(one => {
-        sum_totals.recp_sum_given += one.recp_sum_given
-        sum_totals.sum_given += one.sum_given
-        sum_totals.sum_deducts += one.sum_deducts
+        sum_totals.recp_sum_given += one.recp_sum_given 
+        sum_totals.sum_given += one.sum_given 
+        sum_totals.sum_deducts += one.sum_deducts 
         sum_totals.sum_comm_plus_sell_comm += one.recp_sum_comm +one.out_sell_comm
         sum_totals.sum_supp_payment += one.sum_supp_payment
         sum_totals.recp_sum_deducts += one.recp_sum_deducts + one.sum_supp_collect

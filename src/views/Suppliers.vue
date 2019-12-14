@@ -227,6 +227,10 @@ export default {
     },
     async refresh_all() {
       let soft_delete = this.show_active ? true : false;
+      // load 20 tasbera
+      this.suppliers_arr = await this.suppliersCtrl.findAll({limit: 20},{softDelete: soft_delete, 
+        orderByBalance: this.app_config.shader_name == 'magdy'
+      })
       this.suppliers_arr = await this.suppliersCtrl.findAll({},{softDelete: soft_delete, 
         orderByBalance: this.app_config.shader_name == 'magdy'
       })
