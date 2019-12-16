@@ -142,7 +142,6 @@ repay_rahn
               <th v-if="show_totals.includes('recp_diff')"> {{'recp_diff' | tr_label}} </th>
               <th v-if="show_totals.includes('out_cashflow')"> {{'out_cashflow' | tr_label}} </th>
               <th v-if="show_totals.includes('net_income')"> {{'net_income' | tr_label}} </th>
-              
               <th v-if="show_totals.includes('supp_payments')"> {{'supp_payments' | tr_label}} </th>
               <th v-if="show_totals.includes('supp_deducts')"> {{'supp_deducts' | tr_label}} </th>
               <th v-if="show_totals.includes('rahn')"> {{'rahn' | tr_label}}  </th>

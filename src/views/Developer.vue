@@ -145,7 +145,8 @@ export default {
       // await knex.destroy()
       let url = clipboard.readText()
       console.log(url)
-      const {stdout,stderr} = await sync_exec(`curl ${url} --output ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.db`)
+      // const {stdout,stderr} = 
+      await sync_exec(`curl ${url} --output ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.db`)
       this.reload_electron()
     },
     async import_db(){
