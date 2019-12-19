@@ -145,7 +145,7 @@ repay_rahn
               <th v-if="show_totals.includes('supp_payments')"> {{'supp_payments' | tr_label}} </th>
               <th v-if="show_totals.includes('supp_deducts')"> {{'supp_deducts' | tr_label}} </th>
               <th v-if="show_totals.includes('rahn')"> {{'rahn' | tr_label}}  </th>
-              <th v-if="show_totals.includes('repay_rahn')"> {{'' | tr_label}} </th>
+              <th v-if="show_totals.includes('repay_rahn')"> {{'رد رهن' | tr_label}} </th>
             </tr>
           </thead>
 <!--
@@ -291,14 +291,14 @@ sum_rahn_down
                 {{sum_totals.sum_deducts | round}}
               </th>
               <th v-if="show_totals.includes('net_income')">
-
+                {{sum_totals.sum_net_income | round}}
               </th>
 
               <th v-if="show_totals.includes('supp_payments')">
                 {{sum_totals.sum_supp_payment | round}}
               </th>
               <th v-if="show_totals.includes('supp_deducts')">
-                {{sum_totals.recp_sum_deducts + sum_totals.sum_supp_collect | round}}
+                {{sum_totals.sum_supp_deducts  | round}}
               </th>
               <th v-if="show_totals.includes('rahn')">
                 {{sum_totals.sum_product_rahn | round}}
@@ -486,9 +486,10 @@ export default {
         sum_deducts: 0,
         sum_comm_plus_sell_comm: 0,
         sum_supp_payment: 0,
-        recp_sum_deducts: 0,
+        sum_supp_deducts: 0,
         sum_product_rahn: 0,
-        sum_repay_rahn: 0
+        sum_repay_rahn: 0,
+        sum_net_income: 0
       }
 
       if(this.past_init_vals) {
@@ -499,9 +500,10 @@ export default {
           sum_deducts: parseFloat( past_init_vals.out_cashflow ? past_init_vals.out_cashflow : 0),
           sum_comm_plus_sell_comm: parseFloat( past_init_vals.comms ? past_init_vals.comms : 0),
           sum_supp_payment: parseFloat( past_init_vals.supp_payments ? past_init_vals.supp_payments : 0),
-          recp_sum_deducts: parseFloat( past_init_vals.supp_deducts ? past_init_vals.supp_deducts : 0),
+          sum_supp_deducts: parseFloat( past_init_vals.supp_deducts ? past_init_vals.supp_deducts : 0),
           sum_product_rahn: parseFloat( past_init_vals.rahn ? past_init_vals.rahn : 0),
-          sum_repay_rahn: parseFloat( past_init_vals.repay_rahn ? past_init_vals.repay_rahn : 0)
+          sum_repay_rahn: parseFloat( past_init_vals.repay_rahn ? past_init_vals.repay_rahn : 0),
+          sum_net_income: parseFloat( past_init_vals.net_income ? past_init_vals.net_income : 0)
         }
       }
 
@@ -511,9 +513,10 @@ export default {
         sum_totals.sum_deducts += one.sum_deducts 
         sum_totals.sum_comm_plus_sell_comm += one.recp_sum_comm +one.out_sell_comm
         sum_totals.sum_supp_payment += one.sum_supp_payment
-        sum_totals.recp_sum_deducts += one.recp_sum_deducts + one.sum_supp_collect
+        sum_totals.sum_supp_deducts += one.recp_sum_deducts + one.sum_supp_collect 
         sum_totals.sum_product_rahn += one.sum_product_rahn
         sum_totals.sum_repay_rahn += one.sum_repay_rahn + one.sum_rahn_down
+        sum_totals.sum_net_income += one.recp_sum_comm + one.out_sell_comm + (one.sum_out_value - one.recp_sum_sale) - one.sum_deducts
       })  
       return sum_totals
     },

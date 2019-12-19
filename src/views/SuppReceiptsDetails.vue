@@ -433,7 +433,11 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
 v-if="app_config.shader_name != 'magdy'"
 src='https://i.imgur.com/Ie2KPRE.jpg?1' />
 
-<h3 class="text-center" v-if="app_config.shader_name == 'magdy'" > حساب سابق : {{ day_balance_was | toAR }}</h3>
+<h3 
+class="text-center" style="margin-top: -1.5rem;" 
+v-if="app_config.shader_name == 'magdy'" >
+ حساب سابق : {{ day_balance_was | toAR }}
+</h3>
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me-xx" >
         <thead>
@@ -622,7 +626,7 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
       </div>
 
   </div>
-          <p class="text-danger pr-me">
+        <p class="text-danger pr-me" v-if="app_config.shader_name != 'magdy'">
           * خالص بيد حامله ولا تلغي أي شيكات أو ايصالات امانة
         </p>
       <span> ف
