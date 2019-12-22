@@ -29,11 +29,15 @@
         عرض المجمعات اليومية   &nbsp; <span class="fa fa-calendar-alt"></span>
       </button>
       <br/><br/>
-      <button  class="btn btn-primary " @click="showInitModal" >
-        ادخال ارصدة اول المدة
+      <button class="btn btn-primary " v-if="app_config.shader_name == 'magdy' && show_daily != 'daily_expenses'" @click="showInitModal" >
+        ادخال ارصدة مجمعات اول المدة
         &nbsp; <span class="fa fa-money-bill-wave"></span>
       </button>
-
+      <br/><br/>
+      <button  class="btn btn-primary "  v-if="app_config.shader_name == 'magdy' && show_daily != 'daily_expenses'" @click="showExpModal" >
+        ادخال ارصدة مصروفات اول المدة
+        &nbsp; <span class="fa fa-money-bill-wave"></span>
+      </button>
       </div>
     </div>
 <!--
@@ -48,6 +52,41 @@ rahn
 repay_rahn
 
 -->
+<b-modal id="exp-modal" size="lg" class="col-print-12" hide-footer >
+  <h2>ارصدة المصاريف اليومية </h2>
+  <div class="row m-4" v-if="daily_expenses.length == 0">
+  <form  class="">
+    <div class="row m-2">
+      <div class="form-group row" style="width:100%">
+        <label class="col-sm-5" >التاريخ</label>
+        <div class="col-sm-7">
+          <input v-model="init_exp_data.day" class="form-control" disabled>
+        </div>
+      </div>
+      <template v-for="(item, idx) in expenses_items" >
+        <!--
+        <span v-if="item.notes && (item.notes.includes('كاتب') || item.notes.includes('حج'))" :key='idx' class=" p-2 col-3">
+          <input class="pr-hideme" :id="item.notes" :value="item.notes" type="checkbox" v-model="checkedItems" />
+          {{item.notes}}
+        </span>
+-->
+        <div class="form-group row" style="width:100%" v-if="item.notes && (item.notes.includes('كاتب') || item.notes.includes('حج'))" :key='idx'>
+          <label class="col-sm-5">{{item.notes}}</label>
+          <div class="col-sm-7">
+            <input class="form-control" v-model="init_exp_data[item.notes]" >
+          </div>
+        </div>
+      </template>
+    </div>
+    <!-- prevent enter to supmit -->
+    <button type="button" @click="saveExpData" class="btn btn-success" >ادخال الارصدة</button>
+    &nbsp;
+    <button type="button" @click="$bvModal.hide('exp-modal');" class="btn btn-danger"> الغاء </button>
+    
+  </form>
+  </div>
+</b-modal>
+
     <b-modal id="init-modal" size="lg" class="col-print-12" hide-footer >
 <h2 class="m-2">ارصدة اول المدة</h2>
 <div class="row m-4">
@@ -337,6 +376,12 @@ sum_rahn_down
               </tr>
             </thead>
             <tbody>
+              <tr>
+                <th>الارصدة</th>
+                <th v-for="(key, idx) in checkedItems" :key='idx'>
+                  {{all_fukn_expenses[key]}}
+                </th>
+              </tr>
               <tr v-for="(exp, idx) in daily_expenses" :key='idx'>
                 <td>{{exp.day}}</td>
                 <template v-for="(item, idx) in checkedItems" >
@@ -385,12 +430,14 @@ export default {
       expenses_items : [],
       single: {},
       init_data: {day: this.$store.state.day.iso},
+      init_exp_data: {day: this.$store.state.day.iso},
       past_init_vals: null,
       from_day: '',
       to_day: '',
       max_datetime: '',
       show_daily: 'daily_totals',
       show_totals: '',
+      all_fukn_expenses: []
     }
   },
   mixins:[MainMixin],
@@ -401,6 +448,9 @@ export default {
     async showInitModal() {
       this.$bvModal.show("init-modal");
     },
+    async showExpModal() {
+      this.$bvModal.show("exp-modal");
+    },
     async saveInitData(){
       console.log(this.init_data);
       await knex.raw(`delete from shader_configs where config_name = 'init-totals';`);
@@ -409,6 +459,18 @@ export default {
        'init-totals','${JSON.stringify(this.init_data)}','${this.init_data.day}'
       )`);
       this.$bvModal.hide("init-modal");
+    },
+
+    async saveExpData(){
+      console.log(this.init_exp_data);
+      await knex.raw(`delete from cashflow where d_product = 'init';`);
+      let alldata = {...this.init_exp_data};
+      let day = alldata.day;
+      delete alldata.day;
+      let newData = Object.keys(alldata).map( k => ( {notes: k , amount: parseFloat(alldata[k]), day: day, state: 'expenses', sum: '-', d_product:'init'} ));
+      await knex('cashflow').insert(newData)
+
+      this.$bvModal.hide("exp-modal");
     },
     async refresh_all(){
       
@@ -424,6 +486,11 @@ export default {
       } else {
         this.daily_totals = await knex('v_daily_sums').orderBy('day',"asc")
       }
+      let all_exp_init = await knex.raw(`select * from cashflow where state='expenses' and d_product='init'`);
+      let all_exp_init_arr = {}
+      all_exp_init.forEach(item => all_exp_init_arr[item.notes] = item.amount)
+      console.log(all_exp_init_arr)
+      this.all_fukn_expenses = all_exp_init_arr
     },
     async change_today_date(date){
       let dateTime = DateTime.fromISO(date)
