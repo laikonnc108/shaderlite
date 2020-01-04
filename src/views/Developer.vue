@@ -4,7 +4,7 @@
     <h1 v-if="app_config.shader_name != 'nada'"
     class="m-1 text-center">نظام وكالة الخضار والفاكهة</h1>
     <h2 class="text-danger"> اصدار رقم {{app_version}}</h2>
-    <h3 class="text-danger" v-if="demo_till">* نسخة تجريبية حتي {{demo_till}}</h3>
+    <h3 class="text-danger" v-if="demo_till">* نسخة تجريبية حتي {{demo_till | arDate}}</h3>
     <div v-if="app_config.shader_name != 'nada'">
       <h3 class="text-success" v-if="! demo_till">* نسخة مرخصة</h3>
     </div>
@@ -90,13 +90,7 @@ export default {
   components: {
   },
   async mounted() {
-    /*
-    let all = await ShaderConfigsModel.where({shader_name:'nada', category:'label'}).fetchAll()
-    console.log(all)
-    const res = await axios.get('https://jsonplaceholder.typicode.com/todos/1')
-    this.breeds = res.data
-    */
-    //const out = await sync_exec(`dir D:\\00_db`)
+    this.demo_till = this.shader_configs['logged_in_user'] !== 'open' ? this.shader_configs['demo_till']*1000 : null;
     try {
       let results = await knex.raw('PRAGMA integrity_check;')
       console.log("integrity_check : ",results)

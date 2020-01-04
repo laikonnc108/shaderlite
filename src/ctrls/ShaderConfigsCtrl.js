@@ -11,14 +11,6 @@ export class ShaderConfigsCtrl {
   
 
   findAll(filter = {}) {
-    
-    /*
-    let all = await this.model.findAll()
-    // OR
-    let all = await this.model.collection().query(function(qb) {
-      qb.where('shader_name', '=', 'nada')
-    }).fetch()
-    */
     return this.model.where(filter).fetchAll()
   }
 

@@ -44,8 +44,8 @@ export default {
   },
   mounted () {
     if(this.$store.state.shader_configs && this.$store.state.shader_configs['demo_till']) {
-      console.log(this.$store.state.shader_configs['demo_till'].config_value)
-      let day = DateTime.fromMillis(parseInt(this.$store.state.shader_configs['demo_till'].config_value) * 1000)
+      console.log(this.$store.state.shader_configs['demo_till'])
+      let day = DateTime.fromMillis(parseInt(this.$store.state.shader_configs['demo_till']) * 1000)
       this.max_datetime = day.toISODate()
     }
     // this.luxon_date = DateTime.fromISO(this.$store.state.day.iso).toString()
