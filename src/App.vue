@@ -56,7 +56,7 @@
                   {{ custom_labels['suppliers_receipts'] }}
                 </router-link>
               </li>
-              <li class="nav-item bg-receipts" v-if="app_config.shader_name == 'magdy' ">
+              <li class="nav-item bg-receipts" v-if="app_config.shader_name != 'nada' ">
                 <router-link class="nav-link active" to="/ctg_receipts">
                   <span class="fa fa-receipt"></span>
                   فواتير الرصد

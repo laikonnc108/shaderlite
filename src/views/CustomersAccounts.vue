@@ -147,7 +147,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
           <tr>
             <td >
               <b class="border-top border-primary">
-                <span v-if="app_config.shader_name == 'magdy'">{{ sum_outgoings_val | ceil5 | toAR }} </span>
+                <span v-if="app_config.shader_name != 'nada'">{{ sum_outgoings_val | ceil5 | toAR }} </span>
                 <span v-else>{{ sum_outgoings_val | round | toAR }} </span>
               </b>
             </td>

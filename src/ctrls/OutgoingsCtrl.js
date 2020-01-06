@@ -39,6 +39,8 @@ export class OutgoingDAO {
     delete this.customer_name
     delete this.sum_count
     delete this.sum_weight
+    delete this.total_weight
+    delete this.weight_deduct
   }
 
   // Constant member

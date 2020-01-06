@@ -12,7 +12,7 @@
             <div class="col-sm-10">
             <select class="form-control " v-model="cashflow_form.state">
               <option value="expenses">مصروفات يومية</option>
-              <option v-if="app_config.shader_name != 'magdy'"
+              <option v-if="app_config.shader_name == 'nada'"
               value="men_account">حساب الرجالة</option>
               <option value="act_pymnt">دفعات لا تخصم من الايراد</option>
               <option value="rahn_down">تنزيل في رهن</option>

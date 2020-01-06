@@ -86,7 +86,7 @@
       <input v-model="outgoing_form.sell_comm" class="form-control" placeholder="ادخل القيمة">
     </div>
   </div>
-
+  <!-- no need it will be added automaticly -->
   <div class="form-group row" v-if="false && outgoing_form.product_rahn" >
     <label :class="{ 'text-danger':  outgoing_form.product_rahn > 50 }" class="col-sm-3">
      رهن الطرد
@@ -96,8 +96,17 @@
     </div>
   </div>
 
+  <div class="form-group row" v-if=" outgoing_form.weight_deduct" >
+    <label class="col-sm-3">
+    الوزن قايم
+    </label>
+    <div class="col-sm-9">
+      <input v-model="outgoing_form.total_weight" class="form-control" placeholder="ادخل القيمة">
+    </div>
+  </div>
+
   <div class="form-group row">
-    <label class="col-sm-3">وزن</label>
+    <label class="col-sm-3">صافي الوزن</label>
     <div class="col-sm-9">
       <input v-model="outgoing_form.weight" class="form-control" placeholder="ادخل الوزن">
     </div>
@@ -371,6 +380,7 @@ export default {
       //this.outgoing_form.kg_price = await this.outgoingsCtrl.getLastKgPrice(incom.product_id)
       this.outgoing_form.sell_comm = incom.product_sell_comm
       this.outgoing_form.product_rahn = incom.product_rahn
+      this.outgoing_form.weight_deduct = incom.weight_deduct
     },
     async refresh_all() {
       this.avilable_incomings = await this.inoutHeadCtrl.findAll({diff: '> 0', day: this.$store.state.day.iso})
@@ -437,5 +447,13 @@ export default {
       return out_sums
     }
   },
+  watch:{
+    'outgoing_form.total_weight': function(val){
+      if(val){
+        let total = parseFloat(val)
+        this.outgoing_form.weight = total - ( parseFloat(this.outgoing_form.weight_deduct) * parseInt(this.outgoing_form.count))
+      }
+    }
+  }
 }
 </script>

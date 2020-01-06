@@ -23,7 +23,7 @@
               <th>بياعة + عمولة</th>
               <th>فرق فواتير</th>
               <th>نوالين</th>
-              <th v-if="app_config.shader_name == 'magdy'">خصم</th>
+              <th v-if="app_config.shader_name != 'nada'">خصم</th>
               <th v-if="app_config.shader_name == 'nada'">مصاريف</th>
               <th>وهبة الكاتب</th>
               <th>صافي فواتير</th>
@@ -59,7 +59,7 @@
               </td>
               
               <td>{{item.sum_total_nolon | round2 }}</td>
-              <td v-if="app_config.shader_name == 'magdy'">{{item.sum_recp_deducts | round2 }}</td>
+              <td v-if="app_config.shader_name != 'nada'">{{item.sum_recp_deducts | round2 }}</td>
               <td v-if="app_config.shader_name == 'nada'">{{item.sum_recp_expenses | round2 }}</td>
               <td>{{item.sum_recp_given | round2 }}</td>
               <td>{{item.sum_net_value | round2 }}</td>

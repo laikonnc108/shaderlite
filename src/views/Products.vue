@@ -24,10 +24,18 @@
           <input v-model="product_form.product_sell_comm" class="form-control "  placeholder="ادخل مبلغ بياعة الصنف">
         </div>
       </div>
+
       <div class="form-group row" v-if="shader_configs['product_rahn']">
         <label  class="col-sm-2">رهن الصنف</label>
         <div class="col-sm-10">
           <input v-model="product_form.product_rahn" class="form-control "  placeholder="ادخل مبلغ رهن الصنف">
+        </div>
+      </div>
+
+      <div class="form-group row" v-if="true">
+        <label  class="col-sm-2">خصم من الوزن</label>
+        <div class="col-sm-10">
+          <input v-model="product_form.weight_deduct" class="form-control "  placeholder="ادخل الوزن المخصوم من العبوة">
         </div>
       </div>
 

@@ -116,7 +116,15 @@
     </div>
     <div class="pr-hideme" >
       <br>
-      <input v-model="search_term" class="form-control "  :placeholder="custom_labels['search_customers']">
+      <input v-model.lazy="search_placeholder" class="form-control "  
+      @keyup.enter="search_term = search_placeholder"
+      @focus="sph_focus = true" @blur="sph_focus = false"
+      :placeholder="custom_labels['search_customers']">
+      <div v-if="sph_focus || search_placeholder" class="m-1">
+        
+        <button class="btn btn-primary" @click="vue_log(search_placeholder);search_term = search_placeholder">بحث</button> &nbsp;
+        <button class="btn btn-danger" @click="search_term = search_placeholder =''">الغاء</button>
+      </div>
     </div>
     <br/>
   <h2 :class="{ 'text-danger': ! flags.show_active }">
@@ -248,7 +256,9 @@ export default {
       flags: {show_active: true, zm_mode: false, form_collabsed: true, detailed: false},
       confirm_step: [],
       checkedItems: [],
+      sph_focus: false,
       search_term: '',
+      search_placeholder: '',
       now_day: moment().format('LL'),
       now_hour: moment().format('hh:mm a'),
       sum_debt: 0
@@ -261,11 +271,11 @@ export default {
       let soft_delete = this.flags.show_active
       // load 20 tasbera
       this.customers_arr = await this.customersCtrl.findAll({limit: 20},{softDelete: soft_delete, 
-        orderByDebt: this.app_config.shader_name == 'magdy'
+        orderByDebt: this.app_config.shader_name != 'nada'
       })
 
       this.customers_arr = await this.customersCtrl.findAll({},{softDelete: soft_delete, 
-        orderByDebt: this.app_config.shader_name == 'magdy'
+        orderByDebt: this.app_config.shader_name != 'nada'
       })
       this.collect_dao = new CashflowDAO()
       let {sum_debt} = await this.customersCtrl.sumDebt()

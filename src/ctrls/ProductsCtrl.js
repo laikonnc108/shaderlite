@@ -6,6 +6,7 @@ export class ProductDAO {
     notes
     product_sell_comm
     product_rahn
+    weight_deduct
     // season 
     // collection = ''
 

@@ -45,7 +45,7 @@
           </div>
         </div>
 
-        <div v-if="app_config.shader_name != 'magdy'" class="row detailed" v-b-modal.modal-expenses>
+        <div v-if="app_config.shader_name  == 'nada'" class="row detailed" v-b-modal.modal-expenses>
           <div class="col-6">
             <span class="btn text-primary">
             مصاريف الفاتورة
@@ -435,7 +435,7 @@ src='https://i.imgur.com/Ie2KPRE.jpg?1' />
 
 <h3 
 class="text-center" style="margin-top: -1.5rem;" 
-v-if="app_config.shader_name == 'magdy'" >
+v-if="app_config.shader_name != 'nada'" >
  حساب سابق : {{ day_balance_was | toAR }}
 </h3>
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 

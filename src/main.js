@@ -30,7 +30,7 @@ store.commit("setAppConfig", {
   curr_dir: path.dirname(app.getAppPath()),
   user_data_path: app.getPath("userData"),
   db_path: dbFile,
-  shader_name: "nada",
+  shader_name: "mmn1",
   env: process.env
 });
 
@@ -162,4 +162,5 @@ new Vue({
 }).$mount("#app");
 
 Vue.prototype.vue_window = window;
+Vue.prototype.vue_log = console.log;
 Vue.prototype.vue_document = document;
