@@ -23,14 +23,16 @@ const log = require("electron-log");
 
 const dbFile = path.resolve(app.getPath("userData"), "db/shaderlite.db");
 
+const SHADER_NAME = "mmn1";
 log.info("dbFile", dbFile);
+
 
 store.commit("setAppConfig", {
   app_path: app.getAppPath(),
   curr_dir: path.dirname(app.getAppPath()),
   user_data_path: app.getPath("userData"),
   db_path: dbFile,
-  shader_name: "mmn1",
+  shader_name: SHADER_NAME,
   env: process.env
 });
 
@@ -53,7 +55,8 @@ export * from "./tools";
 import { moment } from "./tools";
 
 Vue.filter("arDate", function(date) {
-  return moment(date).format("LL");
+
+  return moment(date).format(SHADER_NAME == 'mmn1' ? "L": "LL");
 });
 
 Vue.filter("tr_label", function(string, collection) {

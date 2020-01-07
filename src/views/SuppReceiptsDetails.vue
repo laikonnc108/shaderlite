@@ -158,7 +158,7 @@
           <span> {{recp_1.net_value | round2}} </span>
         </div>
         <hr>
-        <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_1;receipt_d_mode = true"> <span class="fa fa-edit"></span>
+        <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_1;receipt_d_mode = true;vue_log(recp_1)"> <span class="fa fa-edit"></span>
         تعديل / عرض  
         </button>&nbsp;
         <button  class="btn btn-primary" v-if="! recp_1.recp_paid" @click="setRecpPaid(recp_1, 1)">
@@ -600,7 +600,7 @@ v-if="app_config.shader_name != 'nada'" >
           </button>
 
           &nbsp;
-          <button class="btn btn-primary pr-hideme" v-if="modal_recp.id && modal_recp.paid != 2"
+          <button class="btn btn-primary pr-hideme" v-if="modal_recp.id && modal_recp.recp_paid != 2"
           @click="setRecpPaid(modal_recp, 2)" >
             <span class="fa fa-money-bill "></span> &nbsp;
             صرف
@@ -618,7 +618,7 @@ v-if="app_config.shader_name != 'nada'" >
           </button>
 
           &nbsp;
-          <button class="btn btn-primary pr-hideme" v-if="modal_recp.id && modal_recp.paid != 1"
+          <button class="btn btn-primary pr-hideme" v-if="modal_recp.id &&  modal_recp.recp_paid != 1 && modal_recp.recp_paid != 2"
           @click="setRecpPaid(modal_recp, 1)" >
             <span class="fa fa-money-bill "></span> &nbsp;
             رصد
