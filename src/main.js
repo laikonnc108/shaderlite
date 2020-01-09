@@ -108,7 +108,16 @@ Vue.filter("round2", function(number) {
 Vue.filter("ceil5", function(number) {
   number = number ? parseFloat(number) : 0;
   let ceil_5 = Math.ceil(number / 5) * 5;
-  let last_res = ceil_5 - number <= 2 ? ceil_5 : Math.ceil(number);
+  let last_res = number;
+  
+  if (SHADER_NAME == 'mmn1') {
+    //last_res =   ceil_5 ;
+    last_res = ceil_5 - number <= 2 ? ceil_5 : Math.ceil(number);
+  }
+  else if(SHADER_NAME == 'magdy') {
+    last_res = ceil_5 - number <= 2 ? ceil_5 : Math.ceil(number);
+  }
+  
   return last_res;
 });
 

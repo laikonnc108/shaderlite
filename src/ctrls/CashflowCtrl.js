@@ -36,7 +36,6 @@ export class CashflowDAO {
       : 0;
     delete this.customer_name;
     delete this.supplier_name;
-    delete this.income_day;
     delete this.count;
     delete this.kg_price;
     delete this.weight;
@@ -57,6 +56,7 @@ export class CashflowCtrl {
 
   /**@param {CashflowDAO} data */
   async save(data) {
+    console.log(data)
     data.parseTypes();
     let record = await this.model.forge(data).save();
     return record.id;
@@ -102,7 +102,7 @@ export class CashflowCtrl {
 
   async getSupplierRecpExpenses(filter = { day: "", supplier_id: 0 }) {
     let query = `SELECT id,supplier_id, day, amount from cashflow WHERE 
-    state= 'supp_recp_expenses' and supplier_id = '${filter.supplier_id}' and day = '${filter.day}'`;
+    state= 'supp_recp_expenses' and supplier_id = '${filter.supplier_id}' and income_day = '${filter.day}'`;
     let results = await knex.raw(query);
     let recp_expenses =
       results && results.length > 0 ? new CashflowDAO(results[0]) : null;

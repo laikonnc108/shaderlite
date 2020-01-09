@@ -80,7 +80,7 @@
             <span v-if="trans_form.trans_type === 'supp_pre_payment' 
             || trans_form.trans_type === 'supp_payment' 
             || trans_form.trans_type === 'supp_init_payment' 
-            || trans_form.trans_type === 'supp_recp_expensess'">اضافة دفعة</span>
+            || trans_form.trans_type === 'supp_recp_expenses'">اضافة دفعة</span>
             <span v-if="trans_form.trans_type === 'supp_pre_recp' ">اضافة الفاتورة</span>
             <span v-if=" trans_form.trans_type == 'supp_collect'">تحصيل مبلغ</span>
           </button>

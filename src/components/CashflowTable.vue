@@ -108,7 +108,8 @@ export default {
         return (
           (item.supplier_name && item.supplier_name.includes(this.search_term)) ||
           (item.customer_name && item.customer_name.includes(this.search_term)) ||
-          (! this.search_term && ! item.supplier_name && ! item.customer_name)
+          (! this.search_term && ! item.supplier_name && ! item.customer_name) ||
+          (item.notes && item.notes.includes(this.search_term))
         )
       })
     }

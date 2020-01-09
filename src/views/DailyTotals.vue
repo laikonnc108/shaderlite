@@ -64,12 +64,7 @@ repay_rahn
         </div>
       </div>
       <template v-for="(item, idx) in expenses_items" >
-        <!--
-        <span v-if="item.notes && (item.notes.includes('كاتب') || item.notes.includes('حج'))" :key='idx' class=" p-2 col-3">
-          <input class="pr-hideme" :id="item.notes" :value="item.notes" type="checkbox" v-model="checkedItems" />
-          {{item.notes}}
-        </span>
--->
+
         <div class="form-group row" style="width:100%" v-if="item.notes && (item.notes.includes('كاتب') || item.notes.includes('حج'))" :key='idx'>
           <label class="col-sm-5">{{item.notes}}</label>
           <div class="col-sm-7">
@@ -542,7 +537,7 @@ export default {
   },
   async mounted() {
     this.refresh_all()
-    this.show_totals = this.shader_configs['show_totals']
+    this.show_totals = this.shader_configs['show_totals'] ? this.shader_configs['show_totals'] : ''
   },
   computed: {
     sum_totals: function() {

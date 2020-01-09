@@ -12,8 +12,13 @@
             <div class="col-sm-10">
             <select class="form-control " v-model="cashflow_form.state">
               <option value="expenses">مصروفات يومية</option>
-              <option v-if="app_config.shader_name == 'nada'"
-              value="men_account">حساب الرجالة</option>
+              <option v-if="app_config.shader_name == 'mmn1'" value="ex_momen">{{'ex_momen' |tr_label('trans_types')}}</option>
+              <option v-if="app_config.shader_name == 'mmn1'" value="ex_said">{{'ex_said' |tr_label('trans_types')}}</option>
+              <option v-if="app_config.shader_name == 'mmn1'" value="ex_mohamed">{{'ex_mohamed' |tr_label('trans_types')}}</option>
+              <option v-if="app_config.shader_name == 'mmn1'" value="ex_hisham">{{'ex_hisham' |tr_label('trans_types')}}</option>
+              <option v-if="app_config.shader_name == 'mmn1'" value="ex_comm">{{'ex_comm' |tr_label('trans_types')}}</option>
+              <option v-if="app_config.shader_name == 'mmn1'" value="ex_mashal">{{'ex_mashal' |tr_label('trans_types')}}</option>
+              <option v-if="app_config.shader_name != 'magdy'" value="men_account">{{'men_account' |tr_label('trans_types')}} </option>
               <option value="act_pymnt">دفعات لا تخصم من الايراد</option>
               <option value="rahn_down">تنزيل في رهن</option>
               <option v-if="app_config.shader_name == 'magdy'" value="حج مجدي">حج مجدي</option>
@@ -146,6 +151,7 @@ export default {
     CashflowTable
   },
   mounted() {
+    this.men_rate =this.shader_configs['men_rate'] ? parseFloat(this.shader_configs['men_rate']) : this.men_rate;
     this.refresh_all()
   },
   updated() {
@@ -159,7 +165,6 @@ export default {
     */
     valid_form: function() {
       if(this.cashflow_form.amount && parseFloat(this.cashflow_form.amount) ){
-        console.log(parseFloat(this.cashflow_form.amount))
         return true
       }
     }

@@ -163,7 +163,7 @@ ${filter.limit ? "limit " + parseInt(filter.limit) : ""}
     let daily_out_trans = await this.customerTransModel
       .query(
         {
-          whereRaw: `customer_id = ${filter.id} and day = '${filter.day}' and trans_type in ('outgoing','cust_in_collecting','mashal')`
+          whereRaw: `customer_id = ${filter.id} and day = '${filter.day}' and trans_type in ('outgoing','cust_in_collecting','mashal','aarbon','repay_rahn_internal')`
         }
       )
       .fetchAll({ withRelated: ["outgoing", "product"] });
@@ -230,7 +230,12 @@ GROUP by kg_price, v_outgoings.product_id, trans_type`);
     let results = await knex.raw(`
 select null as id, day, notes, customer_id,null as cashflow_id,'+' as sum  ,sum(amount) as amount, 'sum_outgoing' as trans_type  from customer_trans 
 where customer_id = ${filter.id} and 
-(trans_type= 'outgoing' or trans_type= 'product_rahn' or trans_type= 'cust_in_collecting' or trans_type= 'mashal') GROUP BY day
+(trans_type= 'outgoing' 
+or trans_type= 'product_rahn' 
+or trans_type= 'cust_in_collecting' 
+or trans_type= 'mashal' 
+or trans_type= 'repay_rahn_internal' 
+or trans_type= 'aarbon') GROUP BY day
 UNION
 select id, day, notes, customer_id, cashflow_id, sum , amount , trans_type  from customer_trans 
 where customer_id = ${filter.id} 
@@ -238,6 +243,8 @@ and trans_type <> 'outgoing'
 and trans_type <> 'product_rahn' 
 and trans_type <> 'cust_in_collecting'
 and trans_type <> 'mashal'
+and trans_type <> 'repay_rahn_internal'
+and trans_type <> 'aarbon'
 ORDER BY day
 `);
     return results.map(_ => new CustomerTransDAO(_));

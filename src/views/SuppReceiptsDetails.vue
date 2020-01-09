@@ -41,14 +41,14 @@
             {{ total_nolon | round2 }}
             </span>
             <span class="fa fa-table"></span>
-            عرض النوالين
+            عرض 
           </div>
         </div>
 
-        <div v-if="app_config.shader_name  == 'nada'" class="row detailed" v-b-modal.modal-expenses>
+        <div v-if="app_config.shader_name  != 'magdy'" class="row detailed" v-b-modal.modal-expenses>
           <div class="col-6">
             <span class="btn text-primary">
-            مصاريف الفاتورة
+            {{ 'recp_expenses' | tr_label }}
             </span>
           </div>
           <div class="col-6 btn text-primary">
@@ -56,7 +56,7 @@
             {{ recp_expenses | round2 }}
             </span>
             <span class="fa fa-table"></span>
-            عرض المصروف
+            عرض 
           </div>
         </div>
       </div>
@@ -137,7 +137,7 @@
           <span> {{recp_1.total_nolon | default0}} </span>
         </div>
         <div class="row-detail" v-if="recp_1.recp_expenses">
-          <label> مصاريف الفاتورة</label>
+          <label> {{ 'recp_expenses' | tr_label }}</label>
           <span> {{recp_1.recp_expenses | default0}} </span>
         </div>
         <div class="row-detail" v-if="recp_1.recp_deducts">
@@ -203,7 +203,7 @@
           <span> {{recp_2.total_nolon | default0}} </span>
         </div>
         <div class="row-detail" v-if="recp_2.recp_expenses">
-          <label> مصاريف الفاتورة</label>
+          <label> {{ 'recp_expenses' | tr_label }}</label>
           <span> {{recp_2.recp_expenses | default0}} </span>
         </div>
         <div class="row-detail">
@@ -270,7 +270,7 @@
           <span> {{recp_3.total_nolon | default0}} </span>
         </div>
         <div class="row-detail" v-if="recp_3.recp_expenses">
-          <label> مصاريف الفاتورة</label>
+          <label> {{ 'recp_expenses' | tr_label }}</label>
           <span> {{recp_3.recp_expenses | default0}} </span>
         </div>
         <div class="row-detail">
@@ -506,6 +506,7 @@ v-if="app_config.shader_name != 'nada'" >
             <td colspan="4" style="border: none !important;"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" 
+              onClick="this.select();"
               :class="{'font-small': app_config.shader_name == 'magdy'}"
               v-model="modal_recp.comm_rate" class="form-control"  >
             </td>
@@ -526,13 +527,14 @@ v-if="app_config.shader_name != 'nada'" >
           <tr v-if="modal_recp.recp_expenses">
             <td colspan="7" style="border: none !important;"></td>
             <td ><b >( {{modal_recp.recp_expenses | round2 | toAR }} )</b></td>
-            <td  style="border: none !important;">مصروف الفاتورة</td>
+            <td  style="border: none !important;">{{ 'recp_expenses' | tr_label }}</td>
           </tr>
 
           <tr v-if="app_config.shader_name != 'nada'">
             <td colspan="4" style="border: none !important;"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" 
+              onClick="this.select();"
               v-model="modal_recp.recp_deducts" class="form-control" placeholder="ادخل مبلغ الخصم" >
             </td>
             <td></td>
@@ -545,6 +547,7 @@ v-if="app_config.shader_name != 'nada'" >
             <td colspan="4" style="border: none !important;"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" 
+              onClick="this.select();"
               v-model="modal_recp.recp_given" class="form-control"  >
             </td>
             <td></td>
@@ -559,6 +562,7 @@ v-if="app_config.shader_name != 'nada'" >
             <td colspan="4" style="border: none !important;"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" 
+              onClick="this.select();"
               v-model="modal_recp.recp_others" class="form-control"  >
             </td>
             <td></td>
@@ -587,7 +591,14 @@ v-if="app_config.shader_name != 'nada'" >
           <tr>
             <td colspan="2" style="border: none !important;"></td>
             <td style="border: none !important;">صافي الفاتورة</td>
-            <td ><b class="border-top border-primary">{{modal_recp.net_value | round2 | toAR }} </b></td>
+            <td >
+              <b class="border-top border-primary" v-if="app_config.shader_name == 'wrong'">
+                {{Math.ceil(modal_recp.net_value / 5) * 5 | toAR }}
+              </b>
+              <b class="border-top border-primary" v-else>
+                {{modal_recp.net_value | round | toAR }}
+              </b>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -673,6 +684,7 @@ export default {
       today_nolons: [],
       recp_in_sums: {},
       recp_init_comm_rate: this.$store.state.shader_configs['init_recp_comm'] ? parseFloat(this.$store.state.shader_configs['init_recp_comm']) : 0 ,
+      recp_init_recp_given: this.$store.state.shader_configs['init_recp_given'] ? parseFloat(this.$store.state.shader_configs['init_recp_given']) : 0 ,
       recp_1: new ReceiptDAO({}),
       recp_2: new ReceiptDAO({}),
       recp_3: new ReceiptDAO({}),
@@ -689,7 +701,7 @@ export default {
         if(calc_balance_was[0].balance_was)
         this.day_balance_was = parseFloat(calc_balance_was[0].balance_was)
       }
-      this.recp_1 = new ReceiptDAO({serial: 1, comm_rate: this.recp_init_comm_rate, ...ReceiptDAO.INIT_DAO})
+      this.recp_1 = new ReceiptDAO({serial: 1, recp_given: this.recp_init_recp_given, comm_rate: this.recp_init_comm_rate, ...ReceiptDAO.INIT_DAO})
       this.recp_2 = new ReceiptDAO({serial: 2, comm_rate: this.recp_init_comm_rate, ...ReceiptDAO.INIT_DAO})
       this.recp_3 = new ReceiptDAO({serial: 3, comm_rate: this.recp_init_comm_rate, ...ReceiptDAO.INIT_DAO})
 
@@ -813,7 +825,8 @@ export default {
       this.refresh_all()
     },
     async saveExpenses(){
-      this.recp_expenses_dao.day =  this.day.iso
+      this.recp_expenses_dao.day =  this.$store.state.day.iso
+      this.recp_expenses_dao.income_day =  this.recp_day
       this.recp_expenses_dao.supplier_id = this.supplier_id
       await this.cashflowCtrl.save(this.recp_expenses_dao)
       this.refresh_all()

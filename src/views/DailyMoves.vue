@@ -25,7 +25,8 @@
               <th>نوالين</th>
               <th v-if="app_config.shader_name != 'nada'">خصم</th>
               <th v-if="app_config.shader_name == 'nada'">مصاريف</th>
-              <th>وهبة الكاتب</th>
+              <th>وهبة </th>
+              <th>{{'recp_others' | tr_label}}</th>
               <th>صافي فواتير</th>
             </tr>
           </thead>
@@ -62,6 +63,7 @@
               <td v-if="app_config.shader_name != 'nada'">{{item.sum_recp_deducts | round2 }}</td>
               <td v-if="app_config.shader_name == 'nada'">{{item.sum_recp_expenses | round2 }}</td>
               <td>{{item.sum_recp_given | round2 }}</td>
+              <td>{{item.sum_recp_others | round2 }}</td>
               <td>{{item.sum_net_value | round2 }}</td>
             </tr>
             <tr>
@@ -78,6 +80,7 @@
               <th>{{recp_sums.sum_nolons | round }}</th>
               <td></td>
               <th>{{recp_sums.sum_givens | round }}</th>
+              <th>{{recp_sums.sum_others | round }}</th>
             </tr>
           </tbody>
         </table>
@@ -226,7 +229,8 @@ export default {
         sum_out_comm: 0,
         sum_recp_comm: 0,
         sum_comms: 0 ,
-        sum_givens: 0
+        sum_givens: 0,
+        sum_others: 0
       }
       this.daily_receipts.forEach( recp => {
         recp_sums.sum_count += parseInt(recp.sum_total_count)
@@ -238,6 +242,7 @@ export default {
         recp_sums.sum_out_comm += recp.sum_sell_comm
         recp_sums.sum_recp_comm += recp.sum_recp_comm
         recp_sums.sum_givens += recp.sum_recp_given
+        recp_sums.sum_others += recp.sum_recp_others
         recp_sums.sum_rasd_net += recp.sum_rasd_net
       })
       return recp_sums

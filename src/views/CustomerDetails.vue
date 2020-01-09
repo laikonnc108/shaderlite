@@ -275,6 +275,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
                 </button>
             </td>
           </tr>
+
           <tr :class="{'pr-hideme': !msh_collect_form.amount }" 
           v-if="app_config.shader_name != 'nada' ">
             <td ><input 
@@ -292,6 +293,47 @@ hide-header hide-footer hide-header-close hide-backdrop>
                 </button>
             </td>
           </tr>
+
+                    <tr v-if="app_config.shader_name != 'nada' && app_config.shader_name != 'magdy'"
+          :class="{'pr-hideme': !aarbon_form.amount }">
+            <td ><input v-if="! aarbon_form.id" 
+              v-model="aarbon_form.amount" class="form-control" placeholder="ادخل مبلغ العربون" >
+              <span v-if="aarbon_form.id">({{aarbon_form.amount | toAR}})</span>
+              </td>
+            <td style="border: none !important;"> 
+            عربون
+            </td>
+
+            <td style="border: none !important;">
+                <button  v-if="aarbon_form.id"
+                class="btn text-danger pr-hideme" @click="removeTrans(aarbon_form,true)" >
+                  <span class="fa fa-archive "></span> 
+                  <template v-if="! confirm_step[aarbon_form.id]"> حذف </template>
+                  <template v-if="confirm_step[aarbon_form.id]"> تأكيد </template>
+                </button>
+            </td>
+          </tr>
+
+          <tr v-if="app_config.shader_name != 'nada' && app_config.shader_name != 'magdy'"
+          :class="{'pr-hideme': !d_down_rahn_form.amount }">
+            <td ><input v-if="! d_down_rahn_form.id" 
+              v-model="d_down_rahn_form.amount" class="form-control" placeholder="ادخل مبلغ رد الرهن" >
+              <span v-if="d_down_rahn_form.id">({{d_down_rahn_form.amount | toAR}})</span>
+              </td>
+            <td style="border: none !important;"> 
+            رد رهن
+            </td>
+
+            <td style="border: none !important;">
+                <button  v-if="d_down_rahn_form.id"
+                class="btn text-danger pr-hideme" @click="removeTrans(d_down_rahn_form,true)" >
+                  <span class="fa fa-archive "></span> 
+                  <template v-if="! confirm_step[d_down_rahn_form.id]"> حذف </template>
+                  <template v-if="confirm_step[d_down_rahn_form.id]"> تأكيد </template>
+                </button>
+            </td>
+          </tr>
+
           <tr>
             <td >
               <b class="border-top border-primary">
@@ -344,6 +386,8 @@ export default {
       customer_trans_form: {id:null , trans_type:'cust_collecting', amount: null , notes: null},
       d_collect_form: {id:null , trans_type:'cust_in_collecting', amount: null , notes: null},
       msh_collect_form: {id:null , trans_type:'mashal', amount: null , notes: null},
+      d_down_rahn_form: {id:null , trans_type:'repay_rahn_internal', amount: null , notes: null},
+      aarbon_form: {id:null , trans_type:'aarbon', amount: null , notes: null},
       trans_types_opts : [],
       customer_trans: [],
       daily_out_trans: [],
@@ -385,6 +429,19 @@ export default {
         this.msh_collect_form.amount = Math.abs(filtered_mashal[0].amount)
         this.msh_collect_form.id = filtered_mashal[0].id
       }
+
+      let fltr_rahn_in = this.daily_out_trans.filter(item => item.trans_type === 'repay_rahn_internal')
+      console.log('fltr_rahn_in', fltr_rahn_in)
+      if(fltr_rahn_in.length > 0){
+        this.d_down_rahn_form.amount = Math.abs(fltr_rahn_in[0].amount)
+        this.d_down_rahn_form.id = fltr_rahn_in[0].id
+      }
+
+      let fltr_aarbon = this.daily_out_trans.filter(item => item.trans_type === 'aarbon')
+      if(fltr_aarbon.length > 0){
+        this.aarbon_form.amount = Math.abs(fltr_aarbon[0].amount)
+        this.aarbon_form.id = fltr_aarbon[0].id
+      }
       this.$bvModal.show('modal-daily')
     },
     async modalSave(evt){
@@ -393,9 +450,20 @@ export default {
         this.d_collect_form.trans_type = 'cust_in_collecting'
         await this.createCustomerTrans(evt, this.d_collect_form)
       }
+
       if(! this.msh_collect_form.id && this.msh_collect_form.amount) {
         this.msh_collect_form.trans_type = 'mashal'
         await this.createCustomerTrans(evt, this.msh_collect_form)
+      }
+
+      if(! this.aarbon_form.id && this.aarbon_form.amount) {
+        this.aarbon_form.trans_type = 'aarbon'
+        await this.createCustomerTrans(evt, this.aarbon_form)
+      }
+
+      if(! this.d_down_rahn_form.id && this.d_down_rahn_form.amount) {
+        this.d_down_rahn_form.trans_type = 'repay_rahn_internal'
+        await this.createCustomerTrans(evt, this.d_down_rahn_form)
       }
       await this.showOutModal(this.outg_day)
     },
@@ -408,6 +476,8 @@ export default {
         this.getCustomerDetails()
         if(in_kashf) {
           this.d_collect_form = {}
+          this.d_down_rahn_form = {}
+          this.aarbon_form = {}
           this.msh_collect_form = {}
           this.showOutModal(this.outg_day)
         }
