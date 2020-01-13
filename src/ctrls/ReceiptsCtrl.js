@@ -25,6 +25,8 @@ export class ReceiptDAO {
   serial;
   printed;
   balance_was;
+  cashflow_id;
+  cashflow_day;
 
   static get INIT_DAO() {
     return {
@@ -39,6 +41,7 @@ export class ReceiptDAO {
   parseTypes() {
     // this.details= this.details? JSON.stringify(this.details) : null
     delete this.details;
+    delete this.cashflow_day;
   }
 }
 
@@ -111,16 +114,18 @@ export class ReceiptsCtrl {
   async findAll(filter = {}) {
     let all = await this.model
       .where(filter)
-      .fetchAll({ withRelated: ["supplier", "details"] });
+      .fetchAll({ withRelated: ["supplier", "details","cashflow"] });
     return all.map(_ => {
       let dao = new ReceiptDAO(_.attributes);
       dao.supplier_name = _.related("supplier").get("name");
+      dao.cashflow_day = _.related("cashflow").get("day");
       /**@type {Array} */
       let details = _.related("details").toJSON();
       details.forEach(record => {
         dao.details.push(new ReceiptDetailDAO(record));
       });
-      console.log(dao);
+      //console.log('cashflow', _.related("cashflow").toJSON())
+      //console.log(dao);
       // calc balance_was
 
       return dao;

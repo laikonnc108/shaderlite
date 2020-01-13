@@ -22,6 +22,12 @@
             </tr>
         </table>
 
+        <table class="table table-bordered mt-1 pr-hideme" v-if=" ! customer.is_self">
+          <tr>
+            <th class="text-danger">صافي الرهونات</th>
+            <th>{{net_rahn}}</th>
+          </tr>
+        </table>
 
   <button v-b-toggle.collapse_collect class="btn btn-success m-1 d-print-none">
     <span class="fa fa-credit-card"></span> &nbsp; 
@@ -147,7 +153,7 @@
           </thead>
           <tbody>
             <template v-for="(trans, idx) in comp_customer_trans" >
-            <tr :key='idx' v-if="! show_trans_after || Date.parse(trans.day) >= Date.parse(show_trans_after)">
+            <tr :key='idx' v-if="trans.amount && ! show_trans_after || Date.parse(trans.day) >= Date.parse(show_trans_after)">
               <td>{{trans.day | arDate }}</td>
               <td class="text-primary">{{trans.c_debt_was | round | toAR}}</td>
               <td>{{trans.amount | round | toAR}}</td>
@@ -197,16 +203,16 @@ hide-header hide-footer hide-header-close hide-backdrop>
 <div class="row">
   <div class="col-5">
     <h4>
-      تحريراً في {{outg_day | arDate }}
+      تحريراً في {{outg_day | arDate(app_config.shader_name) }}
     </h4>
     <h4>
       <span style="font-size: .6em;">المطلوب من السيد/ </span> 
       <span style="font-size: 1.1em;">{{customer.name}}</span>
     </h4>
   </div>
-  <div class="col-7"  v-if="app_config.shader_name != 'nada' ">
+  <div class="col-7"  >
     <h3 > {{'kashf_cust' | tr_label}} </h3>
-    <h2 class="text-center" v-if="daily_out_trans[0]"> حساب سابق : {{ daily_out_trans[0].debt_was | toAR }}</h2>
+    <h2 class="text-center" v-if="daily_out_trans[0] && app_config.shader_name == 'magdy'"> حساب سابق : {{ daily_out_trans[0].debt_was | toAR }}</h2>
   </div>
 </div>
 
@@ -294,9 +300,9 @@ hide-header hide-footer hide-header-close hide-backdrop>
             </td>
           </tr>
 
-                    <tr v-if="app_config.shader_name != 'nada' && app_config.shader_name != 'magdy'"
+          <tr v-if="app_config.shader_name != 'nada' && app_config.shader_name != 'magdy'"
           :class="{'pr-hideme': !aarbon_form.amount }">
-            <td ><input v-if="! aarbon_form.id" 
+            <td ><input v-if="! aarbon_form.id && outg_day == day.iso" 
               v-model="aarbon_form.amount" class="form-control" placeholder="ادخل مبلغ العربون" >
               <span v-if="aarbon_form.id">({{aarbon_form.amount | toAR}})</span>
               </td>
@@ -305,7 +311,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             </td>
 
             <td style="border: none !important;">
-                <button  v-if="aarbon_form.id"
+                <button  v-if="aarbon_form.id "
                 class="btn text-danger pr-hideme" @click="removeTrans(aarbon_form,true)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[aarbon_form.id]"> حذف </template>
@@ -316,7 +322,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
 
           <tr v-if="app_config.shader_name != 'nada' && app_config.shader_name != 'magdy'"
           :class="{'pr-hideme': !d_down_rahn_form.amount }">
-            <td ><input v-if="! d_down_rahn_form.id" 
+            <td ><input v-if="! d_down_rahn_form.id && outg_day == day.iso" 
               v-model="d_down_rahn_form.amount" class="form-control" placeholder="ادخل مبلغ رد الرهن" >
               <span v-if="d_down_rahn_form.id">({{d_down_rahn_form.amount | toAR}})</span>
               </td>
@@ -345,6 +351,12 @@ hide-header hide-footer hide-header-close hide-backdrop>
           </tr>
         </tbody>
       </table>
+
+      <div class="col-6"  v-if="app_config.shader_name == 'mmn1'  ">
+        <hr/>
+        <h3 class="text-center" v-if="daily_out_trans[0]"> {{'total_debt' | tr_label}} : {{sum_debt_cmpt | round | toAR}}</h3>
+      </div>
+
       <span></span>
       <div class="m-2">
         <button class="btn btn-success pr-hideme" @click="modalSave" >
@@ -399,7 +411,8 @@ export default {
       discard_success: false,
       sell_rest: {actual_sale: 0 , notes: ''},
       outg_day: {},
-      show_trans_after: ''
+      show_trans_after: '',
+      net_rahn: 0
     }
   },
   mixins: [MainMixin],
@@ -409,7 +422,9 @@ export default {
       // TODO get trans dynamicly
       this.customer = await this.customersCtrl.findOne(this.customer_id)
       this.customer_trans = await this.customersCtrl.getCustomerTrans({id: this.customer_id})
-      console.log(this.customer_trans)
+      console.log(this.customer_trans);
+      this.net_rahn = await this.customersCtrl.getCustomerNetRahn({id: this.customer_id})
+      console.log(this.net_rahn)
       this.trans_types_opts = await this.transTypesCtrl.findAll({category: 'customer_trans', optional: 3 })
       if(this.customer.is_self ) {
         this.self_rest_products = await this.customersCtrl.getRestInSelf(this.customer_id)

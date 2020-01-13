@@ -293,9 +293,14 @@ sum_rahn_down
               <td v-if="show_totals.includes('out_cashflow')">
                 {{item.sum_deducts | round }}
               </td>
-              <td v-if="show_totals.includes('net_income')">
+              <!-- Not inlude recp diff for mmn1 -->
+              <td v-if="show_totals.includes('net_income_no_diff')">
+                {{item.recp_sum_comm + item.out_sell_comm - item.sum_deducts | round }}
+              </td>
+              <td v-else-if="show_totals.includes('net_income')">
                 {{item.recp_sum_comm + item.out_sell_comm + (item.sum_out_value - item.recp_sum_sale) - item.sum_deducts | round }}
               </td>
+              
               <td v-if="show_totals.includes('supp_payments')">
                 {{item.sum_supp_payment | round }}
               </td>

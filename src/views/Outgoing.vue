@@ -174,6 +174,15 @@
     </div>
   </div>
   
+  <div class="form-group row" v-if="app_config.shader_name == 'mmn1'">
+    <label for="notes1" class="col-sm-3">
+      {{'aarbon' | tr_label}}
+    </label>
+    <div class="col-sm-9">
+      <input v-model="outgoing_form.aarbon" class="form-control" id="aarbon"  >
+    </div>
+  </div>
+
   <!-- Prevent implicit submission of the form to solve delay issu-->
   <button type="submit" disabled style="display: none" aria-hidden="true"></button>
   
@@ -276,9 +285,11 @@
 <script>
 import { InoutHeadCtrl } from '../ctrls/InoutHeadCtrl'
 import { OutgoingDAO, OutgoingsCtrl } from '../ctrls/OutgoingsCtrl'
-import { CustomersCtrl, CustomerDAO } from '../ctrls/CustomersCtrl';
+import { CustomersCtrl, CustomerDAO, CustomerTransDAO } from '../ctrls/CustomersCtrl';
+import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl';
 import { MainMixin } from '../mixins/MainMixin';
 import { IncomingsCtrl } from '../ctrls/IncomingsCtrl';
+import { TransTypesCtrl } from '../ctrls/TransTypesCtrl';
 
 export default {
   name: 'outgoings',
@@ -315,6 +326,47 @@ export default {
       this.outgoing_form.supplier_id = this.selected_inc.supplier_id
       this.outgoing_form.product_id = this.selected_inc.product_id
       this.outgoing_form.sell_comm_value = this.outgoing_form.count * this.outgoing_form.sell_comm
+      
+      if(this.outgoing_form.aarbon){
+
+        let aarbon = parseFloat(this.outgoing_form.aarbon)
+        let selectedTrans = await new TransTypesCtrl().findOne({
+          name: 'aarbon',
+          category: "customer_trans"
+        });
+        // create customer trans
+        if (selectedTrans) {
+
+          let cashflow_id = null;
+
+          if (selectedTrans.map_cashflow) {
+            // Create cashflow with trans
+            let cashflowTrans = await new TransTypesCtrl().findOne({
+              name: selectedTrans.map_cashflow,
+              category: "cashflow"
+            });
+
+            let newCashflow = new CashflowDAO({
+              amount: aarbon,
+              day: this.$store.state.day.iso,
+              customer_id: this.outgoing_form.customer_id
+            });
+
+            newCashflow.transType = cashflowTrans;
+            cashflow_id = await new CashflowCtrl().save(newCashflow);
+          }
+
+          let custtransDAO = new CustomerTransDAO({
+            amount: aarbon
+          });
+          custtransDAO.day = this.$store.state.day.iso;
+          custtransDAO.customer_id = this.outgoing_form.customer_id;
+          custtransDAO.cashflow_id = cashflow_id;
+          custtransDAO.transType = selectedTrans;
+          await this.customersCtrl.updateDebtByTrans(custtransDAO);
+        }
+        delete this.outgoing_form.aarbon
+      }
       await this.outgoingsCtrl.saveOutgoingData(this.outgoing_form)
       // console.log(this.outgoing_form)
       this.refresh_all()

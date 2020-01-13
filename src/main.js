@@ -23,7 +23,6 @@ const log = require("electron-log");
 
 const dbFile = path.resolve(app.getPath("userData"), "db/shaderlite.db");
 
-const SHADER_NAME = "mmn1";
 log.info("dbFile", dbFile);
 
 
@@ -32,7 +31,6 @@ store.commit("setAppConfig", {
   curr_dir: path.dirname(app.getAppPath()),
   user_data_path: app.getPath("userData"),
   db_path: dbFile,
-  shader_name: SHADER_NAME,
   env: process.env
 });
 
@@ -54,9 +52,9 @@ export { knex, sqlite_config, bookshelf, MyStoreMutations, log };
 export * from "./tools";
 import { moment } from "./tools";
 
-Vue.filter("arDate", function(date) {
+Vue.filter("arDate", function(date, shader_name = '') {
 
-  return moment(date).format(SHADER_NAME == 'mmn1' ? "L": "LL");
+  return moment(date).format(shader_name == 'mmn1' ? "L": "LL");
 });
 
 Vue.filter("tr_label", function(string, collection) {
@@ -105,16 +103,16 @@ Vue.filter("round2", function(number) {
   return roundOf(rounded, 2).toFixed(2);
 });
 
-Vue.filter("ceil5", function(number) {
+Vue.filter("ceil5", function(number, shader_name = 'magdy') {
   number = number ? parseFloat(number) : 0;
   let ceil_5 = Math.ceil(number / 5) * 5;
   let last_res = number;
   
-  if (SHADER_NAME == 'mmn1') {
+  if (shader_name == 'mmn1') {
     //last_res =   ceil_5 ;
     last_res = ceil_5 - number <= 2 ? ceil_5 : Math.ceil(number);
   }
-  else if(SHADER_NAME == 'magdy') {
+  else if(shader_name == 'magdy') {
     last_res = ceil_5 - number <= 2 ? ceil_5 : Math.ceil(number);
   }
   

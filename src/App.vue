@@ -9,7 +9,7 @@
           <div class="sidebar-sticky mt-3" v-if="! require_login">
             <div class="pl-2 pr-2" v-if="false">مرحباً {{logged_in_user.username}}</div>
             <h4 class="d-flex justify-content-between align-items-center px-3 mb-1 text-muted">
-              <router-link to="/daily">{{ day.iso | arDate }}</router-link>
+              <router-link to="/daily">{{ day.iso | arDate(app_config.shader_name) }}</router-link>
             </h4>
             <div class="p-3">
               <b>{{ day.d_week }}</b>
@@ -210,16 +210,30 @@ export default {
     this.$store.commit(MyStoreMutations.setTranstypesArr, transNames);
   },
   async beforeMount() {
+
     let custom_labels = null;
     try {
       await knex.raw("PRAGMA integrity_check;");
-      custom_labels = await this.shaderConfigsCtrl.getAppLabels();
     } catch (error) {
       console.error(error);
       window.alert("لم يتم ربط قاعدة البيانات");
       this.$router.push("developer");
       return;
     }
+
+    let shader_results = await knex.raw(`select config_value as shader_name from shader_configs where config_name = 'shader_name'`)
+    console.log(shader_results);
+    if(! shader_results[0] || ! shader_results[0].shader_name) {
+      console.error('shader_name Not Set');
+      window.alert('shader_name Not Set');
+    } else {
+      this.$store.commit('setAppConfig', {
+        ... this.$store.state.app_config,
+        shader_name: shader_results[0].shader_name
+      })
+    }
+
+    custom_labels = await this.shaderConfigsCtrl.getAppLabels();
     this.$store.commit(MyStoreMutations.setCustomLabels, custom_labels);
 
     let shader_conf = await this.shaderConfigsCtrl.getAppCongifs();

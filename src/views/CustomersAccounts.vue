@@ -39,16 +39,17 @@ hide-header hide-footer hide-header-close hide-backdrop>
 <div class="row">
   <div class="col-5">
     <h4>
-      تحريراً في {{outg_day | arDate }}
+      تحريراً في {{outg_day | arDate(app_config.shader_name) }}
     </h4>
     <h4>
       <span style="font-size: .6em;">المطلوب من السيد/ </span> 
       <span style="font-size: 1.1em;">{{customer.name}}</span>
     </h4>
   </div>
-  <div class="col-7"  v-if="app_config.shader_name != 'nada' ">
+
+  <div class="col-7"  >
     <h3 > {{'kashf_cust' | tr_label}} </h3>
-    <h2 class="text-center" v-if="daily_out_trans[0]"> حساب سابق : {{ daily_out_trans[0].debt_was | toAR }}</h2>
+    <h2 class="text-center" v-if="daily_out_trans[0] && app_config.shader_name == 'magdy'"> حساب سابق : {{ daily_out_trans[0].debt_was | toAR }}</h2>
   </div>
 </div>
 <img :src='`https://i.imgur.com/HieletO.png`' style="margin-top: -375px;float: right;margin-right: 30px;" width="150" class="pr-only"/>
@@ -196,6 +197,12 @@ hide-header hide-footer hide-header-close hide-backdrop>
         </tbody>
       </table>
       
+      <div class="col-6"  v-if="app_config.shader_name == 'mmn1'  ">
+        <hr/>
+        <h3 class="text-center" v-if="daily_out_trans[0]"> {{'total_debt' | tr_label}} 
+          : {{ customer.debt | round | toAR}}</h3>
+
+      </div>
       <span></span>
 
       <div class="m-2">
@@ -281,12 +288,20 @@ export default {
       });
     },
     async showOutModal(customer_id) {
+
+      this.d_collect_form = {trans_type: "cust_collecting"}
+      this.d_down_rahn_form = {trans_type: "repay_rahn_internal"}
+      this.msh_collect_form = {trans_type: "mashal"}
+      this.aarbon_form = {trans_type: "cust_collecting"}
+
       this.customer = await this.customersCtrl.findOne(customer_id);
+
       this.outg_day = this.day.iso;
       this.daily_out_trans = await this.customersCtrl.getDailyOutTrans({
         id: customer_id,
         day: this.outg_day
       });
+      console.log(this.daily_out_trans)
       let filtered_incollect = this.daily_out_trans.filter(
         item => item.trans_type === "cust_in_collecting"
       );

@@ -10,10 +10,15 @@ module.exports = (bookshelf) => {
         },
         details() {
             return this.hasMany(RelReceiptDetails,'receipt_id')
+        },
+        cashflow() {
+            return this.belongsTo(RelCashflow,'cashflow_id')
         }
     });
     let RelSupplier = bookshelf.Model.extend({ tableName: 'suppliers' })
+    let RelCashflow = bookshelf.Model.extend({ tableName: 'cashflow' })
     let RelReceiptDetails = bookshelf.Model.extend({ tableName: 'receipt_details' })
+    
     let detailsColl = bookshelf.Collection.extend({
         model: RelReceiptDetails
     })

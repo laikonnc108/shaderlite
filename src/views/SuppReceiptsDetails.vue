@@ -109,6 +109,9 @@
             <span v-if="recp_1.printed"> - تم طباعتها    </span>
             <span v-if="! recp_1.id">( لم يتم الحفظ )</span>
         </h3>
+        <h5 v-if="recp_1.recp_paid == 2 && recp_1.cashflow_day">
+          تم الصرف بتاريخ {{recp_1.cashflow_day | arDate}}
+        </h5>
         <draggable
           class="drag-area list-group"
           :list="recp_1.details"
@@ -420,7 +423,7 @@
 
 </h4>
 <h4 >
-  تحريراً في {{recp_day | arDate }}
+  تحريراً في {{recp_day | arDate(app_config.shader_name) }}
 </h4>
 <h4>
   <span style="font-size: .7em;">اسم العميل/ </span> 
@@ -763,6 +766,7 @@ export default {
     },
     async setRecpPaid( receipt, recp_paid ) {
       receipt.recp_paid = recp_paid
+      let cashflow_id ;
       if(recp_paid == 2 ){
         let cashflowDAO = new CashflowDAO({
           day: this.day.iso,
@@ -773,7 +777,10 @@ export default {
         })
         let transType = await new TransTypesCtrl().findOne({name: 'recp_paid', category: 'cashflow'})
         cashflowDAO.transType = transType
-        await this.cashflowCtrl.save(cashflowDAO)
+        cashflow_id = await this.cashflowCtrl.save(cashflowDAO)
+      }
+      if(cashflow_id) {
+        receipt.cashflow_id = cashflow_id;
       }
       this.saveAll()
     },

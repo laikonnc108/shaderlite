@@ -245,9 +245,18 @@ and trans_type <> 'cust_in_collecting'
 and trans_type <> 'mashal'
 and trans_type <> 'repay_rahn_internal'
 and trans_type <> 'aarbon'
-ORDER BY day
+ORDER BY day 
 `);
     return results.map(_ => new CustomerTransDAO(_));
+  }
+
+  async getCustomerNetRahn(filter = { id: null }) {
+    let results = await knex.raw(`select sum( amount ) net_rahn 
+    from customer_trans where customer_id = ${filter.id}
+    and trans_type in ('repay_cust_rahn', 'repay_rahn_in' , 'rahn_down' ,'product_rahn_external', 'product_rahn', 'repay_rahn_internal')
+`);
+    let net_rahn = results && results.length > 0 ? results[0].net_rahn : 0;
+    return net_rahn;
   }
 
   async getRestInSelf(customer_id) {

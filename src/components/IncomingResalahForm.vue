@@ -84,10 +84,17 @@
       </div>
     </div>
 
-    <div class="form-group row">
+    <div class="form-group row" v-if="app_config.shader_name != 'mmn1'">
       <label class="col-sm-2">{{'given' | tr_label}}</label>
       <div class="col-sm-10">
         <input v-model="incomings_data.given" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-group row" v-if="app_config.shader_name == 'mmn1'">
+      <label class="col-sm-2">{{'recp_expenses' | tr_label}}</label>
+      <div class="col-sm-10">
+        <input v-model="incomings_data.recp_expenses" class="form-control">
       </div>
     </div>
     <!-- prevent enter to supmit -->
@@ -106,8 +113,6 @@ import { MainMixin } from '../mixins/MainMixin'
 import { ProductsCtrl, ProductDAO } from '../ctrls/ProductsCtrl';
 import { MyStoreMutations } from '../main'
 import { CashflowCtrl, CashflowDAO } from '../ctrls/CashflowCtrl';
-
-const moment = require('moment')
 
 export default {
   name: 'IncomingResalahForm',
@@ -162,7 +167,7 @@ export default {
       this.$emit('saved')
 
     },
-    async new_supplier(search, loading) {
+    async new_supplier(search ) {
       this.supplier_search = (search && search != 'new') ? search : this.supplier_search
       if(search == 'new') {
         console.log(this.supplier_search)
