@@ -157,4 +157,4 @@ FROM
 	(SELECT income_day,	supplier_id, product_id, kg_price, sell_comm, sum(weight) as sum_weight, sum(count) as sum_count
 	FROM outgoings
 	GROUP BY income_day, kg_price , product_id, supplier_id, sell_comm ) out_sums
-LEFT JOIN products ON out_sums.product_id = products.id
+LEFT JOIN products ON out_sums.product_id = products.id;

@@ -145,7 +145,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             </td>
           </tr>
 
-          <tr v-if="app_config.shader_name != 'nada' && app_config.shader_name != 'magdy'"
+          <tr v-if="app_config.shader_name == 'mmn1'"
           :class="{'pr-hideme': !aarbon_form.amount }">
             <td ><input v-if="! aarbon_form.id" 
               v-model="aarbon_form.amount" class="form-control" placeholder="ادخل مبلغ العربون" >
@@ -165,7 +165,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             </td>
           </tr>
 
-          <tr v-if="app_config.shader_name != 'nada' && app_config.shader_name != 'magdy'"
+          <tr v-if=" app_config.shader_name == 'mmn1'"
           :class="{'pr-hideme': !d_down_rahn_form.amount }">
             <td ><input v-if="! d_down_rahn_form.id" 
               v-model="d_down_rahn_form.amount" class="form-control" placeholder="ادخل مبلغ رد الرهن" >
