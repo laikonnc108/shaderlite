@@ -174,8 +174,8 @@
     </div>
   </div>
   
-  <div class="form-group row" v-if="app_config.shader_name == 'mmn1'">
-    <label for="notes1" class="col-sm-3">
+  <div class="form-group row" v-if="shader_configs['F_AARBON_OUT']">
+    <label for="aarbon" class="col-sm-3">
       {{'aarbon' | tr_label}}
     </label>
     <div class="col-sm-9">

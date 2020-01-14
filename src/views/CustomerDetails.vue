@@ -300,7 +300,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             </td>
           </tr>
 
-          <tr v-if=" app_config.shader_name == 'mmn1'"
+          <tr v-if="shader_configs['F_AARBON_KASHF']"
           :class="{'pr-hideme': !aarbon_form.amount }">
             <td ><input v-if="! aarbon_form.id && outg_day == day.iso" 
               v-model="aarbon_form.amount" class="form-control" placeholder="ادخل مبلغ العربون" >
@@ -320,7 +320,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             </td>
           </tr>
 
-          <tr v-if=" app_config.shader_name == 'mmn1'"
+          <tr v-if="shader_configs['F_REPAY_RAHN_KASHF']"
           :class="{'pr-hideme': !d_down_rahn_form.amount }">
             <td ><input v-if="! d_down_rahn_form.id && outg_day == day.iso" 
               v-model="d_down_rahn_form.amount" class="form-control" placeholder="ادخل مبلغ رد الرهن" >
@@ -352,7 +352,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
         </tbody>
       </table>
 
-      <div class="col-6"  v-if="app_config.shader_name == 'mmn1'  ">
+      <div class="col-6" v-if="shader_configs['F_SHOW_DEBT_KASHF']">
         <hr/>
         <h3 class="text-center" v-if="daily_out_trans[0]"> {{'total_debt' | tr_label}} : {{sum_debt_cmpt | round | toAR}}</h3>
       </div>

@@ -91,7 +91,7 @@
       </div>
     </div>
 
-    <div class="form-group row" v-if="app_config.shader_name == 'mmn1'">
+    <div class="form-group row" v-if="shader_configs['F_RECP_EXPENSES_INC']">
       <label class="col-sm-2">{{'recp_expenses' | tr_label}}</label>
       <div class="col-sm-10">
         <input v-model="incomings_data.recp_expenses" class="form-control">

@@ -1,8 +1,15 @@
+-- version 1.35 
+
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('F_AARBON_OUT', 'true', '', 'mmn1', 'config');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('F_RECP_EXPENSES_INC', 'true', '', 'mmn1', 'config');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('F_REPAY_RAHN_KASHF', 'true', '', 'mmn1', 'config');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('F_AARBON_KASHF', 'true', '', 'mmn1', 'config');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('F_SHOW_DEBT_KASHF', 'true', '', 'mmn1', 'config');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") 
+VALUES ('shader_name', 'mmn1', '', 'default', 'config');
 -- version 1.33 -- 
 ALTER TABLE receipts add cashflow_id INTEGER;
 
-INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") 
-VALUES ('shader_name', 'mmn1', '', 'default', 'config');
 ---
 
 INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category") VALUES ('product_rahn_external', 'رهن', 'default', '+', '3', 'customer_trans');
