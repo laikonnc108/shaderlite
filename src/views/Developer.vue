@@ -40,23 +40,21 @@
       </button>
   </div>
   {{app_config.shader_name}}
-  <div v-if="$store.state.app_config.env.NODE_ENV == 'development' || (shader_configs['logged_in_user'] && shader_configs['logged_in_user'].user_type =='developer')">
-    
+  <div v-if="logged_in_user && logged_in_user.user_type =='developer'">
     <!-- <img alt="Vue logo" src="../assets/logo.png"> 
     <HelloWorld msg="Welcome to Your Vue.js App"/>
     -->
     <div>Check if 7z installed {{is_7z_ok}}</div>
+    <div>Check if Curl installed {{is_curl_ok}}</div>
     
 
     <pre>{{ $store.state.app_config }}</pre>
 
       <h5 class="card-title">System printers </h5>
       <p class="card-text">{{printers}}</p>
-      <a href="#" @click="check7z()" class="btn btn-primary">Go check7z</a> 
+      <a href="#" @click="checkAll()" class="btn btn-primary">فحص حالة الجهاز</a> 
       <span>&nbsp;</span>
       <a href="#" @click="print_co()" class="btn btn-primary">print</a>
-      <span>&nbsp;</span>
-      <a href="#" @click="backup()" class="btn btn-primary">backup</a>
       <span>&nbsp;</span>
       <a href="#" @click="wb_backup()" class="btn btn-primary">wb backup</a>
       <span>&nbsp;</span>
@@ -77,6 +75,7 @@ export default {
   data() {
     return {
       is_7z_ok: null,
+      is_curl_ok: null,
       removed_exists: false,
       printers: [],
       working_db: false,
@@ -122,25 +121,28 @@ export default {
     }
   },
   methods: {
-    async backup(){
-      //const out = await sync_exec(`C:\\PROGRA~1\\7-Zip\\7z a D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.7z C:\\Users\\alrhma\\AppData\\Roaming\\shaderlite\\db\\shaderlite.db`)
-      const out = await sync_exec(`copy ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.db D:\\zdevhome\\electron\\shaderlite\\db\\shaderlite.db`)
-      
-      console.log(out)
-    },
+
     async wb_backup(){
       // await knex.destroy()
-      const {stdout} = await sync_exec(`curl --upload-file ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.db https://transfer.sh/shaderlite.db`)
-      clipboard.writeText(stdout)
-      window.alert('تم نسخ رابط قاعدة البيانات '+stdout)
+      await sync_exec(`copy ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.db D:\\00_db\\shaderlite.db`)
+      await sync_exec(`C:\\PROGRA~1\\7-Zip\\7z a D:\\00_db\\shaderlite.7z D:\\00_db\\shaderlite.db`)
+      // const {stdout} = await sync_exec(`curl -F "file=@D:\\00_db\\shaderlite.7z" https://file.io/?expires=1y `)
+      const AUTH_TOKEN = '39aff6050e60edb1b4e02e3877762a677ade5c1a'
+      const upload_rel_url = `https://uploads.github.com/repos/fireb1001/shaderlite/releases/22823084/assets`
+        + `?name=shaderlite-${this.$store.state.app_config.shader_name}-${Date.now()}.7z`
+      const Z_FILE = 'D:\\00_db\\shaderlite.7z'
+      const {stdout} = await sync_exec(`curl -H "Authorization: token ${AUTH_TOKEN}" -H "Content-Type: application/x-7z-compressed" --data-binary @${Z_FILE}  "${upload_rel_url}" `)
+      console.log(JSON.parse(stdout))
+      clipboard.writeText(JSON.parse(stdout).browser_download_url)
+      window.alert('تم نسخ رابط قاعدة البيانات '+ JSON.parse(stdout).browser_download_url)
     },
     async wb_restore(){
       // await knex.destroy()
       let url = clipboard.readText()
-      console.log(url)
-      // const {stdout,stderr} = 
-      await sync_exec(`curl ${url} --output ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.db`)
+      // use redirect -L option to follow redirect link and direct the output
+      await sync_exec(`curl -L ${url} --output ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.7z`)
       this.reload_electron()
+      
     },
     async import_db(){
       await sync_exec(`IF not exist ${this.$store.state.app_config.user_data_path}\\db mkdir ${this.$store.state.app_config.user_data_path}\\db NUL`)
@@ -169,14 +171,23 @@ export default {
     reload_electron(){
       remote.getCurrentWindow().reload();
     },
-    async check7z(){
+    async checkAll(){
       
       //var exec = require('child_process').exec
       try {
-        const out = await sync_exec('C:\\PROGRA~1\\7-Zip\\7z -h ');
+        let out = await sync_exec('C:\\PROGRA~1\\7-Zip\\7z -h ');
         // check 7z valid
         console.log(out.stdout);
-        this.is_7z_ok = true
+        this.is_7z_ok = true;
+
+        try {
+          out = await sync_exec('curl -h ');
+          this.is_curl_ok = true
+        } catch (error) {
+          console.error(error)
+        }
+        // check 7z valid
+        console.log(out.stdout);
         const contents = remote.getCurrentWebContents()
         this.printers = contents.getPrinters()
         contents.print()

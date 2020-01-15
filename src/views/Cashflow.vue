@@ -11,16 +11,10 @@
             <label class="col-sm-2" >نوع المصروف</label>
             <div class="col-sm-10">
             <select class="form-control " v-model="cashflow_form.state">
-              <option value="expenses">مصروفات يومية</option>
-              <option v-if="app_config.shader_name == 'mmn1'" value="ex_momen">{{'ex_momen' |tr_label('trans_types')}}</option>
-              <option v-if="app_config.shader_name == 'mmn1'" value="ex_said">{{'ex_said' |tr_label('trans_types')}}</option>
-              <option v-if="app_config.shader_name == 'mmn1'" value="ex_mohamed">{{'ex_mohamed' |tr_label('trans_types')}}</option>
-              <option v-if="app_config.shader_name == 'mmn1'" value="ex_hisham">{{'ex_hisham' |tr_label('trans_types')}}</option>
-              <option v-if="app_config.shader_name == 'mmn1'" value="ex_comm">{{'ex_comm' |tr_label('trans_types')}}</option>
-              <option v-if="app_config.shader_name == 'mmn1'" value="ex_mashal">{{'ex_mashal' |tr_label('trans_types')}}</option>
-              <option v-if="app_config.shader_name != 'magdy'" value="men_account">{{'men_account' |tr_label('trans_types')}} </option>
-              <option value="act_pymnt">دفعات لا تخصم من الايراد</option>
-              <option value="rahn_down">تنزيل في رهن</option>
+              <template  v-for="(item, idx) in ex_items_arr">
+                <option :key="idx" :value="item.name">{{item.ar_name}}</option>
+              </template>
+              
               <option v-if="app_config.shader_name == 'magdy'" value="حج مجدي">حج مجدي</option>
               <option v-if="app_config.shader_name == 'magdy'" value="كاتب حمادة">حمادة</option>
               <option v-if="app_config.shader_name == 'magdy'" value="كاتب 1">كاتب 1</option>
@@ -83,6 +77,7 @@ export default {
   data () {
     return {
       cashflow_arr: [],
+      ex_items_arr: [],
       store_day: this.$store.state.day,
       cashflow_form: new CashflowDAO(CashflowDAO.INIT_DAO),
       cashflowCtrl: new CashflowCtrl(),
@@ -107,6 +102,7 @@ export default {
         sum = '+'
       }
       this.cashflow_arr = await this.cashflowCtrl.findAll({sum: sum, day: this.$store.state.day.iso})
+      this.ex_items_arr = await this.cashflowCtrl.getExItems();
       let day_count_res = await knex.raw(`SELECT sum(count) as sum_count FROM outgoings where day='${this.$store.state.day.iso}'`)
 
       if(day_count_res && day_count_res [0] && day_count_res[0].sum_count)

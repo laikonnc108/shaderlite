@@ -17,6 +17,7 @@ import Cashflow from "./views/Cashflow.vue";
 import DailyMoves from "./views/DailyMoves.vue";
 import Users from "./views/Users.vue";
 import DailyTotals from "./views/DailyTotals.vue";
+import DailyExpenses from "./views/DailyExpenses.vue";
 import CtgReceipts from "./views/CtgReceipts.vue";
 
 Vue.use(Router);
@@ -39,6 +40,11 @@ export default new Router({
       path: "/daily_totals",
       name: "daily_totals",
       component: DailyTotals
+    },
+    {
+      path: "/daily_expenses",
+      name: "daily_expenses",
+      component: DailyExpenses
     },
     {
       path: "/ctg_receipts",

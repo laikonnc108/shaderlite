@@ -9,6 +9,7 @@ delete from customer_trans;
 delete from customers;
 delete from supplier_trans;
 delete from suppliers;
+delete from customers_daily;
 
 -- Empty only daily data
 delete from cashflow;

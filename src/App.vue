@@ -121,6 +121,13 @@
                 </router-link>
               </li>
 
+              <li class="nav-item" v-if="app_config.shader_name != 'magdy' && logged_in_user.user_type != 'editor'">
+                <router-link class="nav-link active" to="/daily_expenses">
+                  <span class="fa fa-calendar-alt"></span>
+                  المصروفات اليومية
+                </router-link>
+              </li>
+
               <li class="nav-item" v-if="logged_in_user.user_type != 'editor'">
                 <router-link class="nav-link active" to="/developer">
                   <span class="fa fa-database"></span>
@@ -214,6 +221,8 @@ export default {
     let custom_labels = null;
     try {
       await knex.raw("PRAGMA integrity_check;");
+      let [tables] = await knex.raw("SELECT name FROM sqlite_master WHERE type = 'table';");
+      if(! tables) throw "Empty DB - No Tables"
     } catch (error) {
       console.error(error);
       window.alert("لم يتم ربط قاعدة البيانات");
@@ -241,12 +250,7 @@ export default {
     this.require_login = shader_conf["require_login"]
       ? shader_conf["require_login"]
       : false;
-    if (
-      this.app_config.env.NODE_ENV &&
-      this.app_config.env.NODE_ENV == "development"
-    ) {
-      this.require_login = false;
-    }
+    
     if (this.require_login) {
       this.$bvModal.show("login-modal");
     }
@@ -315,7 +319,7 @@ pre {
   bottom: 0;
   right: 0;
   z-index: 100; /* Behind the navbar */
-  padding: 48px 0 0; /* Height of navbar */
+  padding: 40px 0 0; /* Height of navbar */
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
 }
 
@@ -382,6 +386,9 @@ pre {
 /*
  * Navbar
  */
+ .nav {
+  padding-inline-start: 1em;
+ }
 
 .navbar-brand {
   padding-top: 0.75rem;

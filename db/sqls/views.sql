@@ -1,4 +1,5 @@
 -- v_inout_heads --
+DROP VIEW if EXISTS  v_inout_heads;
 CREATE VIEW v_inout_heads AS
 SELECT 
 v_inc.day as day,
@@ -24,6 +25,7 @@ LEFT JOIN
 	products ON v_inc.product_id = products.id;
 
 -- v_recp_sums --
+DROP VIEW if EXISTS  v_recp_sums;
 CREATE VIEW v_recp_sums AS SELECT 
 day,
 recp_gsums.supplier_id as supplier_id,
@@ -76,6 +78,7 @@ FROM
     suppliers on recp_gsums.supplier_id = suppliers.id;
 
 -- v_daily_sums --
+DROP VIEW if EXISTS  v_daily_sums;
 CREATE VIEW v_daily_sums AS
 SELECT days.day as day,
 recp_sum_net,
@@ -84,6 +87,7 @@ recp_sum_rasd_net,
 recp_sum_comm,
 recp_sum_expenses,
 recp_sum_deducts,
+recp_sum_others,
 recp_sum_sale,
 sum_out_value,
 out_sell_comm,
@@ -109,6 +113,7 @@ LEFT JOIN
 	sum(sale_value) recp_sum_sale,
 	sum(recp_expenses) recp_sum_expenses,
 	sum(recp_deducts) recp_sum_deducts,
+	sum(recp_others) recp_sum_others,
 	round(sum(CASE  WHEN recp_paid = 1 THEN net_value ELSE 0 END),2) recp_sum_rasd_net
 	FROM receipts GROUP By day ) recp_day_g
 	ON days.day = recp_day_g.day
@@ -142,7 +147,7 @@ LEFT JOIN
 	ON days.day = outg_incday_g.income_day;
 
 -- v_out_sums
-
+DROP VIEW if EXISTS  v_out_sums;
 CREATE VIEW v_out_sums AS
 SELECT
 income_day,

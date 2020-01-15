@@ -83,6 +83,14 @@ export class CashflowCtrl {
     });
   }
 
+  async getExItems() {
+    let results = await knex.raw(
+      `select * from trans_types where category = 'cashflow' and sum = '-' and map_cashflow= 'ex'`
+    );
+
+    return results;
+  }
+
   async getNetCash(filter = { day: "" }) {
     let results = await knex.raw(
       `SELECT sum(CASE When sum='-' Then -amount Else amount End ) net_amount from cashflow where day= '${filter.day}'`

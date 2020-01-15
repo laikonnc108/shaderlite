@@ -200,7 +200,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
       <div class="col-6" v-if="shader_configs['F_SHOW_DEBT_KASHF']">
         <hr/>
         <h3 class="text-center" v-if="daily_out_trans[0]"> {{'total_debt' | tr_label}} 
-          : {{ customer.debt | round | toAR}}</h3>
+          : {{ customer.debt | ceil5 | toAR}}</h3>
 
       </div>
       <span></span>

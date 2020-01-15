@@ -174,6 +174,7 @@ repay_rahn
               <th v-if="show_totals.includes('given')"> {{'given' | tr_label}} </th>
               <th v-if="show_totals.includes('comms')"> {{'comms' | tr_label}} </th>
               <th v-if="show_totals.includes('recp_diff')"> {{'recp_diff' | tr_label}} </th>
+              <th v-if="show_totals.includes('recp_others')"> {{'recp_others' | tr_label}} </th>
               <th v-if="show_totals.includes('out_cashflow')"> {{'out_cashflow' | tr_label}} </th>
               <th v-if="show_totals.includes('net_income')"> {{'net_income' | tr_label}} </th>
               <th v-if="show_totals.includes('supp_payments')"> {{'supp_payments' | tr_label}} </th>
@@ -216,6 +217,8 @@ sum_rahn_down
                 {{sum_totals.sum_comm_plus_sell_comm | round}}
               </th>
               <th v-if="show_totals.includes('recp_diff')"></th>
+              <th v-if="show_totals.includes('recp_others')">
+              </th>
               <th v-if="show_totals.includes('out_cashflow')">
                 {{sum_totals.sum_deducts | round}}
               </th>
@@ -290,6 +293,9 @@ sum_rahn_down
               <td v-if="show_totals.includes('recp_diff')">
                 {{item.sum_out_value - item.recp_sum_sale | round }}
               </td>
+              <td v-if="show_totals.includes('recp_others')">
+                {{item.recp_sum_others | round }}
+              </td>
               <td v-if="show_totals.includes('out_cashflow')">
                 {{item.sum_deducts | round }}
               </td>
@@ -326,6 +332,9 @@ sum_rahn_down
                 {{sum_totals.sum_comm_plus_sell_comm | round}}
               </th>
               <th v-if="show_totals.includes('recp_diff')"></th>
+              <th v-if="show_totals.includes('recp_diff')">
+                {{sum_totals.recp_sum_others | round}}
+              </th>
               <th v-if="show_totals.includes('out_cashflow')">
                 {{sum_totals.sum_deducts | round}}
               </th>
@@ -486,6 +495,7 @@ export default {
       } else {
         this.daily_totals = await knex('v_daily_sums').orderBy('day',"asc")
       }
+      console.log(this.daily_totals)
       let all_exp_init = await knex.raw(`select * from cashflow where state='expenses' and d_product='init'`);
       let all_exp_init_arr = {}
       all_exp_init.forEach(item => all_exp_init_arr[item.notes] = item.amount)
@@ -549,6 +559,7 @@ export default {
 
       let sum_totals = {
         recp_sum_given: 0,
+        recp_sum_others: 0,
         sum_given: 0,
         sum_deducts: 0,
         sum_comm_plus_sell_comm: 0,
@@ -563,6 +574,7 @@ export default {
         let past_init_vals = this.past_init_vals
         sum_totals = {
           recp_sum_given: parseFloat( past_init_vals.recp_given ? past_init_vals.recp_given : 0),
+          recp_sum_others: parseFloat( past_init_vals.recp_others ? past_init_vals.recp_others : 0),
           sum_given: parseFloat( past_init_vals.given ? past_init_vals.given : 0),
           sum_deducts: parseFloat( past_init_vals.out_cashflow ? past_init_vals.out_cashflow : 0),
           sum_comm_plus_sell_comm: parseFloat( past_init_vals.comms ? past_init_vals.comms : 0),
@@ -576,6 +588,7 @@ export default {
 
       this.daily_totals.forEach(one => {
         sum_totals.recp_sum_given += one.recp_sum_given 
+        sum_totals.recp_sum_others += one.recp_sum_others 
         sum_totals.sum_given += one.sum_given 
         sum_totals.sum_deducts += one.sum_deducts 
         sum_totals.sum_comm_plus_sell_comm += one.recp_sum_comm +one.out_sell_comm
