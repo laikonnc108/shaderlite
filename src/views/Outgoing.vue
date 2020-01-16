@@ -229,9 +229,10 @@
           <tbody>
             <tr v-for="(item, idx) in fltrd_outgoings_arr" :key='idx'>
               <td>{{item.id}}</td>
-
               <td>
-                {{item.supplier_name}}
+                <router-link  :to="{name:'supplier_details', params: {id: item.supplier_id}}">
+                  {{item.supplier_name}}
+                </router-link>
               </td>
               <td>{{item.count }}</td>
               <td>{{item.product_name}}</td>

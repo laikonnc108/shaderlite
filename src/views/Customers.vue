@@ -116,6 +116,10 @@
     </div>
     <div class="pr-hideme" >
       <br>
+      <input v-model="search_term" class="form-control "  :placeholder="custom_labels['search_customers']">
+    </div>
+    <div class="pr-hideme" v-if="false">
+      <br>
       <input v-model.lazy="search_placeholder" class="form-control "  
       @keyup.enter="search_term = search_placeholder"
       @focus="sph_focus = true" @blur="sph_focus = false"
@@ -127,6 +131,12 @@
       </div>
     </div>
     <br/>
+    <div class="pr-hideme" v-if="flags.show_g_than">
+     سوف يتم فقط عرض البائعين بمديونية اكبر من {{flags.show_g_than}} جنيه
+     <br/>
+      <a href="#" @click="show_all_cust">عرض الجميع</a>
+     <br/>
+    </div>
   <h2 :class="{ 'text-danger': ! flags.show_active }">
     <span v-if="flags.show_active"> {{custom_labels['list']}} </span>
     <span v-if="! flags.show_active"> {{custom_labels['archive']}} </span>
@@ -253,7 +263,13 @@ export default {
       customersCtrl: new CustomersCtrl(),
       collect_dao: new CashflowDAO(),
       customers_arr: [],
-      flags: {show_active: true, zm_mode: false, form_collabsed: true, detailed: false},
+      flags: {
+        show_active: true,
+        zm_mode: false,
+        form_collabsed: true,
+        detailed: false,
+        show_g_than: false 
+      },
       confirm_step: [],
       checkedItems: [],
       sph_focus: false,
@@ -269,18 +285,29 @@ export default {
     async refresh_all() {
       let init_time = new Date().getTime()
       let soft_delete = this.flags.show_active
-      // load 20 tasbera
-      this.customers_arr = await this.customersCtrl.findAll({limit: 20},{softDelete: soft_delete, 
-        orderByDebt: this.app_config.shader_name != 'nada'
-      })
+      if(this.flags.show_g_than)
+      this.customers_arr = await this.customersCtrl.findAll(
+        {debt_g_than: this.flags.show_g_than},
+        {
+          softDelete: soft_delete, 
+          orderByDebt: this.app_config.shader_name != 'nada'
+        }
+      )
+      else {
+        await this.show_all_cust()
+      }
 
-      this.customers_arr = await this.customersCtrl.findAll({},{softDelete: soft_delete, 
-        orderByDebt: this.app_config.shader_name != 'nada'
-      })
       this.collect_dao = new CashflowDAO()
       let {sum_debt} = await this.customersCtrl.sumDebt()
       this.sum_debt = sum_debt
       console.log('⌚ Time to refresh_all in ms = ' , new Date().getTime() - init_time)
+    },
+    async show_all_cust(){
+      this.flags.show_g_than = false
+      let soft_delete = this.flags.show_active
+      this.customers_arr = await this.customersCtrl.findAll({},{softDelete: soft_delete, 
+        orderByDebt: this.app_config.shader_name != 'nada'
+      })
     },
     fresh_form(){
       this.customer_form = new CustomerDAO(CustomerDAO.INIT_DAO)
@@ -377,12 +404,13 @@ export default {
     this.$root.$on('bv::collapse::state', (collapseId, show) => {
       if(collapseId == 'collapse_form') this.flags.form_collabsed = ! show
     })
+    this.flags.show_g_than = this.shader_configs['F_SHOW_CUST_G_THAN'] ? this.shader_configs['F_SHOW_CUST_G_THAN'] : this.flags.show_g_than
     this.refresh_all()
   },
   computed: {
     comp_customers_arr: function () {
       return this.customers_arr.filter( item => {
-        return ((item.deleted_at == null) === this.flags.show_active  && item.name.includes(this.search_term))
+        return ((item.deleted_at == null) === this.flags.show_active  && item.name && item.name.includes(this.search_term))
       })      
     },
     valid_form: function() {

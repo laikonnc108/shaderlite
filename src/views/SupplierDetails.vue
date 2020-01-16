@@ -19,10 +19,15 @@
     </section>
     <section class="row">
       <div class="col-5 pr-hideme">
-        <router-link class="btn btn-primary mr-3" :to="{name:'supp_recp_details', params: {supplier_id: supplier.id}}">
+        <router-link class="btn btn-primary m-2" :to="{name:'supp_recp_details', params: {supplier_id: supplier.id}}">
          فواتير اليوم
         </router-link>
-        <button v-b-toggle.collapse_pay class=" btn btn-success mr-2" >
+        <br/>
+        <router-link class="btn btn-primary m-2" :to="{name:'supp_inc_details', params: {supplier_id: supplier.id}}">
+         تفاصيل الزرع 
+        </router-link>
+        <br/>
+        <button v-b-toggle.collapse_pay class=" btn btn-success m-2" >
           <span class="fa fa-money-bill-wave"></span> &nbsp; 
         اضافة فواتير سابقة / دفعات / تحصيلات
         </button>

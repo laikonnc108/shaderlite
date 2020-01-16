@@ -22,7 +22,7 @@
             </tr>
         </table>
 
-        <table class="table table-bordered mt-1 pr-hideme" v-if=" ! customer.is_self">
+        <table class="table table-bordered mt-1 pr-hideme" v-if="shader_configs['F_SHOW_NET_RAHN']">
           <tr>
             <th class="text-danger">صافي الرهونات</th>
             <th>{{net_rahn}}</th>

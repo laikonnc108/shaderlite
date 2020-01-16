@@ -115,23 +115,43 @@ export class CustomersCtrl {
   }
 
   async findAll(
-    filter = { limit: null },
+    filter = { limit: null, debt_g_than: null },
     options = { orderByName: false, orderByDebt: false, softDelete: false }
   ) {
     //let all = await this.model.where(filter).fetchAll(options)
     // let results = await knex(`v_customers`)
-
-    let query = `select * from (select * from customers ${
-      options.softDelete ? "where deleted_at is null" : ""
-    }) customers_g
-LEFT JOIN ( select customer_id, sum(amount) as sum_debt from customer_trans group by customer_id ) customer_trans_g
+    /*
+    let query = `
+select * from (select * from customers where 1=1
+    ${options.softDelete ? " and deleted_at is null" : ""}
+  ) customers_g
+LEFT JOIN ( select customer_id, sum(amount) as sum_debt from customer_trans 
+group by customer_id 
+${filter.debt_g_than ? " having sum(amount)> "+ parseInt(filter.debt_g_than) : ""}
+) customer_trans_g
 ON customers_g.id = customer_trans_g.customer_id 
 ${options.orderByName ? "order by name " : ""}  ${
       options.orderByDebt ? "order by debt desc" : ""
     } 
 ${filter.limit ? "limit " + parseInt(filter.limit) : ""}
 `;
+    */
+   let query = `
+   select * from 
+   (select customer_id, sum(amount) as sum_debt from customer_trans 
+   group by customer_id 
+   ${filter.debt_g_than ? " having sum(amount)> "+ parseInt(filter.debt_g_than) : ""}
+   ) customer_trans_g
+   LEFT join
+   (select * from customers where 1=1
+    ${options.softDelete ? " and deleted_at is null" : ""}
+     ) customers_g
+   ON customer_trans_g.customer_id = customers_g.id 
+   order by debt desc
+   ${filter.limit ? "limit " + parseInt(filter.limit) : ""}
+   `;
 
+    console.log(query)
     let results = await knex.raw(query);
     return results.map(_ => new CustomerDAO(_));
   }

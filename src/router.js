@@ -19,6 +19,7 @@ import Users from "./views/Users.vue";
 import DailyTotals from "./views/DailyTotals.vue";
 import DailyExpenses from "./views/DailyExpenses.vue";
 import CtgReceipts from "./views/CtgReceipts.vue";
+import SuppIncDetails from "./views/SuppIncDetails.vue";
 
 Vue.use(Router);
 
@@ -75,6 +76,11 @@ export default new Router({
       path: "/supp_recp_details",
       name: "supp_recp_details",
       component: SuppReceiptsDetails
+    },
+    {
+      path: "/supp_inc_details",
+      name: "supp_inc_details",
+      component: SuppIncDetails
     },
     {
       path: "/customers_accounts",

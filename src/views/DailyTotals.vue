@@ -252,9 +252,9 @@ sum_rahn_down
               <th v-if="show_totals.includes('comms')" >
                 {{past_init_vals.comms | round}}
               </th>
-              <th v-if="show_totals.includes('recp_diff')">
-                
-              </th>
+              <th v-if="show_totals.includes('recp_diff')"></th>
+              <th v-if="show_totals.includes('recp_others')"></th>
+
               <th v-if="show_totals.includes('out_cashflow')">
                 {{past_init_vals.out_cashflow | round}}
               </th>
@@ -332,7 +332,7 @@ sum_rahn_down
                 {{sum_totals.sum_comm_plus_sell_comm | round}}
               </th>
               <th v-if="show_totals.includes('recp_diff')"></th>
-              <th v-if="show_totals.includes('recp_diff')">
+              <th v-if="show_totals.includes('recp_others')">
                 {{sum_totals.recp_sum_others | round}}
               </th>
               <th v-if="show_totals.includes('out_cashflow')">

@@ -3,8 +3,7 @@ import { bookshelf } from '../main'
 export class TransTypeDAO {
  
   name 
-  ar_name 
-  shader_name
+  ar_name
   sum
   optional
   category
