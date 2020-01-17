@@ -40,14 +40,12 @@
       </button>
   </div>
   {{app_config.shader_name}}
-  <div v-if="logged_in_user && logged_in_user.user_type =='developer'">
-    <!-- <img alt="Vue logo" src="../assets/logo.png"> 
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-    -->
+
+  <div v-if=" app_config.env.NODE_ENV == 'development' || (logged_in_user && logged_in_user.user_type =='developer')">
+
     <div>Check if 7z installed {{is_7z_ok}}</div>
     <div>Check if Curl installed {{is_curl_ok}}</div>
     
-
     <pre>{{ $store.state.app_config }}</pre>
 
       <h5 class="card-title">System printers </h5>
@@ -127,11 +125,13 @@ export default {
       await sync_exec(`copy ${this.$store.state.app_config.user_data_path}\\db\\shaderlite.db D:\\00_db\\shaderlite.db`)
       await sync_exec(`C:\\PROGRA~1\\7-Zip\\7z a D:\\00_db\\shaderlite.7z D:\\00_db\\shaderlite.db`)
       // const {stdout} = await sync_exec(`curl -F "file=@D:\\00_db\\shaderlite.7z" https://file.io/?expires=1y `)
-      const AUTH_TOKEN = '39aff6050e60edb1b4e02e3877762a677ade5c1a'
+      const AUTH_TOKEN = 'c5e170c709000a78ef8fce5354e0854e01a6bd88' // fireb1001
       const upload_rel_url = `https://uploads.github.com/repos/fireb1001/shaderlite/releases/22823084/assets`
         + `?name=shaderlite-${this.$store.state.app_config.shader_name}-${Date.now()}.7z`
       const Z_FILE = 'D:\\00_db\\shaderlite.7z'
-      const {stdout} = await sync_exec(`curl -H "Authorization: token ${AUTH_TOKEN}" -H "Content-Type: application/x-7z-compressed" --data-binary @${Z_FILE}  "${upload_rel_url}" `)
+      let cmd = `curl -H "Authorization: token ${AUTH_TOKEN}" -H "Content-Type: application/x-7z-compressed" --data-binary @${Z_FILE}  "${upload_rel_url}" `;
+      console.log(cmd)
+      const {stdout} = await sync_exec(cmd)
       console.log(JSON.parse(stdout))
       clipboard.writeText(JSON.parse(stdout).browser_download_url)
       window.alert('تم نسخ رابط قاعدة البيانات '+ JSON.parse(stdout).browser_download_url)

@@ -2,7 +2,8 @@
   <div class="out row ">
     <div class="col-5 bg-outgoing minh90 d-print-none" v-if="flags.detailed === false">
     <br/>
-    <!-- <img alt="Vue logo" src="../assets/logo.png"> 
+    <!--
+    <img alt="Vue logo" src="../assets/logo.png"> 
     <HelloWorld msg="Welcome to Your Vue.js App"/>
     
 <ul class="nav nav-tabs">

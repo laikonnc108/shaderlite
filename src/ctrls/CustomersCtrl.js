@@ -151,7 +151,7 @@ ${filter.limit ? "limit " + parseInt(filter.limit) : ""}
    ${filter.limit ? "limit " + parseInt(filter.limit) : ""}
    `;
 
-    console.log(query)
+    // console.log(query)
     let results = await knex.raw(query);
     return results.map(_ => new CustomerDAO(_));
   }

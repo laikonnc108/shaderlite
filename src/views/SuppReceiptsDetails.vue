@@ -414,7 +414,10 @@
  hide-footer hide-header-close hide-backdrop>-->
 <section v-if="modal_recp.serial && receipt_d_mode">
 <template v-if="true || print_mode">
-  <p class="recp-header" v-html="shader_configs['recp_header']"></p>
+  <p class="recp-header" v-if="shader_configs['recp_header'] && ! shader_configs['recp_header'].includes('.png')" v-html="shader_configs['recp_header']"></p>
+  <img v-if="shader_configs['recp_header'] && shader_configs['recp_header'].includes('.png')"
+  :src="require(`@/assets/${shader_configs['recp_header']}`)" 
+   style="width: 100%;margin: -25px auto;margin-top: -75px;"/>
 </template>
 <h4 class="text-center"> فاتورة 
   <span class="pr-hideme">
@@ -422,23 +425,28 @@
   </span>
 
 </h4>
-<h4 >
+<h4 style="
+    font-size: 1.5em;
+    margin: .5em;
+">
   تحريراً في {{recp_day | arDate(app_config.shader_name) }}
 </h4>
-<h4>
+<h4 style="
+    margin: .5em;margin-top: -.5em;
+">
   <span style="font-size: .7em;">اسم العميل/ </span> 
   <span style="font-size: 1.1em;">{{supplier.name}}</span>
 </h4>
 <img style="margin-top: -450px;float: right;margin-right: 30px;" width="170" class="pr-only"
-v-if="app_config.shader_name != 'magdy'"
+v-if="app_config.shader_name != 'magdy' && ! shader_configs['recp_header'].includes('.png')"
 src='https://i.imgur.com/Ie2KPRE.jpg?1' />
 <img style="margin-top: -450px;float: left;margin-left: 30px;" width="170" class="pr-only"
-v-if="app_config.shader_name != 'magdy'"
+v-if="app_config.shader_name != 'magdy' && ! shader_configs['recp_header'].includes('.png')"
 src='https://i.imgur.com/Ie2KPRE.jpg?1' />
 
 <h3 
 class="text-center" style="margin-top: -1.5rem;" 
-v-if="app_config.shader_name != 'nada'" >
+v-if="app_config.shader_name == 'magdy'" >
  حساب سابق : {{ day_balance_was | toAR }}
 </h3>
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
@@ -605,6 +613,11 @@ v-if="app_config.shader_name != 'nada'" >
           </tr>
         </tbody>
       </table>
+      <div class="col-6" v-if="true || shader_configs['F_SHOW_DEBT_RECP']">
+        <hr/>
+        <h3 class="text-center" > {{'curr_supp_debt' | tr_label}} : {{curr_debt | round | toAR}}</h3>
+      </div>
+
 
       <div class="m-2">
           <button class="btn btn-success pr-hideme" 
@@ -693,6 +706,7 @@ export default {
       recp_3: new ReceiptDAO({}),
       modal_recp: {},
       day_balance_was: 0,
+      curr_debt: 0,
       print_mode: false,
     }
   },
@@ -700,9 +714,13 @@ export default {
   methods: {
     async refresh_all(){
       let calc_balance_was = await knex.raw(`select sum(amount) as balance_was from supplier_trans where supplier_id = ${this.supplier_id} and day < '${this.recp_day}'`);
-      if(calc_balance_was && calc_balance_was[0]){
-        if(calc_balance_was[0].balance_was)
+      if(calc_balance_was && calc_balance_was[0] && calc_balance_was[0].balance_was){
         this.day_balance_was = parseFloat(calc_balance_was[0].balance_was)
+      }
+      let calc_debt = await knex.raw(`select sum(amount) as curr_debt from supplier_trans where supplier_id = ${this.supplier_id}`);
+
+      if(calc_debt && calc_debt[0] && calc_debt[0].curr_debt ){
+        this.curr_debt = parseFloat(calc_debt[0].curr_debt)
       }
       this.recp_1 = new ReceiptDAO({serial: 1, recp_given: this.recp_init_recp_given, comm_rate: this.recp_init_comm_rate, ...ReceiptDAO.INIT_DAO})
       this.recp_2 = new ReceiptDAO({serial: 2, comm_rate: this.recp_init_comm_rate, ...ReceiptDAO.INIT_DAO})
@@ -948,7 +966,7 @@ export default {
         counts.total_count += parseInt(item.count)
       })
       return counts
-    }
+    },
   },
   watch: {
     modal_recp: {
