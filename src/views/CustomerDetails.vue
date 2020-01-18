@@ -431,6 +431,11 @@ export default {
       }
     },
     async showOutModal(day = null){
+      this.d_collect_form = {trans_type: "cust_collecting"}
+      this.d_down_rahn_form = {trans_type: "repay_rahn_internal"}
+      this.msh_collect_form = {trans_type: "mashal"}
+      this.aarbon_form = {trans_type: "aarbon"}
+
       this.outg_day = day ? day : this.day.iso
       this.daily_out_trans = await this.customersCtrl.getDailyOutTrans({id: this.customer_id, day: this.outg_day})
       // TODO show incollect_trans amount

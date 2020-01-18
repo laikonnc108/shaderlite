@@ -21,7 +21,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(incom, idx) in inc_headers" :key='idx' :class="{'text-danger':incom.current_count > 0}">
+            <tr v-for="(incom, idx) in inc_headers" :key='idx' :class="{'text-danger':incom.diff > 0}">
               <td></td>
               <td>{{incom.product_name}}</td>
               <td>{{incom.inc_count}}</td>
@@ -95,7 +95,7 @@
             </tr>
           </draggable>
         </table>
-    <button  class="btn btn-primary" @click="addReceipt(1)" v-if="! show_receipts[1]">
+    <button  class="btn btn-primary" @click="addReceipt(1)" v-if="! show_receipts[1]" :disabled="app_config.shader_name == 'amn1' && total_diff > 0">
       انشاء فاتورة   &nbsp; <span class="fa fa-external-link-square-alt"></span>
     </button>
       </div>
@@ -336,7 +336,9 @@
       <button  class="btn btn-primary" @click="saveAll()"> <span class="fa fa-save"></span> &nbsp;
       حفظ الفواتير   
       </button> &nbsp;
-      <button  class="btn btn-danger" @click="redoReceipt()"> <span class="fa fa-undo"></span> &nbsp;
+      <button  
+      :disabled="app_config.shader_name == 'amn1' && total_diff > 0"
+      class="btn btn-danger" @click="redoReceipt()"> <span class="fa fa-undo"></span> &nbsp;
       اعادة انشاء فاتورة   
       </button> &nbsp;
       <button  class="btn btn-danger" @click="removeAll()"> <span class="fa fa-trash-alt"></span> 
@@ -413,9 +415,9 @@
 <!-- modal_recp Modal <b-modal id="modal-recp" size="xl" class="col-print-12" hide-header
  hide-footer hide-header-close hide-backdrop>-->
 <section v-if="modal_recp.serial && receipt_d_mode">
-<template v-if="true || print_mode">
-  <p class="recp-header" v-if="shader_configs['recp_header'] && ! shader_configs['recp_header'].includes('.png')" v-html="shader_configs['recp_header']"></p>
-  <img v-if="shader_configs['recp_header'] && shader_configs['recp_header'].includes('.png')"
+<template>
+  <p class="recp-header pr-only" v-if="shader_configs['recp_header'] && ! shader_configs['recp_header'].includes('.png')" v-html="shader_configs['recp_header']"></p>
+  <img class=" pr-only" v-if="shader_configs['recp_header'] && shader_configs['recp_header'].includes('.png')"
   :src="require(`@/assets/${shader_configs['recp_header']}`)" 
    style="width: 100%;margin: -25px auto;margin-top: -75px;"/>
 </template>
@@ -425,18 +427,26 @@
   </span>
 
 </h4>
-<h4 style="
-    font-size: 1.5em;
-    margin: .5em;
-">
-  تحريراً في {{recp_day | arDate(app_config.shader_name) }}
-</h4>
-<h4 style="
-    margin: .5em;margin-top: -.5em;
-">
-  <span style="font-size: .7em;">اسم العميل/ </span> 
-  <span style="font-size: 1.1em;">{{supplier.name}}</span>
-</h4>
+<div style="display: grid;grid-template-columns: auto auto;">
+  <div >
+    <h4 style="
+        font-size: 1.5em;
+        margin: .5em;
+    ">
+      تحريراً في {{recp_day | arDate(app_config.shader_name) }}
+    </h4>
+    <h4 style="
+        margin: .5em;margin-top: -.5em;
+    ">
+      <span style="font-size: .7em;">اسم العميل/ </span> 
+      <span style="font-size: 1.1em;">{{supplier.name}}</span>
+    </h4>
+  </div>
+  <div  v-if=" shader_configs['F_SHOW_DEBT_RECP']">
+    <h3 class="text-center" > {{'curr_supp_debt' | tr_label}} : {{curr_debt | round | toAR}}</h3>
+  </div>
+</div>
+
 <img style="margin-top: -450px;float: right;margin-right: 30px;" width="170" class="pr-only"
 v-if="app_config.shader_name != 'magdy' && ! shader_configs['recp_header'].includes('.png')"
 src='https://i.imgur.com/Ie2KPRE.jpg?1' />
@@ -454,17 +464,20 @@ v-if="app_config.shader_name == 'magdy'" >
         <thead>
           <tr>
             <th>الاجمالي</th>
-            <th>عدد المباع</th>
-            <th> الوزن</th>
+            <th :class="{ 'lrbrdr': app_config.shader_name == 'amn1'}">عدد المباع</th>
+            <th :class="{ 'lrbrdr': app_config.shader_name == 'amn1'}"> الوزن</th>
             <th> </th>
-            <th>سعر الكيلو
+            <th :class="{ 'lrbrdr': app_config.shader_name == 'amn1'}" >سعر الكيلو
             </th>
-            <th>الصنف</th>
+            <th :class="{ 'lrbrdr': app_config.shader_name == 'amn1'}" >الصنف</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, idx) in modal_recp.details" :key='idx'>
+          <tr v-for="(item, idx) in modal_recp.details" 
+          :key='idx' 
+          
+          >
             <td>
               {{item.kg_price *  item.weight | round2 | toAR }}
             </td>
@@ -495,7 +508,7 @@ v-if="app_config.shader_name == 'magdy'" >
                 {{ counts.total_count | toAR }}
                 </b>
             </td>
-            <td colspan="5" style="border: none !important;"></td>
+            <td colspan="5" class="noborder"></td>
           </tr>
           </tbody>
           </table>
@@ -513,8 +526,8 @@ v-if="app_config.shader_name == 'magdy'" >
         <br/>
         <table class="table  table-sm pr-me-xx" >
         <tbody>
-          <tr>
-            <td colspan="4" style="border: none !important;"></td>
+          <tr class="noborder">
+            <td colspan="4" class="noborder"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" 
               onClick="this.select();"
@@ -527,22 +540,22 @@ v-if="app_config.shader_name == 'magdy'" >
                 
                </span>
             </th>
-            <td>( {{modal_recp.recp_comm | round2 | toAR(true) }} )</td>
-            <th style="border: none !important;">عمولة</th>
+            <td :class="{ 'bbordered': app_config.shader_name == 'amn1'}">( {{modal_recp.recp_comm | round2 | toAR(true) }} )</td>
+            <th  :class="{ 'bbordered': app_config.shader_name == 'amn1'}" >عمولة</th>
           </tr>
-          <tr v-if="modal_recp.total_nolon">
-            <td colspan="7" style="border: none !important;"></td>
-            <td ><b >( {{modal_recp.total_nolon | round2 | toAR(true) }} )</b></td>
-            <td  style="border: none !important;">نولون</td>
+          <tr v-if="modal_recp.total_nolon" class="noborder">
+            <td colspan="7" class="noborder"></td>
+            <td :class="{ 'bbordered': app_config.shader_name == 'amn1'}"><b >( {{modal_recp.total_nolon | round2 | toAR(true) }} )</b></td>
+            <td  :class="{ 'bbordered': app_config.shader_name == 'amn1'}">نولون</td>
           </tr>
-          <tr v-if="modal_recp.recp_expenses">
-            <td colspan="7" style="border: none !important;"></td>
-            <td ><b >( {{modal_recp.recp_expenses | round2 | toAR }} )</b></td>
-            <td  style="border: none !important;">{{ 'recp_expenses' | tr_label }}</td>
+          <tr v-if="modal_recp.recp_expenses" class="noborder">
+            <td colspan="7" class="noborder" ></td>
+            <td :class="{ 'bbordered': app_config.shader_name == 'amn1'}"><b >( {{modal_recp.recp_expenses | round2 | toAR }} )</b></td>
+            <td  :class="{ 'bbordered': app_config.shader_name == 'amn1'}">{{ 'recp_expenses' | tr_label }}</td>
           </tr>
 
-          <tr v-if="app_config.shader_name != 'nada'">
-            <td colspan="4" style="border: none !important;"></td>
+          <tr v-if="app_config.shader_name != 'nada' && app_config.shader_name != 'amn1'" class="noborder">
+            <td colspan="4" class="noborder"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" 
               onClick="this.select();"
@@ -550,12 +563,12 @@ v-if="app_config.shader_name == 'magdy'" >
             </td>
             <td></td>
             <td></td>
-            <td>( {{modal_recp.recp_deducts | round2 | toAR(true) }} )</td>
-            <th style="border: none !important;">خصم</th>
+            <td :class="{ 'bbordered': app_config.shader_name == 'amn1'}">( {{modal_recp.recp_deducts | round2 | toAR(true) }} )</td>
+            <th :class="{ 'bbordered': app_config.shader_name == 'amn1'}">خصم</th>
           </tr>
 
-          <tr>
-            <td colspan="4" style="border: none !important;"></td>
+          <tr class="noborder">
+            <td colspan="4" class="noborder"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" 
               onClick="this.select();"
@@ -563,14 +576,14 @@ v-if="app_config.shader_name == 'magdy'" >
             </td>
             <td></td>
             <td></td>
-            <td>( {{modal_recp.recp_given | round2 | toAR(true) }} )</td>
-            <th style="border: none !important;">
+            <td :class="{ 'bbordered': app_config.shader_name == 'amn1'}">( {{modal_recp.recp_given | round2 | toAR(true) }} )</td>
+            <th :class="{ 'bbordered': app_config.shader_name == 'amn1'}">
               {{'recp_given' | tr_label}}
             </th>
           </tr>
 
-          <tr v-if="app_config.shader_name != 'nada'">
-            <td colspan="4" style="border: none !important;"></td>
+          <tr v-if="app_config.shader_name != 'nada'" class="noborder">
+            <td colspan="4" class="noborder"></td>
             <td >
               <input v-if="! print_mode && ! modal_recp.recp_paid" 
               onClick="this.select();"
@@ -578,30 +591,30 @@ v-if="app_config.shader_name == 'magdy'" >
             </td>
             <td></td>
             <td></td>
-            <td>( {{modal_recp.recp_others | round2 | toAR(true) }} )</td>
-            <th style="border: none !important;">
+            <td :class="{ 'bbordered': app_config.shader_name == 'amn1'}">( {{modal_recp.recp_others | round2 | toAR(true) }} )</td>
+            <th :class="{ 'bbordered': app_config.shader_name == 'amn1'}">
               {{'recp_others' | tr_label}}
             </th>
           </tr>
-          <tr v-if="app_config.shader_name != 'nada'">
-            <td colspan="4" style="border: none !important;"></td>
+          <tr v-if="app_config.shader_name != 'nada'" >
+            <td colspan="4" class="noborder"></td>
             <td >
             </td>
             <td></td>
             <td></td>
-            <td class="text-danger">( {{ modal_recp.recp_comm +
+            <td class="text-danger" :class="{ 'bbordered': app_config.shader_name == 'amn1'}">( {{ modal_recp.recp_comm +
                modal_recp.total_nolon +
                modal_recp.recp_expenses + 
                modal_recp.recp_deducts + 
                modal_recp.recp_given +
                modal_recp.recp_others | toAR(true)  }})</td>
-            <th style="border: none !important;">
+            <th  :class="{ 'bbordered': app_config.shader_name == 'amn1'}">
               {{'total_disc' | tr_label}}
             </th>
           </tr>
-          <tr>
-            <td colspan="2" style="border: none !important;"></td>
-            <td style="border: none !important;">صافي الفاتورة</td>
+          <tr v-if="app_config.shader_name != 'amn1'">
+            <td colspan="2" class="noborder"></td>
+            <td class="noborder">صافي الفاتورة</td>
             <td >
               <b class="border-top border-primary" v-if="app_config.shader_name == 'wrong'">
                 {{Math.ceil(modal_recp.net_value / 5) * 5 | toAR }}
@@ -611,13 +624,35 @@ v-if="app_config.shader_name == 'magdy'" >
               </b>
             </td>
           </tr>
+          <tr v-if="app_config.shader_name == 'amn1'">
+            <td >
+              <b class="border-top border-primary" >
+                {{modal_recp.net_value + modal_recp.recp_deducts | round | toAR }}
+              </b>
+            </td>
+            <td class="noborder">اجمالي الفاتورة</td>
+
+          </tr>
+          <tr v-if="app_config.shader_name == 'amn1'" class="noborder">
+            <td v-if="! print_mode && ! modal_recp.recp_paid" >
+              <input v-if="! print_mode && ! modal_recp.recp_paid" 
+              onClick="this.select();"
+              v-model="modal_recp.recp_deducts" class="form-control" placeholder="ادخل مبلغ الخصم" >
+            </td>
+            <td :class="{ 'bbordered': app_config.shader_name == 'amn1'}">( {{modal_recp.recp_deducts | round2 | toAR(true) }} )</td>
+            <th :class="{ 'bbordered': app_config.shader_name == 'amn1'}">خصم</th>
+          </tr>
+          <tr v-if="app_config.shader_name == 'amn1'">
+            <td >
+              <b class="border-top border-primary" >
+                {{modal_recp.net_value | round | toAR }}
+              </b>
+            </td>
+            <td class="noborder">صافي الفاتورة</td>
+
+          </tr>
         </tbody>
       </table>
-      <div class="col-6" v-if="true || shader_configs['F_SHOW_DEBT_RECP']">
-        <hr/>
-        <h3 class="text-center" > {{'curr_supp_debt' | tr_label}} : {{curr_debt | round | toAR}}</h3>
-      </div>
-
 
       <div class="m-2">
           <button class="btn btn-success pr-hideme" 
@@ -951,13 +986,22 @@ export default {
     }
   },
   async mounted(){
-    console.log('shader_configs', this.$store.state.shader_configs)
-    this.refresh_all()
+    //console.log('shader_configs', this.$store.state.shader_configs)
+    
     ipcRenderer.on('shortcut_pressed',(event, message)=>{
       console.log(message)
     })
-    let suppliersCtrl = new SuppliersCtrl()
-    this.supplier = await suppliersCtrl.findById(this.supplier_id)
+    this.supplier = await new SuppliersCtrl().findById(this.supplier_id)
+    if(this.app_config.shader_name == 'amn1' && this.supplier.address){
+      try {
+        if(JSON.parse(this.supplier.address) && JSON.parse(this.supplier.address).comm_rate)
+        this.recp_init_comm_rate = parseFloat(JSON.parse(this.supplier.address).comm_rate)
+        console.log(parseFloat(JSON.parse(this.supplier.address).comm_rate))
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    this.refresh_all()
   },
   computed: {
     counts: function() {
@@ -967,6 +1011,13 @@ export default {
       })
       return counts
     },
+    total_diff: function() {
+      let total_diff = 0
+      this.inc_headers.forEach(one => {
+        total_diff += one.diff
+      });
+      return total_diff;
+    }
   },
   watch: {
     modal_recp: {

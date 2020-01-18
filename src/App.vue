@@ -546,6 +546,12 @@ select.form-control {
 }
 */
 
+.bbordered {
+  border: .1em solid black !important;
+}
+.noborder {
+  border: none !important;
+}
 /* printing */
 @media print {
   .col-print-1 {

@@ -21,7 +21,6 @@
   &nbsp; <span class="fa fa-address-book"></span>
 </button>
 
-
   <!-- Element to collapse -->
   <b-collapse id="collapse_form" style="padding:25px;">
     <div class="entry-form">
@@ -40,10 +39,17 @@
         </div>
       </div>
 
-      <div class="form-group row">
+      <div class="form-group row" v-if="app_config.shader_name != 'amn1'">
         <label  class="col-sm-2">العنوان </label>
         <div class="col-sm-10">
           <input v-model="supplier_form.address" class="form-control"  placeholder="ادخل عنوان العميل" >
+        </div>
+      </div>
+
+      <div class="form-group row" v-if="app_config.shader_name == 'amn1'">
+        <label  class="col-sm-2">نسبة العمولة </label>
+        <div class="col-sm-10">
+          <input v-model="supplier_form.comm_rate" class="form-control"  placeholder="ادخل نسبة عمولة العميل" >
         </div>
       </div>
 
@@ -183,14 +189,18 @@ export default {
   methods: {
     async saveSupplier(evt) {
       evt.preventDefault()
-      console.log(this.supplier_form)
+      if(this.app_config.shader_name == 'amn1') {
+        this.supplier_form.address = JSON.stringify({comm_rate:this.supplier_form.comm_rate})
+      }
       try {
+        delete this.supplier_form.comm_rate
         await this.suppliersCtrl.save(this.supplier_form)
       } catch (error) {
         console.error(error)
         this.$bvToast.show('example-toast')
         return
       }
+
       
       this.supplier_form = new SupplierDAO(SupplierDAO.INIT_DAO)
       this.refresh_all()
@@ -203,6 +213,9 @@ export default {
         return element.id == id
       })
       this.supplier_form = new SupplierDAO(filtered_arr[0])
+      if(this.app_config.shader_name == 'amn1' && this.supplier_form.address) {
+        this.supplier_form.comm_rate = JSON.parse(this.supplier_form.address).comm_rate
+      }
       // Show form only if collabsed
       if(this.form_collabsed) {
         this.$root.$emit('bv::toggle::collapse', 'collapse_form')
@@ -243,6 +256,7 @@ export default {
     this.$root.$on('bv::collapse::state', (collapseId, show) => {
       if(collapseId == 'collapse_form') this.form_collabsed = ! show
     })
+    this.supplier_form.comm_rate = parseFloat(this.shader_configs['init_recp_comm'])
     this.refresh_all()
   },
   computed: {

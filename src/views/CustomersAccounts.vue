@@ -292,7 +292,7 @@ export default {
       this.d_collect_form = {trans_type: "cust_collecting"}
       this.d_down_rahn_form = {trans_type: "repay_rahn_internal"}
       this.msh_collect_form = {trans_type: "mashal"}
-      this.aarbon_form = {trans_type: "cust_collecting"}
+      this.aarbon_form = {trans_type: "aarbon"}
 
       this.customer = await this.customersCtrl.findOne(customer_id);
 
