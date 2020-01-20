@@ -1,8 +1,6 @@
-# electron-vue-example
+# ShaderLite
 
-# Making vue app electronable
-
-### Adding bootstrap
+## Adding bootstrap
 
 - npm i bootstrap-vue -s 
 - add bootstrap scripts to app.js
@@ -11,17 +9,17 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 ```
 
-### Get knex and bookshelf working
+## Get knex and bookshelf working
 
 - npm i mssql -s
 - add Object.defineProperty(knex, "name", { value: "knex" }) to avoid knex name problem
 
-### changes to background.js
+## changes to background.js
 
 - Add window.maximize()
 - Changing icon for serve in background.js main window BrowserWindow config `icon:  'assets/logo.png'`
 
-### Adding sqlite3
+## Adding sqlite3
 ```
 npm install --save-dev electron-builder
 npm install --save sqlite3
@@ -31,13 +29,13 @@ npm run postinstall
 
 ---
 
-### Business Constrains (TO REMOVE)
+## Business Constrains (TO REMOVE)
 
 - Fixed sell_comm per product / or flexi receipts
 - Products can't be edited
 
 
-### Business TODOS
+## Business TODOS
 - يجب تحصيل خصم التاجر في النقدية 
 - مراجعة النوالين مع الفواتير
 

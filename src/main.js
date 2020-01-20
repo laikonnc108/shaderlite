@@ -25,14 +25,15 @@ const dbFile = path.resolve(app.getPath("userData"), "db/shaderlite.db");
 
 log.info("dbFile", dbFile);
 
-
-store.commit("setAppConfig", {
+let app_config = {
   app_path: app.getAppPath(),
   curr_dir: path.dirname(app.getAppPath()),
   user_data_path: app.getPath("userData"),
   db_path: dbFile,
   env: process.env
-});
+}
+console.log(app_config);
+store.commit("setAppConfig", app_config);
 
 let sqlite_config = {
   client: "sqlite3",

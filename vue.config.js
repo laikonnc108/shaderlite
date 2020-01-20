@@ -5,6 +5,7 @@ module.exports = {
           // options placed here will be merged with default configuration and passed to electron-builder
           icon: 'src/assets/app_new.ico',
           extraResources: ['./db/**/*','./assets/**/*'],
+		  extraFiles: ['./progs/**/*']
         }
       }
     },

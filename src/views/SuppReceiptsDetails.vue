@@ -161,6 +161,7 @@
           <span> {{recp_1.net_value | round2}} </span>
         </div>
         <hr>
+        <AlertDay />
         <button  class="btn btn-success" v-b-modal.modal-recp @click="modal_recp = recp_1;receipt_d_mode = true;vue_log(recp_1)"> <span class="fa fa-edit"></span>
         تعديل / عرض  
         </button>&nbsp;
@@ -711,6 +712,8 @@ import draggable  from 'vuedraggable'
 import { MainMixin } from '../mixins/MainMixin'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl'
 import {knex} from '../main'
+import AlertDay from '@/components/AlertDay.vue'
+
 const { ipcRenderer } = require('electron')
 
 export default {
@@ -1053,7 +1056,8 @@ export default {
     },
   },
   components: {
-    draggable
+    draggable,
+    AlertDay
   },
 }
 </script>

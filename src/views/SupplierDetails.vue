@@ -34,6 +34,7 @@
         <!-- Element to collapse  <div class="m-2"></div>-->
       <b-collapse id="collapse_pay" style="padding:25px;" class="pr-hideme">
         <div class="entry-form">
+          <AlertDay/>
         <form  @submit="addPayments">
           <b-form-group label="نوع الحركة">
             <b-form-radio-group  v-model="trans_form.trans_type">
@@ -208,6 +209,7 @@ import { ReceiptsCtrl, ReceiptDAO } from '../ctrls/ReceiptsCtrl'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl';
 import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl';
 import { MainMixin } from '../mixins/MainMixin';
+import AlertDay from '@/components/AlertDay.vue'
 
 Settings.defaultLocale = 'ar'
 Settings.defaultZoneName = 'UTC'
@@ -226,6 +228,9 @@ export default {
       suppliersCtrl: new SuppliersCtrl(),
       trans_form: {trans_type: 'supp_payment'},
     }
+  },
+  components:{
+    AlertDay
   },
   mixins: [MainMixin],
   methods: {

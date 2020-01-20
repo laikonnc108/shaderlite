@@ -9,9 +9,11 @@
           <div class="sidebar-sticky mt-3" v-if="! require_login">
             <div class="pl-2 pr-2" v-if="false">مرحباً {{logged_in_user.username}}</div>
             <h4 class="d-flex justify-content-between align-items-center px-3 mb-1 text-muted">
-              <router-link to="/daily">{{ day.iso | arDate(app_config.shader_name) }}</router-link>
+              <router-link to="/daily">
+               <span :class="{'alert-bg': day.iso != day.should_be }">{{ day.iso | arDate(app_config.shader_name) }} </span>
+              </router-link>
             </h4>
-            <div class="p-3">
+            <div class="p-3" >
               <b>{{ day.d_week }}</b>
               <b>
                 <router-link
@@ -276,7 +278,8 @@ export default {
       ts: dateTime.valueOf(),
       iso: dateTime.toISODate(),
       d_week: dateTime.toLocaleString({ weekday: "long" }),
-      arab: moment(dateTime.toISODate()).format("LL")
+      arab: moment(dateTime.toISODate()).format("LL"),
+      should_be : dateTime.toISODate()
     };
     this.$store.commit("setDay", day);
   }
@@ -551,6 +554,10 @@ select.form-control {
 }
 .noborder {
   border: none !important;
+}
+
+.alert-bg {
+  background-color: yellow;
 }
 /* printing */
 @media print {

@@ -71,6 +71,8 @@
       </b-form-group>
       -->
 
+      <AlertDay />
+
       <div class="form-group row">
         <label  class="col-sm-2"> نوع الحركة </label>
         <div class="col-sm-10">
@@ -386,6 +388,7 @@ import { TransTypesCtrl } from '../ctrls/TransTypesCtrl'
 import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl'
 import { MainMixin } from '../mixins/MainMixin';
 import { knex } from '../main';
+import AlertDay from '@/components/AlertDay.vue'
 // import image from '../assets/vegetables.png'
 
 export default {
@@ -572,7 +575,7 @@ export default {
       this.$root.$emit('bv::toggle::collapse', 'collapse_collect')
     }
   },
-  components: { },
+  components: { AlertDay },
   mounted() {
     this.getCustomerDetails()
     this.$root.$on('bv::modal::show', (bvEvent, modalId) => {

@@ -221,6 +221,7 @@
   <template slot="modal-title">
     تحصيل من البياع {{collect_dao.customer_name}}
   </template>
+  <AlertDay />
   <table class="table table-striped table-sm pr-me">
     <thead>
       <tr>
@@ -254,6 +255,7 @@ import { moment } from '../main'
 import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl'
 import { MainMixin } from '../mixins/MainMixin'
+import AlertDay from '@/components/AlertDay.vue'
 
 export default {
   name: 'customers',
@@ -418,6 +420,7 @@ export default {
     },
   },
   components: {
+    AlertDay
   },
   watch:{
     'customer_form.name': function(val){

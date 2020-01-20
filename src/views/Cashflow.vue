@@ -1,6 +1,8 @@
 <template>
   <section class="cashflow m-3 row">
   <div class="col-5">
+    <AlertDay />
+
     <button class="btn btn-success" v-b-toggle.collapse_cash >اضافة جديد </button>
     <br/>
     <br/>
@@ -69,6 +71,7 @@
 import { CashflowCtrl , CashflowDAO } from '../ctrls/CashflowCtrl'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl';
 import CashflowTable from '@/components/CashflowTable.vue'
+import AlertDay from '@/components/AlertDay.vue'
 import { MainMixin } from '../mixins/MainMixin'
 import { knex } from '../main';
 
@@ -144,7 +147,8 @@ export default {
     }
   },
   components: {
-    CashflowTable
+    CashflowTable,
+    AlertDay
   },
   mounted() {
     this.men_rate =this.shader_configs['men_rate'] ? parseFloat(this.shader_configs['men_rate']) : this.men_rate;

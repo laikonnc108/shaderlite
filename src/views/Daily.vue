@@ -19,7 +19,6 @@ import { Settings, DateTime } from 'luxon'
 
 Settings.defaultLocale = 'ar'
 Settings.defaultZoneName = 'UTC'
-console.log( DateTime.local().locale)
 
 export default {
   name: 'daily',
@@ -32,12 +31,14 @@ export default {
   methods: {
     change_luxon_date(date){
       let dateTime = DateTime.fromISO(date)
+      let old_day = this.$store.state.day.should_be
       if(dateTime.valueOf()) {
         this.$store.commit('setDay' ,{
           ts: dateTime.valueOf(),
           iso: dateTime.toISODate(),
           d_week: dateTime.toLocaleString({ weekday: 'long'}),
-          arab: moment(dateTime.toISODate()).format('LL') 
+          arab: moment(dateTime.toISODate()).format('LL'),
+          should_be: old_day
         })
       }
     }
