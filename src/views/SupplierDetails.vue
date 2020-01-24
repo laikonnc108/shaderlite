@@ -19,16 +19,7 @@
     </section>
     <section class="row">
       <div class="col-5 pr-hideme">
-
-        <router-link class="btn btn-primary m-2" :to="{name:'supp_recp_details', params: {supplier_id: supplier.id}}">
-         فواتير اليوم
-        </router-link>
-        <br/>
-        <router-link class="btn btn-primary m-2" :to="{name:'supp_inc_details', params: {supplier_id: supplier.id}}">
-         تفاصيل الزرع 
-        </router-link>
-        <br/>
-        <div class="m-2" v-if="supplier.box_count">
+<div class="m-2" v-if="supplier.box_count">
           <h4>لديه {{supplier.box_count}} عداية</h4>
         </div>
         <button v-b-toggle.collapse_boxes class=" btn btn-success m-2" >
@@ -37,11 +28,43 @@
         </button>
       <b-collapse id="collapse_boxes" style="padding:25px;" class="pr-hideme">
         <div class="entry-form">
- 
+          <form  @submit="addToBoxCount">
+          <b-form-group label=" الحركة">
+            <b-form-radio-group  v-model="add_box_count.type">
+              <b-form-radio value="+">اضافة </b-form-radio>
+              <b-form-radio value="-"> تخفيض</b-form-radio>
+            </b-form-radio-group>
+          </b-form-group>
+
+          <div class="form-group row">
+            <label  class="col-sm-2">عدد العدايات</label>
+            <div class="col-sm-10">
+              <input v-model="add_box_count.amount" class="form-control "  placeholder="ادخل العدد">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-success" >
+            تسجيل
+          </button>
+
+          <button type="button" class="btn btn-alert" >
+            تخفيض
+          </button>
+
           <button type="button" class="btn btn-danger mr-1"  v-b-toggle.collapse_boxes >  اغلاق</button>
+          </form>
         </div>
       </b-collapse>
+      <br/>
+        <router-link class="btn btn-primary m-2" :to="{name:'supp_recp_details', params: {supplier_id: supplier.id}}">
+         فواتير اليوم
+        </router-link>
         <br/>
+        <router-link class="btn btn-primary m-2" :to="{name:'supp_inc_details', params: {supplier_id: supplier.id}}">
+         تفاصيل الزرع 
+        </router-link>
+        <br/>
+        
         <button v-b-toggle.collapse_pay class=" btn btn-success m-2" >
           <span class="fa fa-money-bill-wave"></span> &nbsp; 
         اضافة فواتير سابقة / دفعات / تحصيلات
@@ -241,6 +264,7 @@ export default {
       store_day: this.$store.state.day,
       confirm_step_recp: [],
       confirm_step: [],
+      add_box_count:{amount:0, type:'+'},
       suppliersCtrl: new SuppliersCtrl(),
       trans_form: {trans_type: 'supp_payment'},
     }
@@ -267,6 +291,18 @@ export default {
         this.confirm_step = []
         this.confirm_step[trans.id] = true
       }
+    },
+    async addToBoxCount(evt){
+      evt.preventDefault()
+      console.log(this.add_box_count)
+      let old_count = this.supplier.box_count ? parseInt(this.supplier.box_count) : 0
+      let amount = parseInt(this.add_box_count.amount);
+      this.supplier.box_count = this.add_box_count.type == '-' ? old_count - amount : old_count + amount
+      console.log(this.supplier)
+      await this.suppliersCtrl.save(this.supplier)
+      this.add_box_count = {amount : 0 , type : '+'}
+      this.$root.$emit('bv::toggle::collapse', 'collapse_boxes')
+      await this.refresh_all()
     },
     async addPayments(evt){
       evt.preventDefault()

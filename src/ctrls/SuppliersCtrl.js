@@ -23,6 +23,7 @@ export class SupplierDAO {
     this.balance = this.balance ? parseFloat(this.balance) : 0 
     this.name = (""+this.name).trim()
     delete this.sum_debt
+    delete this.trans
     delete this.supplier_id
   }
 
@@ -82,7 +83,8 @@ export class SuppliersCtrl {
   async save(data) {
     data.parseTypes()
     let record = await this.model.forge(data).save()
-    if(! data.id && data.balance >= 0) { // new one with init debt
+    if(! data.id && data.balance >= 0) {
+      // new one with init debt
       let transDAO = new SupplierTransDAO({
         supplier_id: record.id,
         amount: data.balance,
