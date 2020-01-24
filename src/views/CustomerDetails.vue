@@ -7,7 +7,8 @@
         <br />
 
         <h3 class="d-inline-block ">كشف مديونية / {{customer.name}}</h3>
-        <table class="table table-bordered mt-1 pr-hideme" v-if=" ! customer.is_self">
+        <table class="table table-bordered mt-1 pr-hideme" 
+        v-if=" ! customer.is_self && flags.show_cust_det">
             <tr>
               <th>تليفون </th>
               <td>{{customer.phone}}</td>
@@ -29,15 +30,24 @@
           </tr>
         </table>
 
-  <button v-b-toggle.collapse_collect class="btn btn-success m-1 d-print-none">
-    <span class="fa fa-credit-card"></span> &nbsp; 
-    حركة نقدية : تحصيل / امانة 
+  <button @click="flags.show_cust_det = true" 
+  v-if="! flags.show_cust_det"
+  class="btn btn-success m-1 d-print-none">
+    <span class="fa fa-table"></span> &nbsp; 
+    عرض التليفون والعنوان ورقم البطاقة
   </button> 
 
   <button @click="showOutModal()" class="btn btn-primary m-1 d-print-none">
     <span class="fa fa-table"></span> &nbsp; 
     عرض {{'kashf_cust' | tr_label}} اليوم
   </button>
+
+  <button v-b-toggle.collapse_collect class="btn btn-success m-1 d-print-none">
+    <span class="fa fa-credit-card"></span> &nbsp; 
+    حركة نقدية : تحصيل / امانة 
+  </button> 
+
+
   <div>
     <h3>عرض الحركات من يوم</h3>
         <datetime 
@@ -415,7 +425,7 @@ export default {
       customer_id: this.$route.params.id,
       transtypes_labels: this.$store.state.transtypes_arr,
       confirm_step: [],
-      flags: {modal_closed: true },
+      flags: {modal_closed: true, show_cust_det: false },
       discard_success: false,
       sell_rest: {actual_sale: 0 , notes: ''},
       outg_day: {},

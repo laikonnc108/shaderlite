@@ -13,6 +13,7 @@ export class SupplierDAO {
   notes
   //is_self
   deleted_at
+  box_count
 
   static get INIT_DAO() {
     return { name: '' }

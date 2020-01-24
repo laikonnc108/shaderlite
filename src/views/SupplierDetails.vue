@@ -19,6 +19,7 @@
     </section>
     <section class="row">
       <div class="col-5 pr-hideme">
+
         <router-link class="btn btn-primary m-2" :to="{name:'supp_recp_details', params: {supplier_id: supplier.id}}">
          فواتير اليوم
         </router-link>
@@ -26,6 +27,20 @@
         <router-link class="btn btn-primary m-2" :to="{name:'supp_inc_details', params: {supplier_id: supplier.id}}">
          تفاصيل الزرع 
         </router-link>
+        <br/>
+        <div class="m-2" v-if="supplier.box_count">
+          <h4>لديه {{supplier.box_count}} عداية</h4>
+        </div>
+        <button v-b-toggle.collapse_boxes class=" btn btn-success m-2" >
+          <span class="fa fa-box"></span> &nbsp; 
+        اضافة /تخفيض عدايات
+        </button>
+      <b-collapse id="collapse_boxes" style="padding:25px;" class="pr-hideme">
+        <div class="entry-form">
+ 
+          <button type="button" class="btn btn-danger mr-1"  v-b-toggle.collapse_boxes >  اغلاق</button>
+        </div>
+      </b-collapse>
         <br/>
         <button v-b-toggle.collapse_pay class=" btn btn-success m-2" >
           <span class="fa fa-money-bill-wave"></span> &nbsp; 
@@ -94,6 +109,7 @@
         </form>
         </div>
       </b-collapse>
+
     </div>
     <div class="col-7 table-responsive" >
       <h3 class="m-3">سجل دفعات العميل </h3>

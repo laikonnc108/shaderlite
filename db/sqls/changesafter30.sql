@@ -2,6 +2,9 @@
 -- F_SHOW_NET_RAHN
 -- F_SHOW_NET_RAHN
 
+
+ALTER TABLE suppliers add box_count INTEGER;
+
 -- version 1.35 
 
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('F_AARBON_OUT', 'true', '', 'mmn1', 'config');
