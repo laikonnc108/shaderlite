@@ -22,7 +22,10 @@ export const MainMixin = {
   methods: {
     async print_co(){
       const contents = remote.getCurrentWebContents()
-      contents.print({silent: this.$store.state.shader_configs['silent_print'] ? this.$store.state.shader_configs['silent_print'] : false })
+      let silent = this.$store.state.shader_configs['silent_print'] ? this.$store.state.shader_configs['silent_print'] : false ; 
+      // override silent
+      silent = this.$store.state.app_config.env.NODE_ENV == 'development' ? false : silent ; 
+      contents.print({silent: silent })
     },
   }
 }

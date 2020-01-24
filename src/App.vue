@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow d-print-none">
-      <b class="navbar-brand col-sm-3 col-md-2 mr-0">Shader</b>
+      <b class="navbar-brand col-sm-3 col-md-2 mr-0">برنامج الوكالة</b>
     </nav>
     <div class="container-fluid">
       <div class="row" style="max-width: 100%;">

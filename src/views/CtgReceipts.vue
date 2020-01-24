@@ -81,7 +81,7 @@ export default {
     },
     fltrd_rasd_recps_arr: function(){
       return this.rasd_recps_arr.filter( item => {
-        return (item.supplier_name.includes(this.search_term))
+        return (item.supplier_name && item.supplier_name.includes(this.search_term))
       })
     }
   },

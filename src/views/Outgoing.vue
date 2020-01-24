@@ -328,19 +328,20 @@ export default {
       this.outgoing_form.supplier_id = this.selected_inc.supplier_id
       this.outgoing_form.product_id = this.selected_inc.product_id
       this.outgoing_form.sell_comm_value = this.outgoing_form.count * this.outgoing_form.sell_comm
-      
+      let aarbon = 0
       if(this.outgoing_form.aarbon){
-
-        let aarbon = parseFloat(this.outgoing_form.aarbon)
+        aarbon = parseFloat(this.outgoing_form.aarbon)
+        delete this.outgoing_form.aarbon
+      }
+      let outg_id = await this.outgoingsCtrl.saveOutgoingData(this.outgoing_form)
+      if(aarbon) {
         let selectedTrans = await new TransTypesCtrl().findOne({
           name: 'aarbon',
           category: "customer_trans"
         });
         // create customer trans
         if (selectedTrans) {
-
           let cashflow_id = null;
-
           if (selectedTrans.map_cashflow) {
             // Create cashflow with trans
             let cashflowTrans = await new TransTypesCtrl().findOne({
@@ -355,6 +356,7 @@ export default {
             });
 
             newCashflow.transType = cashflowTrans;
+            newCashflow.outgoing_id = outg_id
             cashflow_id = await new CashflowCtrl().save(newCashflow);
           }
 
@@ -364,12 +366,12 @@ export default {
           custtransDAO.day = this.$store.state.day.iso;
           custtransDAO.customer_id = this.outgoing_form.customer_id;
           custtransDAO.cashflow_id = cashflow_id;
+          custtransDAO.outgoing_id = outg_id;
           custtransDAO.transType = selectedTrans;
           await this.customersCtrl.updateDebtByTrans(custtransDAO);
         }
-        delete this.outgoing_form.aarbon
       }
-      await this.outgoingsCtrl.saveOutgoingData(this.outgoing_form)
+
       // console.log(this.outgoing_form)
       this.refresh_all()
     },

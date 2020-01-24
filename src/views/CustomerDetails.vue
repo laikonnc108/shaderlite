@@ -199,7 +199,10 @@
 <b-modal id="modal-daily" size="xl" class="col-print-12"
 hide-header hide-footer hide-header-close hide-backdrop>
 <template>
-  <p class="recp-header" v-html="shader_configs['recp_header']"></p>
+  <p class="recp-header pr-only" v-if="shader_configs['recp_header'] && ! shader_configs['recp_header'].includes('.png')" v-html="shader_configs['recp_header']"></p>
+  <img class=" pr-only" v-if="shader_configs['recp_header'] && shader_configs['recp_header'].includes('.png')"
+  :src="require(`@/assets/${shader_configs['recp_header']}`)" 
+   style="width: 100%;margin: 0px auto;margin-top: -25px;"/>
 </template>
 
 <div class="row">
@@ -218,8 +221,10 @@ hide-header hide-footer hide-header-close hide-backdrop>
   </div>
 </div>
 
-<img :src='`https://i.imgur.com/HieletO.png`' style="margin-top: -375px;float: right;margin-right: 30px;" width="150" class="pr-only" />
-<img :src='`https://i.imgur.com/HieletO.png`'  style="margin-top: -375px;float: left;margin-left: 30px;" width="150" class="pr-only"/>
+<img v-if="! shader_configs['recp_header'].includes('.png')"
+:src='`https://i.imgur.com/HieletO.png`' style="margin-top: -375px;float: right;margin-right: 30px;" width="150" class="pr-only" />
+<img v-if="! shader_configs['recp_header'].includes('.png')"
+:src='`https://i.imgur.com/HieletO.png`'  style="margin-top: -375px;float: left;margin-left: 30px;" width="150" class="pr-only"/>
 
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me-xx" >

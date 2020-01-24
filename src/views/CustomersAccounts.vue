@@ -8,24 +8,25 @@
     </div>
 
     <h1>حسابات البائعين - معاملات اليوم</h1>
-    <div class="row" v-for="(outgoing, idx) in fltrd_unique_daily_customers"  :key="idx">
-    <router-link   
-    :to="{name:'customer_details', params: {id: outgoing.customer_id}}"
-    class="col-5 btn btn-lg m-2 btn-block text-primary d-print-none pr-hideme" >
-       &nbsp; 
-      عرض حساب البياع - {{outgoing.customer_name}} 
+    <div class="row" 
+    v-for="(outgoing, idx) in fltrd_unique_daily_customers" :key="idx">
+      <router-link   
+      :to="{name:'customer_details', params: {id: outgoing.customer_id}}"
+      class="col-5 btn btn-lg m-2 btn-block text-primary d-print-none pr-hideme" >
+        &nbsp; 
+        عرض حساب البياع - {{outgoing.customer_name}} 
 
-    </router-link>
+      </router-link>
 
-        <button class="col-5 m-1 btn btn-lg d-print-none pr-hideme " 
-        :class="{ 'btn-danger': ! printed_all[outgoing.customer_id], 'btn-primary': printed_all[outgoing.customer_id]}"
-        @click="showOutModal(outgoing.customer_id)">
-          <span class="fa fa-cash-register"></span>   &nbsp;  {{'kashf_cust' | tr_label}} اليوم 
-        <span v-if="printed_all[outgoing.customer_id]" style="float:left">
-          ( تمت طباعته )
-        </span>
-        </button>
-</div>
+      <button class="col-5 m-1 btn btn-lg d-print-none pr-hideme " 
+      :class="{ 'btn-danger': ! printed_all[outgoing.customer_id], 'btn-primary': printed_all[outgoing.customer_id]}"
+      @click="showOutModal(outgoing.customer_id)">
+        <span class="fa fa-cash-register"></span>   &nbsp;  {{'kashf_cust' | tr_label}} اليوم 
+      <span v-if="printed_all[outgoing.customer_id]" style="float:left">
+        ( تمت طباعته )
+      </span>
+      </button>
+    </div>
 
      
     <!-- Modal TODO No dublicate -->
@@ -33,7 +34,10 @@
 hide-header hide-footer hide-header-close hide-backdrop>
 
 <template>
-  <p class="recp-header" v-html="shader_configs['recp_header']"></p>
+  <p class="recp-header pr-only" v-if="shader_configs['recp_header'] && ! shader_configs['recp_header'].includes('.png')" v-html="shader_configs['recp_header']"></p>
+  <img class=" pr-only" v-if="shader_configs['recp_header'] && shader_configs['recp_header'].includes('.png')"
+  :src="require(`@/assets/${shader_configs['recp_header']}`)" 
+   style="width: 100%;margin: 0px auto;margin-top: -25px;"/>
 </template>
 
 <div class="row">
@@ -52,8 +56,10 @@ hide-header hide-footer hide-header-close hide-backdrop>
     <h2 class="text-center" v-if="daily_out_trans[0] && app_config.shader_name == 'magdy'"> حساب سابق : {{ daily_out_trans[0].debt_was | toAR }}</h2>
   </div>
 </div>
-<img :src='`https://i.imgur.com/HieletO.png`' style="margin-top: -375px;float: right;margin-right: 30px;" width="150" class="pr-only"/>
-<img :src='`https://i.imgur.com/HieletO.png`' style="margin-top: -375px;float: left;margin-left: 30px;" width="150" class="pr-only"/>
+<img v-if="! shader_configs['recp_header'].includes('.png')"
+:src='`https://i.imgur.com/HieletO.png`' style="margin-top: -375px;float: right;margin-right: 30px;" width="150" class="pr-only"/>
+<img v-if="! shader_configs['recp_header'].includes('.png')"
+:src='`https://i.imgur.com/HieletO.png`' style="margin-top: -375px;float: left;margin-left: 30px;" width="150" class="pr-only"/>
   <div class="table-responsive p-2 m-2" style="border: 2px solid #79ace0; border-radius: 12px;" > 
       <table class="table table-bordered table-sm pr-me-xx" >
         <thead>

@@ -20,7 +20,44 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
   </span>
 </router-link>
 -->
-  <table class="table table-striped table-sm pr-me-l">
+  <template v-if="app_config.shader_name =='amn1'">
+    <div class="row" 
+    v-for="(row, idx) in fltrd_today_suppliers_arr" :key="idx">
+
+      <div class="col-5 btn btn-lg m-2 btn-block text-primary d-print-none pr-hideme">
+        <router-link  :to="{name:'supplier_details', params: {id: row.supplier_id}}">
+          ملف : {{row.supplier_name}}
+        </router-link>
+        <div v-if="row.day != day.iso" class="text-danger">وارد {{row.day | arDate }} </div> 
+      </div>
+
+      <div class="text-danger col-5 m-1 btn btn-lg d-print-none pr-hideme " v-if="row.sum_diff">
+        يتبقي {{row.sum_diff}} طرد
+      </div>
+      <router-link class="btn col-5 m-1 btn btn-lg d-print-none pr-hideme "  v-else
+        :class="{ 
+          'btn-danger': !singleRecp(row.concat_recp_paid) ||  singleRecp(row.concat_recp_paid) == 0 ,
+          'btn-primary': singleRecp(row.concat_recp_paid) == 1,
+          'btn-success': singleRecp(row.concat_recp_paid) == 2
+        }"
+        :to="{name:'supp_recp_full', params: {supplier_id: row.supplier_id, day: row.day}}">
+        <span class="fa fa-cash-register"></span>
+        <span>
+          فاتورة 
+          <span v-if="singleRecp(row.concat_recp_paid) > 0">
+            {{'recp_status_'+ singleRecp(row.concat_recp_paid) | tr_label }}
+          </span>
+          <span v-if="singleRecp(row.concat_recp_paid) === null">*</span>
+           <span v-if="row.concat_printed"> - {{'printed' | tr_label }} </span>
+        </span>
+      </router-link>
+      <router-link class="nav-link " :to="{name:'supp_recp_details', params: {supplier_id: row.supplier_id, day: row.day}}">
+        تفاصيل الزرع
+      </router-link>
+    </div>
+    </template>
+
+  <table class="table table-striped table-sm pr-me-l" v-else>
     <thead>
       <tr>
         <th>اسم العميل</th>
@@ -69,6 +106,11 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
           <router-link class="nav-link " :to="{name:'supp_recp_details', params: {supplier_id: row.supplier_id, day: row.day}}">
           عرض الفواتير 
           </router-link>
+          <router-link class="nav-link " 
+          v-if="false"
+          :to="{name:'supp_recp_full', params: {supplier_id: row.supplier_id, day: row.day}}">
+          انشاء فاتورة
+          </router-link>
         </td>
       </tr>
       </template>
@@ -104,6 +146,14 @@ export default {
         return concat_recp_paid.split(',')
       else
         return []
+    },
+    singleRecp(concat_recp_paid) {
+      if(concat_recp_paid) {
+        let [first] = concat_recp_paid.split(',')
+        return first
+      }
+      else
+        return null
     }
   },
   components: {
@@ -111,7 +161,8 @@ export default {
   computed: {
     fltrd_today_suppliers_arr: function(){
       return this.today_suppliers_arr.filter( item => {
-        return (item.supplier_name.includes(this.search_term))
+        console.log(item)
+        return (item.supplier_name && item.supplier_name.includes(this.search_term))
       })
     }
   },

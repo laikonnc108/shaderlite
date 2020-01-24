@@ -12,6 +12,7 @@ import Outgoing from "./views/Outgoing.vue";
 import SuppliersReceipts from "./views/SuppliersReceipts.vue";
 import SupplierDetails from "./views/SupplierDetails.vue";
 import SuppReceiptsDetails from "./views/SuppReceiptsDetails.vue";
+import SuppRecpFull from "./views/SuppRecpFull.vue";
 import CustomersAccounts from "./views/CustomersAccounts.vue";
 import Cashflow from "./views/Cashflow.vue";
 import DailyMoves from "./views/DailyMoves.vue";
@@ -76,6 +77,11 @@ export default new Router({
       path: "/supp_recp_details",
       name: "supp_recp_details",
       component: SuppReceiptsDetails
+    },
+    {
+      path: "/supp_recp_full",
+      name: "supp_recp_full",
+      component: SuppRecpFull
     },
     {
       path: "/supp_inc_details",

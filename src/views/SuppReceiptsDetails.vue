@@ -657,6 +657,7 @@ v-if="app_config.shader_name == 'magdy'" >
 
       <div class="m-2">
           <button class="btn btn-success pr-hideme" 
+          v-if="! modal_recp.id || modal_recp.recp_paid == 0"
           @click="saveAll();" >
             <span class="fa fa-check "></span> &nbsp;
             حفظ 
@@ -927,8 +928,10 @@ export default {
       this.recp_1.details.forEach( item => {        
         let index = this.inc_headers.findIndex( _ => _.product_id === item.product_id )
         if(index >= 0){
+          console.log(this.inc_headers[index].recp_in_count , item.count)
           this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count ? parseInt(this.inc_headers[index].recp_in_count) : 0
           this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count + parseInt(item.count)
+          console.log(this.inc_headers[index].recp_in_count , item.count)
         }
         this.recp_1.total_count += parseInt(item.count)
       })
