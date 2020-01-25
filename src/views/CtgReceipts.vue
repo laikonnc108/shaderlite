@@ -9,15 +9,41 @@
       />
       <br />
     </div>
-
+    <AlertDay />
     <h1>فواتير الرصد للعملاء</h1>
-    <table class="table table-striped table-sm pr-me-l">
+
+  <template v-if="app_config.shader_name =='amn1'">
+    <div class="row" 
+    v-for="(row, idx) in fltrd_rasd_recps_arr" :key="idx">
+
+      <div class="col-5 btn btn-lg m-2 btn-block text-primary d-print-none pr-hideme">
+        <router-link  :to="{name:'supplier_details', params: {id: row.supplier_id}}">
+          ملف : {{row.supplier_name}}
+        </router-link>
+        <div v-if="row.day != day.iso" class="text-danger">وارد {{row.day | arDate }} </div> 
+      </div>
+
+      <router-link class="btn col-5 m-1 btn-primary btn-lg d-print-none pr-hideme " 
+        :to="{name:'supp_recp_full', params: {supplier_id: row.supplier_id, day: row.day}}">
+        <span class="fa fa-cash-register"></span>
+        <span>
+          الفاتورة 
+        </span>
+      </router-link>
+      <router-link class="nav-link " :to="{name:'supp_recp_details', params: {supplier_id: row.supplier_id, day: row.day}}">
+        تفاصيل الزرع
+      </router-link>
+    </div>
+    </template>
+
+    <table class="table table-striped table-sm pr-me-l" v-else>
       <thead>
         <tr>
           <th>اسم العميل</th>
           <th>الاصناف</th>
           <th>عدد الطرود</th>
           <th>صافي الفاتورة</th>
+          <th></th>
           <th></th>
         </tr>
       </thead>
@@ -34,11 +60,20 @@
           <td>{{row.total_count}}</td>
           <td>{{row.net_value | round }}</td>
           <td>
+        <router-link class="btn m-1 btn-primary btn-lg d-print-none pr-hideme " 
+          :to="{name:'supp_recp_full', params: {supplier_id: row.supplier_id, day: row.day}}">
+          <span class="fa fa-cash-register"></span>
+          <span>
+            الفاتورة 
+          </span>
+        </router-link>
+          </td>
+          <td>
             <div v-if="row.day != day.iso" class="text-danger">وارد {{row.day | arDate }}</div>
             <router-link
               class="nav-link"
               :to="{name:'supp_recp_details', params: {supplier_id: row.supplier_id, day: row.day}}"
-            >عرض الفواتير</router-link>
+            >تفاصيل اليوم</router-link>
           </td>
         </tr>
         <tr v-if="! search_term">
@@ -55,6 +90,7 @@
 <script >
 import { ReceiptsCtrl } from "../ctrls/ReceiptsCtrl";
 import { MainMixin } from "../mixins/MainMixin";
+import AlertDay from '@/components/AlertDay.vue'
 
 export default {
   name: "ctg-receipts",
@@ -70,7 +106,7 @@ export default {
       this.rasd_recps_arr = await this.receiptsCtrl.findAll({ recp_paid: 1 });
     }
   },
-  components: {},
+  components: {AlertDay},
   computed: {
     totals() {
       let totals = { total_net: 0 };

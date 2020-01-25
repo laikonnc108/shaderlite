@@ -40,6 +40,13 @@
         <span class="fa fa-sync "></span> &nbsp;
         اعادة تشغيل البرنامج
       </button>
+       <br/><br/>
+      <button class="btn btn-secondary btn-lg" 
+      @click="disconnect_db()" >
+        <span class="fa fa-bell-slash "></span> &nbsp;
+        database disconnect
+      </button>
+
   </div>
   {{app_config.shader_name}}
 
@@ -170,6 +177,9 @@ export default {
     },
     reload_electron(){
       remote.getCurrentWindow().reload();
+    },
+    disconnect_db(){
+       knex.destroy()
     },
     async checkAll(){
       
