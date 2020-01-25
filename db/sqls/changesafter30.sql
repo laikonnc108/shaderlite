@@ -2,7 +2,8 @@
 -- F_SHOW_NET_RAHN
 -- F_SHOW_NET_RAHN
 
-INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('init_mashal', '.35', '', 'amn1', 'config');
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") 
+VALUES ('init_mashal', '.35', '', 'mmn1', 'config');
 ALTER TABLE suppliers add box_count INTEGER;
 
 -- version 1.35 
