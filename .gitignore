@@ -2,7 +2,6 @@
 node_modules
 /dist
 /progs
-/rsrs
 
 # local env files
 .env.local
