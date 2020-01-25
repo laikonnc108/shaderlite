@@ -61,12 +61,12 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
     <thead>
       <tr>
         <th>اسم العميل</th>
-        <th>الاصناف الواردة</th>
-        <th>اجمالي النوالين </th>
-        <th>عدد الطرود</th>
+        <th>الاصناف </th>
+        <th> نوالين </th>
+        <th>عدد </th>
         <th>تم بيع</th>
-        <th>طرود متبقية</th>
-        <th>تم انشاء فواتير</th>
+        <th> متبقي</th>
+        <th> فواتير</th>
         <th>بعدد </th>
         <th></th>
       </tr>
@@ -94,17 +94,38 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
           <b>{{row.sum_diff}}</b>
         </td>
         <td>
+      <router-link class="btn m-1 btn btn-lg d-print-none pr-hideme " 
+        v-if=" ! row.sum_diff"
+        :class="{ 
+          'btn-danger': !singleRecp(row.concat_recp_paid) ||  singleRecp(row.concat_recp_paid) == 0 ,
+          'btn-primary': singleRecp(row.concat_recp_paid) == 1,
+          'btn-success': singleRecp(row.concat_recp_paid) == 2
+        }"
+        :to="{name:'supp_recp_full', params: {supplier_id: row.supplier_id, day: row.day}}">
+        <span class="fa fa-cash-register"></span>
+        <span>
+          <span v-if="singleRecp(row.concat_recp_paid) === null"> انشاء </span>
+          فاتورة 
+          <span v-if="singleRecp(row.concat_recp_paid) > 0">
+            {{'recp_status_'+ singleRecp(row.concat_recp_paid) | tr_label }}
+          </span>
+          
+           <span v-if="row.concat_printed"> - {{'printed' | tr_label }} </span>
+        </span>
+      </router-link>
+        <template v-if="false">
           <span v-for="(recp_paid, index) in receiptsSepStatus(row.concat_recp_paid)" :key="index">
             فاتورة {{'recp_status_'+ recp_paid | tr_label }} 
             <span v-if="row.concat_printed"> - {{'printed' | tr_label }} </span>
             <span v-if="index+1 != receiptsSepStatus(row.concat_recp_paid).length">, <br/></span>
           </span>
+          </template>
         </td>
         <td>{{row.sum_recp_count}}</td>
         <td>
           <div v-if="row.day != day.iso" class="text-danger">وارد {{row.day | arDate }} </div> 
           <router-link class="nav-link " :to="{name:'supp_recp_details', params: {supplier_id: row.supplier_id, day: row.day}}">
-          عرض الفواتير 
+          تفاصيل اليوم
           </router-link>
           <router-link class="nav-link " 
           v-if="false"

@@ -104,7 +104,7 @@ Vue.filter("round2", function(number) {
   return roundOf(rounded, 2).toFixed(2);
 });
 
-Vue.filter("ceil5", function(number, shader_name = 'magdy') {
+Vue.filter("ceil5", function(number, shader_name) {
   number = number ? parseFloat(number) : 0;
   let ceil_5 = Math.ceil(number / 5) * 5;
   let last_res = number;

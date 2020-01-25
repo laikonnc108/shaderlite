@@ -209,11 +209,8 @@ v-if="app_config.shader_name == 'magdy'" >
             <td colspan="2" class="noborder"></td>
             <td class="noborder">صافي الفاتورة</td>
             <td >
-              <b class="border-top border-primary" v-if="app_config.shader_name == 'wrong'">
-                {{Math.ceil(modal_recp.net_value / 5) * 5 | toAR }}
-              </b>
-              <b class="border-top border-primary" v-else>
-                {{modal_recp.net_value | round | toAR }}
+              <b class="border-top border-primary" >
+                {{modal_recp.net_value | ceil5(app_config.shader_name) | round | toAR }}
               </b>
             </td>
           </tr>
@@ -402,7 +399,11 @@ export default {
       dao.recp_expenses = dao.recp_expenses ? dao.recp_expenses : 0
       dao.recp_deducts = dao.recp_deducts ? dao.recp_deducts : 0
       dao.recp_given = dao.recp_given ? dao.recp_given : 0 
-      dao.recp_others = dao.recp_others ? dao.recp_others : total_count * .35
+      if(this.shader_configs['init_mashal'])
+        dao.recp_others = dao.recp_others ? dao.recp_others 
+        : Math.round( total_count * parseFloat(this.shader_configs['init_mashal']))
+      else
+        dao.recp_others = dao.recp_others ? dao.recp_others : 0
       dao.total_nolon = dao.total_nolon ? dao.total_nolon : 0
       dao.net_value = sale_value - dao.recp_comm - dao.recp_given -  dao.recp_others - dao.recp_expenses - dao.recp_deducts -  dao.total_nolon
     }

@@ -360,8 +360,9 @@ hide-header hide-footer hide-header-close hide-backdrop>
           <tr>
             <td >
               <b class="border-top border-primary">
-                <span v-if="app_config.shader_name != 'nada'">{{ sum_outgoings_val | ceil5 | toAR }} </span>
-                <span v-else>{{ sum_outgoings_val | round | toAR }} </span>
+                <span>
+                  {{ sum_outgoings_val | ceil5(app_config.shader_name) | toAR }}
+                </span>
               </b>
             </td>
             <td style="border: none !important;"> اجمالي </td>
@@ -371,7 +372,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
 
       <div class="col-6" v-if="shader_configs['F_SHOW_DEBT_KASHF']">
         <hr/>
-        <h3 class="text-center" v-if="daily_out_trans[0]"> {{'total_debt' | tr_label}} : {{sum_debt_cmpt | ceil5 | toAR}}</h3>
+        <h3 class="text-center" v-if="daily_out_trans[0]"> {{'total_debt' | tr_label}} : {{sum_debt_cmpt | ceil5(app_config.shader_name) | toAR}}</h3>
       </div>
 
       <span></span>

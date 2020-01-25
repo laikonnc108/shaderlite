@@ -82,7 +82,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
         <tbody>
           <tr v-for="(item, idx) in daily_out_trans" :key='idx'>
             <template v-if="item.trans_type == 'outgoing'">
-              <td>{{idx}} {{ item.amount | toAR(true) }} </td>
+              <td>{{ item.amount | toAR(true) }} </td>
               <td> {{ item.count | toAR }}</td>
               <td> {{ item.weight | toAR }}</td>
               <td> {{ item.kg_price | toAR(true) }}</td>
@@ -194,7 +194,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
           <tr>
             <td >
               <b class="border-top border-primary">
-                <span v-if="app_config.shader_name != 'nada'">{{ sum_outgoings_val | ceil5 | toAR }} </span>
+                <span v-if="app_config.shader_name != 'nada'">{{ sum_outgoings_val | ceil5(app_config.shader_name) | toAR }} </span>
                 <span v-else>{{ sum_outgoings_val | round | toAR }} </span>
               </b>
             </td>
@@ -205,8 +205,9 @@ hide-header hide-footer hide-header-close hide-backdrop>
       
       <div class="col-6" v-if="shader_configs['F_SHOW_DEBT_KASHF']">
         <hr/>
-        <h3 class="text-center" v-if="daily_out_trans[0]"> {{'total_debt' | tr_label}} 
-          : {{ customer.debt | ceil5 | toAR}}</h3>
+        <h3 class="text-center" v-if="daily_out_trans[0]">
+          {{'total_debt' | tr_label}} 
+          : {{ customer.debt | ceil5(app_config.shader_name) | toAR}}</h3>
 
       </div>
       <span></span>

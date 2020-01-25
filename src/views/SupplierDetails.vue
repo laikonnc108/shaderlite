@@ -44,11 +44,8 @@
           </div>
 
           <button type="submit" class="btn btn-success" >
-            تسجيل
-          </button>
-
-          <button type="button" class="btn btn-alert" >
-            تخفيض
+            <span v-if="add_box_count.type == '+'">اضافة</span>
+            <span v-else>تخفيض</span>
           </button>
 
           <button type="button" class="btn btn-danger mr-1"  v-b-toggle.collapse_boxes >  اغلاق</button>
