@@ -39,6 +39,15 @@
         </div>
       </div>
 
+
+      <div class="form-group row" v-if="app_config.shader_name == 'amn1'">
+        <label  class="col-sm-2">  مشال الصنف</label>
+        <div class="col-sm-10">
+          <input v-model="product_form.cust_mashal" class="form-control "  placeholder="مشال الصنف">
+        </div>
+      </div>
+
+
       <div class="form-group row"  v-if="false">
         <label  class="col-sm-2">لون الصنف</label>
         <div class="col-sm-10">

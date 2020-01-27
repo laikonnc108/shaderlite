@@ -1,66 +1,34 @@
 <template>
-  <section class="suppliers row">
+  <section class="dealers row">
     <div class="col-5 d-print-none " v-if="! flags.detailed">
       <br/>
-        <div class="row detailed" v-if="logged_in_user.user_type != 'editor'" >
-          <div class="col-6" >
-            <span class="btn text-primary h3">
-            {{custom_labels['sum_suppliers_debt']}}
-            </span>
-            <span class="btn text-primary h3" @click="flags.show_sum_debt = ! flags.show_sum_debt">
-              <span v-if="! flags.show_sum_debt" >+</span>
-              <span v-else>-</span>
-            </span>
-          </div>
-          <div class="col-6 btn text-primary " v-if="flags.show_sum_debt">
-            <span class="h3">
-            {{ sum_debt| round2 | toAR }}
-            </span>
-            <span class="fa fa-table"></span>
-          </div>
-        </div>
-    <hr>
 <button v-b-toggle.collapse_form class="btn btn-primary mr-3">
-  ادخال عميل جديد 
+  ادخال تعامل جديد 
   &nbsp; <span class="fa fa-address-book"></span>
 </button>
 
   <!-- Element to collapse -->
   <b-collapse id="collapse_form" style="padding:25px;">
     <div class="entry-form">
-    <form  @submit="saveSupplier">
+    <form  @submit="saveDealer">
       <div class="form-group row">
-        <label for="exampleInputEmail1" class="col-sm-2">اسم العميل</label>
+        <label for="exampleInputEmail1" class="col-sm-2">الاسم </label>
         <div class="col-sm-10">
-          <input v-model="supplier_form.name" class="form-control " id="exampleInputEmail1" placeholder="ادخل اسم العميل">
-        </div>
-      </div>
-
-      <div class="form-group row">
-        <label  class="col-sm-2">رقم التليفون</label>
-        <div class="col-sm-10">
-          <input v-model="supplier_form.phone" class="form-control"  placeholder="رقم التليفون" >
-        </div>
-      </div>
-
-      <div class="form-group row" v-if="app_config.shader_name != 'amn1'">
-        <label  class="col-sm-2">العنوان </label>
-        <div class="col-sm-10">
-          <input v-model="supplier_form.address" class="form-control"  placeholder="ادخل عنوان العميل" >
-        </div>
-      </div>
-
-      <div class="form-group row" v-if="app_config.shader_name == 'amn1'">
-        <label  class="col-sm-2">نسبة العمولة </label>
-        <div class="col-sm-10">
-          <input v-model="supplier_form.comm_rate" class="form-control"  placeholder="ادخل نسبة عمولة العميل" >
+          <input v-model="dealer_form.name" class="form-control " id="exampleInputEmail1" placeholder="ادخل اسم العميل">
         </div>
       </div>
 
       <div class="form-group row">
-        <label class="col-sm-2">مبلغ واصل اليه</label>
+        <label  class="col-sm-2">تليفون</label>
         <div class="col-sm-10">
-          <input v-model="supplier_form.balance" :disabled="supplier_form.id"
+          <input v-model="dealer_form.phone" class="form-control"  placeholder="رقم التليفون" >
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <label class="col-sm-2">رصيد</label>
+        <div class="col-sm-10">
+          <input v-model="dealer_form.balance" :disabled="dealer_form.id"
           class="form-control"  placeholder="ادخل المبلغ">
         </div>
       </div>
@@ -68,13 +36,13 @@
       <div class="form-group row">
         <label for="notes1" class="col-sm-2">ملاحظات</label>
         <div class="col-sm-10">
-          <input v-model="supplier_form.notes" class="form-control " id="notes1"  placeholder="ادخال الملاحظات">
+          <input v-model="dealer_form.notes" class="form-control " id="notes1"  placeholder="ادخال الملاحظات">
         </div>
       </div>
 
       <button type="submit" class="btn btn-success">
-        <template v-if="! supplier_form.id"> اضافة</template>
-        <template v-if="supplier_form.id"> حفظ </template>
+        <template v-if="! dealer_form.id"> اضافة</template>
+        <template v-if="dealer_form.id"> حفظ </template>
       </button>
     </form>
     </div>
@@ -93,20 +61,17 @@
       اغلاق الارشيف   &nbsp; <span class="fa fa-external-link-square-alt"></span>
     </button>
     
-      <button  class="btn btn-primary mr-2" @click="setSelected()" >
-        اختيار للطباعة   &nbsp; <span class="fa fa-external-link-square-alt"></span>
-      </button>
 
     </div>
     <div class="pr-hideme" >
       <br>
-      <input v-model="search_term" class="form-control "  :placeholder="custom_labels['search_suppliers']">
+      <input v-model="search_term" class="form-control "  :placeholder="custom_labels['search_dealers']">
     </div>
     <br/>
   <h2 :class="{ 'text-danger': ! show_active }">
       <span v-if="show_active"> {{custom_labels['list']}} </span>
       <span v-if="! show_active"> {{custom_labels['archive']}} </span>
-      العملاء
+      المعاملات
   </h2>
       <div class="table-responsive">
         <table class="table table-striped table-sm ">
@@ -121,11 +86,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, idx) in comp_suppliers_arr" :key='idx' >
+            <tr v-for="(item, idx) in comp_dealers_arr" :key='idx' >
               <td><input class="pr-hideme" :id="item.id" :value="item.id" type="checkbox" v-model="checkedItems" /></td>
               <td>{{item.id}}</td>
               <td>
-                <router-link class="nav-link " :to="{name:'supplier_details', params: {id: item.id}}">
+                <router-link class="nav-link " :to="{name:'dealer_details', params: {id: item.id}}">
                   {{item.name}}
                 </router-link>
                </td>
@@ -170,16 +135,16 @@
   </section>
 </template>
 <script >
-import { SupplierDAO , SuppliersCtrl } from '../ctrls/SuppliersCtrl'
+import { DealerDAO , DealersCtrl } from '../ctrls/DealersCtrl'
 import { MainMixin } from '../mixins/MainMixin';
 
 export default {
-  name: 'suppliers',
+  name: 'dealers',
   data () {
     return {
-      supplier_form: new SupplierDAO(SupplierDAO.INIT_DAO),
-      suppliersCtrl: new SuppliersCtrl(),
-      suppliers_arr: [],
+      dealer_form: new DealerDAO(DealerDAO.INIT_DAO),
+      dealersCtrl: new DealersCtrl(),
+      dealers_arr: [],
       checkedItems: [],
       search_term: '',
       show_active: true,
@@ -191,35 +156,27 @@ export default {
   },
   mixins: [MainMixin],
   methods: {
-    async saveSupplier(evt) {
+    async saveDealer(evt) {
       evt.preventDefault()
-      if(this.app_config.shader_name == 'amn1') {
-        this.supplier_form.address = JSON.stringify({comm_rate:this.supplier_form.comm_rate})
-      }
       try {
-        delete this.supplier_form.comm_rate
-        await this.suppliersCtrl.save(this.supplier_form)
+        await this.dealersCtrl.save(this.dealer_form)
       } catch (error) {
         console.error(error)
         this.$bvToast.show('example-toast')
         return
-      }
-
-      
-      this.supplier_form = new SupplierDAO(SupplierDAO.INIT_DAO)
+      }  
+      this.dealer_form = new DealerDAO(DealerDAO.INIT_DAO)
       this.refresh_all()
     },
     setSelected() {
-      this.suppliers_arr = this.suppliers_arr.filter(item => this.checkedItems.includes(item.id))
+      this.dealers_arr = this.dealers_arr.filter(item => this.checkedItems.includes(item.id))
     },
     async edit(id) {
-      let filtered_arr = this.suppliers_arr.filter( element =>{
+      let filtered_arr = this.dealers_arr.filter( element =>{
         return element.id == id
       })
-      this.supplier_form = new SupplierDAO(filtered_arr[0])
-      if(this.app_config.shader_name == 'amn1' && this.supplier_form.address) {
-        this.supplier_form.comm_rate = JSON.parse(this.supplier_form.address).comm_rate
-      }
+      this.dealer_form = new DealerDAO(filtered_arr[0])
+
       // Show form only if collabsed
       if(this.form_collabsed) {
         this.$root.$emit('bv::toggle::collapse', 'collapse_form')
@@ -228,12 +185,12 @@ export default {
     async archive(id, restore = 'ARCHIVE') {
       if( this.confirm_step[id] ) {
         if(restore === 'RESTORE')
-          await this.suppliersCtrl.resotreById(id)
+          await this.dealersCtrl.resotreById(id)
         else if (restore === 'PERMANENT'){
-          await this.suppliersCtrl.permenentDeleteById(id)
+          await this.dealersCtrl.permenentDeleteById(id)
         }
         else
-          await this.suppliersCtrl.deleteById(id)
+          await this.dealersCtrl.deleteById(id)
         this.confirm_step = []
         this.refresh_all()
       }
@@ -244,14 +201,11 @@ export default {
     },
     async refresh_all() {
       let soft_delete = this.show_active ? true : false;
-      // load 20 tasbera
-      this.suppliers_arr = await this.suppliersCtrl.findAll({limit: 20},{softDelete: soft_delete, 
-        orderByBalance: this.app_config.shader_name != 'nada'
+      this.dealers_arr = await this.dealersCtrl.findAll({},{
+        softDelete: soft_delete, 
+        orderByBalance: true
       })
-      this.suppliers_arr = await this.suppliersCtrl.findAll({},{softDelete: soft_delete, 
-        orderByBalance: this.app_config.shader_name != 'nada'
-      })
-      let {sum_debt} = await this.suppliersCtrl.sumDebt()
+      let {sum_debt} = await this.dealersCtrl.sumDebt()
       this.sum_debt = sum_debt
     }
   },
@@ -260,12 +214,11 @@ export default {
     this.$root.$on('bv::collapse::state', (collapseId, show) => {
       if(collapseId == 'collapse_form') this.form_collabsed = ! show
     })
-    this.supplier_form.comm_rate = parseFloat(this.shader_configs['init_recp_comm'])
     this.refresh_all()
   },
   computed: {
-    comp_suppliers_arr: function () {
-      return this.suppliers_arr.filter( item => {
+    comp_dealers_arr: function () {
+      return this.dealers_arr.filter( item => {
         return ((item.deleted_at == null) === this.show_active  && item.name.includes(this.search_term))
       })
     }
@@ -273,7 +226,7 @@ export default {
   components: {
   },
   watch:{
-    'supplier_form.name': function(val){
+    'dealer_form.name': function(val){
       this.search_term = val
     }
   }

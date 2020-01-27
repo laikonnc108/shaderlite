@@ -6,11 +6,13 @@ import Developer from "./views/Developer.vue";
 import Incomings from "./views/Incomings.vue";
 import Customers from "./views/Customers.vue";
 import Suppliers from "./views/Suppliers.vue";
+import Dealers from "./views/Dealers.vue";
 import Products from "./views/Products.vue";
 import CustomerDetails from "./views/CustomerDetails.vue";
 import Outgoing from "./views/Outgoing.vue";
 import SuppliersReceipts from "./views/SuppliersReceipts.vue";
 import SupplierDetails from "./views/SupplierDetails.vue";
+import DealerDetails from "./views/DealerDetails.vue";
 import SuppReceiptsDetails from "./views/SuppReceiptsDetails.vue";
 import SuppRecpFull from "./views/SuppRecpFull.vue";
 import CustomersAccounts from "./views/CustomersAccounts.vue";
@@ -69,6 +71,11 @@ export default new Router({
       component: SupplierDetails
     },
     {
+      path: "/dealer_details",
+      name: "dealer_details",
+      component: DealerDetails
+    },
+    {
       path: "/daily_moves",
       name: "daily_moves",
       component: DailyMoves
@@ -107,6 +114,11 @@ export default new Router({
       path: "/suppliers",
       name: "suppliers",
       component: Suppliers
+    },
+    {
+      path: "/dealers",
+      name: "dealers",
+      component: Dealers
     },
     {
       path: "/products",

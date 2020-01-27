@@ -7,6 +7,7 @@ export class ProductDAO {
     product_sell_comm
     product_rahn
     weight_deduct
+    cust_mashal
     // season 
     // collection = ''
 
@@ -34,6 +35,11 @@ export class ProductsCtrl {
     data.parseTypes()
     let record = await this.model.forge(data).save()
     return record.id
+  }
+
+  async findById(id) {
+    let instance = await this.model.where('id',id).fetch()
+    return new ProductDAO(instance.attributes)
   }
 
   async findAll(filter = {}, options = {}) {

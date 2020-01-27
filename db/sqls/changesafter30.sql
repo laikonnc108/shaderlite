@@ -1,10 +1,36 @@
--- https://github.com/fireb1001/shaderlite/releases/download/all/shaderlite-mmn1-1579261694708.7z
--- F_SHOW_NET_RAHN
--- F_SHOW_NET_RAHN
+-- https://github.com/fireb1001/shaderlite/releases/
+INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category") 
+VALUES ('dealer_init', 'رصيد', 'default', '+', '', 'dealer_trans');
 
+CREATE TABLE dealers (
+	id	INTEGER PRIMARY KEY AUTOINCREMENT,
+	name	TEXT NOT NULL UNIQUE,
+	phone	TEXT,
+	deleted_at	INTEGER,
+	balance REAL,
+	notes	TEXT
+);
+
+ALTER TABLE dealers add balance REAL;
+
+CREATE TABLE dealer_trans (id INTEGER PRIMARY KEY AUTOINCREMENT,
+day TEXT NOT NULL,
+dealer_id INTEGER NOT NULL,
+cashflow_id INTEGER,
+amount REAL,
+trans_type TEXT,
+sum TEXT,
+notes TEXT, FOREIGN KEY (dealer_id) REFERENCES dealers (id));
+
+
+-- version 1.40
+ALTER TABLE products add cust_mashal REAL;
+
+-- version 1.38
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") 
-VALUES ('init_mashal', '.35', '', 'mmn1', 'config');
+VALUES ('init_mashal', '.35', '', 'amn1', 'config');
 ALTER TABLE suppliers add box_count INTEGER;
+
 
 -- version 1.35 
 
@@ -14,7 +40,7 @@ INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_veri
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('F_AARBON_KASHF', 'true', '', 'mmn1', 'config');
 INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") VALUES ('F_SHOW_DEBT_KASHF', 'true', '', 'mmn1', 'config');
 
-INSERT INTO "main"."shader_configs"\] ("config_name", "config_value", "config_verify", "shader_name", "category") 
+INSERT INTO "main"."shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") 
 VALUES ('shader_name', 'magdy', '', 'default', 'config');
 -- version 1.33 -- 
 ALTER TABLE receipts add cashflow_id INTEGER;

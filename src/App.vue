@@ -110,6 +110,12 @@
                 </router-link>
               </li>
               <li class="nav-item">
+                <router-link class="nav-link active" to="/dealers">
+                  <span class="fa fa-handshake"></span>
+                  {{ custom_labels['manage_dealers'] }}
+                </router-link>
+              </li>
+              <li class="nav-item">
                 <router-link class="nav-link active" to="/users">
                   <span class="fa fa-code"></span>
                   {{ custom_labels['manage_users'] }}

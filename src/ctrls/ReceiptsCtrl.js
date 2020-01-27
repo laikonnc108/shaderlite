@@ -147,6 +147,7 @@ export class ReceiptsCtrl {
       await knex.raw("delete from supplier_trans where receipt_id = " + id);
       return await instance.destroy();
     } else return null;
+
   }
 
   async deleteDetailsById(id) {

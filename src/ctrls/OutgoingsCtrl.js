@@ -1,6 +1,7 @@
 import { bookshelf, knex } from '../main'
 import { CustomersCtrl, CustomerTransDAO } from './CustomersCtrl'
 import { TransTypesCtrl } from './TransTypesCtrl';
+import { ProductsCtrl } from './ProductsCtrl';
 import { CashflowCtrl, CashflowDAO} from './CashflowCtrl'
 
 export class OutgoingDAO {
@@ -123,6 +124,40 @@ export class OutgoingsCtrl {
         await new CustomersCtrl().updateDebtByTrans(customerTrans)
       }
 
+      // if  product_mashal
+      let product = await new ProductsCtrl().findById(data.product_id)
+      if(product.cust_mashal) {
+        let prod_mashal = parseFloat(product.cust_mashal)
+        let mashalTrans = await this.transTypesCtrl.findOne({name: 'mashal', category: 'customer_trans'})
+        if(mashalTrans.map_cashflow){
+          // Create cashflow with trans
+          let cashflowTrans = await this.transTypesCtrl.findOne({name: mashalTrans.map_cashflow , category: 'cashflow'})
+
+          let newCashflow = new CashflowDAO({
+            amount: prod_mashal * parseInt(data.count),
+            day:  data.day,
+            customer_id: data.customer_id,
+            outgoing_id: out_id,
+            d_product: data.product_id
+          })
+
+          newCashflow.transType = cashflowTrans
+          cashflow_id = await new CashflowCtrl().save(newCashflow)
+        }
+
+        let customerTrans = new CustomerTransDAO()
+        customerTrans.transType = mashalTrans
+        customerTrans.day = data.day
+        customerTrans.amount = prod_mashal * parseInt(data.count)
+        customerTrans.customer_id = data.customer_id
+        customerTrans.outgoing_id = out_id
+        customerTrans.cashflow_id = cashflow_id
+        customerTrans.product_id = data.product_id
+        customerTrans.notes = data.notes
+
+        await new CustomersCtrl().updateDebtByTrans(customerTrans)
+      }
+      
     } else {
       // Create cashflow with outgoing
       let cashflowTrans =  await this.transTypesCtrl.findOne({name: 'outgoing_cash', category: 'cashflow'})

@@ -7,8 +7,12 @@
             <span class="btn text-primary h3">
             {{custom_labels['sum_customers_debt']}}
             </span>
+            <span class="btn text-primary h3" @click="flags.show_sum_debt = ! flags.show_sum_debt">
+              <span v-if="! flags.show_sum_debt" >+</span>
+              <span v-else>-</span>
+            </span>
           </div>
-          <div class="col-6 btn text-primary">
+          <div class="col-6 btn text-primary" v-if="flags.show_sum_debt">
             <span class="h3">
             {{ sum_debt| round | toAR}}
             </span>
@@ -270,7 +274,8 @@ export default {
         zm_mode: false,
         form_collabsed: true,
         detailed: false,
-        show_g_than: false 
+        show_g_than: false,
+        show_sum_debt: false
       },
       confirm_step: [],
       checkedItems: [],

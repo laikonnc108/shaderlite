@@ -1,6 +1,6 @@
 {
   "name": "shaderlite",
-  "version": "0.1.39",
+  "version": "0.1.40",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service electron:serve",
@@ -11,19 +11,19 @@
     "postuninstall": "electron-builder install-app-deps"
   },
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.19.2",
     "bookshelf": "^0.15.1",
     "bookshelf-soft-delete": "^5.0.0",
-    "bootstrap-vue": "^2.0.0-rc.26",
+    "bootstrap-vue": "^2.3.0",
     "electron-log": "^3.0.7",
     "knex": "^0.19.1",
-    "luxon": "^1.17.1",
+    "luxon": "^1.22.0",
     "moment": "^2.24.0",
     "mssql": "^5.1.0",
     "sqlite3": "^4.1.1",
     "vue": "^2.5.17",
     "vue-datetime": "^1.0.0-beta.10",
-    "vue-router": "^3.0.1",
+    "vue-router": "^3.1.5",
     "vue-select": "^3.1.0",
     "vuedraggable": "^2.23.0",
     "vuex": "^3.0.1",
