@@ -1,7 +1,51 @@
 <template>
-  <section class="row">
+  <section class="row m-2">
     <div class="col-5 pr-hideme">
-    {{ dealer }}
+      <h3>{{ dealer.name }}</h3>
+      <hr>
+      <button v-b-toggle.collapse_pay class=" btn btn-success m-2" >
+        <span class="fa fa-money-bill-wave"></span> &nbsp; 
+       صرف / تحصيل
+      </button>
+        <!-- Element to collapse  <div class="m-2"></div>-->
+      <b-collapse id="collapse_pay" style="padding:25px;" class="pr-hideme">
+        <div class="entry-form">
+          <AlertDay/>
+        <form  @submit="addPayment">
+          <b-form-group label="نوع الحركة">
+            <b-form-radio-group  v-model="trans_form.trans_type">
+              <b-form-radio value="dealer_pay">صرف  </b-form-radio>
+              <b-form-radio value="dealer_collect">تحصيل</b-form-radio>
+            </b-form-radio-group>
+          </b-form-group>
+
+          <div class="form-group row">
+            <label  class="col-sm-2">المبلغ</label>
+            <div class="col-sm-10">
+              <input v-model="trans_form.amount" class="form-control "  placeholder="ادخل المبلغ">
+            </div>
+          </div>
+          <div class="form-group row" >
+            <label  class="col-sm-2">ملاحظات</label>
+            <div class="col-sm-10">
+              <input v-model="trans_form.notes" class="form-control " placeholder="ادخال الملاحظات">
+            </div>
+          </div>     
+          <div class="form-group row" v-if="false">
+            <label  class="col-sm-2">عدد الطرود</label>
+            <div class="col-sm-10">
+              <input v-model="trans_form.count" class="form-control " placeholder="ادخال العدد">
+            </div>
+          </div>     
+
+          <button type="submit" class="btn btn-success" :disabled="! valid_form ">
+            <span v-if="trans_form.trans_type === 'dealer_pay'">صرف</span>
+            <span v-else>تحصيل </span>
+          </button>
+          <button type="button" class="btn btn-danger mr-1"  v-b-toggle.collapse_pay >  اغلاق</button>
+        </form>
+        </div>
+      </b-collapse>
     </div>
     <div class="col-7 table-responsive" >
       <h3 class="m-3">سجل المعاملات </h3>
@@ -46,7 +90,10 @@
               <td></td>
               <td>الرصيد الحالي</td>
               <td>
-                <b>{{ 0 | toAR}}</b>
+                <b v-if="dealer_sums.total_debt < 0" class="text-danger">
+                  له ({{ Math.abs(dealer_sums.total_debt) | toAR}})
+                </b>
+                <b v-else>عليه {{ dealer_sums.total_debt | toAR}}</b>
               </td>
             </tr>
           </tbody>
@@ -56,12 +103,12 @@
 </template>
 
 <script>
-import { Settings, DateTime } from 'luxon'
+import { Settings } from 'luxon'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl';
 import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl';
 import { MainMixin } from '../mixins/MainMixin';
 import AlertDay from '@/components/AlertDay.vue'
-import { DealersCtrl, DealerDAO } from '../ctrls/DealersCtrl';
+import { DealersCtrl, DealerDAO, DealerTransDAO } from '../ctrls/DealersCtrl';
 
 Settings.defaultLocale = 'ar'
 Settings.defaultZoneName = 'UTC'
@@ -77,7 +124,7 @@ export default {
       confirm_step_recp: [],
       confirm_step: [],
       dealersCtrl: new DealersCtrl(),
-      trans_form: {trans_type: 'dealer_add'},
+      trans_form: {trans_type: 'dealer_pay'},
     }
   },
   components:{
@@ -89,12 +136,79 @@ export default {
       let {dao, trans} = await this.dealersCtrl.getDealerDetails(this.dealer_id)
       this.dealer = dao
       this.dealer_trans = trans
+    },
+    async removeTrans(trans) {
+      if( this.confirm_step[trans.id] ) {
+        this.discard_success = await this.dealersCtrl.removeDealerTrans(trans.id)
+        this.confirm_step = []
+        this.refresh_all()
+      }
+      else {
+        this.confirm_step = []
+        this.confirm_step[trans.id] = true
+      }
+    },
+    async addPayment(evt) {
+      evt.preventDefault()
+      this.trans_form.day = this.store_day.iso;
+      let transTypesCtrl = new TransTypesCtrl()
+      let selectedTrans = await transTypesCtrl.findOne({
+        name: this.trans_form.trans_type ,
+        category: 'dealer_trans'
+      })
+      console.log(selectedTrans)
+      if(selectedTrans) {
+        let cashflow_id = null
+        if(selectedTrans.map_cashflow){
+          // Create cashflow with trans
+          let cashflowTrans = await transTypesCtrl.findOne({
+            name: selectedTrans.map_cashflow ,
+            category: 'cashflow'
+          })
+
+          let newCashflow = new CashflowDAO({
+            amount: this.trans_form.amount,
+            day: this.trans_form.day,
+            dealer_id: this.dealer_id,
+            notes: this.trans_form.notes
+          })
+
+          newCashflow.transType = cashflowTrans
+          cashflow_id = await new CashflowCtrl().save(newCashflow)
+        }
+
+        let transDAO = new DealerTransDAO(this.trans_form)
+        transDAO.dealer_id = this.dealer_id
+        transDAO.cashflow_id = cashflow_id
+        transDAO.transType = selectedTrans
+        await this.dealersCtrl.updateBalanceByTrans(transDAO)
+      }
+      
+      this.trans_form = {}
+      this.$root.$emit('bv::toggle::collapse', 'collapse_pay')
+      this.refresh_all()
     }
   },
   mounted() {
     this.refresh_all()
   },
-  computed: {}
+  computed: {
+    dealer_sums: function() {
+      let dealer_sums = {total_debt: 0 }
+      this.dealer_trans.forEach(trans => {
+
+        dealer_sums.total_debt += parseFloat(trans.amount)
+
+      })
+      return dealer_sums
+    },
+    valid_form: function() {
+      if(this.trans_form.trans_type && this.trans_form.amount && parseFloat(this.trans_form.amount)) {
+        return true
+      }
+      return false
+    }
+  }
 }
 </script>
 

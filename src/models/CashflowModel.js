@@ -14,11 +14,15 @@ module.exports = (bookshelf) => {
         supplier: function() {
             return this.belongsTo(RelSupplier,'supplier_id')
         },
+        dealer: function() {
+            return this.belongsTo(RelDealer,'dealer_id')
+        },
     });
     
     let RelOutgoing = bookshelf.Model.extend({tableName: 'outgoings'});
     let RelCustomer = bookshelf.Model.extend({tableName: 'customers'});
     let RelSupplier = bookshelf.Model.extend({tableName: 'suppliers'});
+    let RelDealer = bookshelf.Model.extend({tableName: 'dealers'});
 
     return CashflowModel;
 };

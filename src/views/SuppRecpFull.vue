@@ -348,8 +348,8 @@ export default {
     },
     async setRecpPaid( receipt, recp_paid ) {
       receipt.recp_paid = recp_paid
-      let cashflow_id ;
       if(recp_paid == 2 ){
+        let cashflow_id ;
         let cashflowDAO = new CashflowDAO({
           day: this.day.iso,
           supplier_id: this.supplier_id,
@@ -360,11 +360,16 @@ export default {
         let transType = await new TransTypesCtrl().findOne({name: 'recp_paid', category: 'cashflow'})
         cashflowDAO.transType = transType
         cashflow_id = await new CashflowCtrl().save(cashflowDAO)
+        if(cashflow_id) {
+          receipt.cashflow_id = cashflow_id;
+          this.saveRecp();
+        } else {
+          window.alert('لم يتم صرف الفاتورة يوجد خطأ')
+        }
+      } else {
+        this.saveRecp();
       }
-      if(cashflow_id) {
-        receipt.cashflow_id = cashflow_id;
-      }
-      this.saveRecp()
+      
     },
     /**@param {Array} list */
     remove_from_list(list, id) {

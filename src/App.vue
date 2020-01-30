@@ -129,7 +129,9 @@
                 </router-link>
               </li>
 
-              <li class="nav-item" v-if="app_config.shader_name != 'magdy' && logged_in_user.user_type != 'editor'">
+              <li class="nav-item" 
+              
+              v-if="app_config.shader_name != 'magdy' && logged_in_user.user_type != 'editor'">
                 <router-link class="nav-link active" to="/daily_expenses">
                   <span class="fa fa-calendar-alt"></span>
                   المصروفات اليومية

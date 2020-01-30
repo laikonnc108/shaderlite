@@ -10,10 +10,16 @@ export class CashflowDAO {
   notes;
   outgoing_id;
   incoming_id;
+
   supplier_id;
   supplier_name;
+
+  dealer_id;
+  dealer_name;
+
   customer_id;
   customer_name;
+
   income_day;
   kg_price;
   count;
@@ -36,6 +42,8 @@ export class CashflowDAO {
       : 0;
     delete this.customer_name;
     delete this.supplier_name;
+    delete this.dealer_name;
+
     delete this.count;
     delete this.kg_price;
     delete this.weight;
@@ -70,7 +78,7 @@ export class CashflowCtrl {
         qb.orderBy("customer_id", "DESC");
         qb.orderBy("supplier_id", "DESC");
       })
-      .fetchAll({ withRelated: ["outgoing", "customer", "supplier"] });
+      .fetchAll({ withRelated: ["outgoing", "customer", "supplier","dealer"] });
     return all.map(_ => {
       let cashDAO = new CashflowDAO(_.attributes);
       cashDAO.income_day = _.related("outgoing").get("income_day");
@@ -79,6 +87,7 @@ export class CashflowCtrl {
       cashDAO.weight = _.related("outgoing").get("weight");
       cashDAO.customer_name = _.related("customer").get("name");
       cashDAO.supplier_name = _.related("supplier").get("name");
+      cashDAO.dealer_name = _.related("dealer").get("name");
       return cashDAO;
     });
   }

@@ -30,6 +30,12 @@
         <div class="col-sm-10">
           <input v-model="dealer_form.balance" :disabled="dealer_form.id"
           class="form-control"  placeholder="ادخل المبلغ">
+          <br>
+          <b-form-radio-group  v-model="type">
+            <b-form-radio value="+">عليه </b-form-radio>
+            <b-form-radio value="-"> له</b-form-radio>
+          </b-form-radio-group>
+
         </div>
       </div>
 
@@ -152,6 +158,7 @@ export default {
       form_collabsed: true,
       flags: {detailed: false, show_sum_debt: false},
       sum_debt: 0,
+      type: '+' 
     }
   },
   mixins: [MainMixin],
@@ -159,6 +166,9 @@ export default {
     async saveDealer(evt) {
       evt.preventDefault()
       try {
+        this.dealer_form.balance = Math.abs(parseFloat(this.dealer_form.balance))
+        if(this.type == '-') 
+          this.dealer_form.balance = - this.dealer_form.balance
         await this.dealersCtrl.save(this.dealer_form)
       } catch (error) {
         console.error(error)

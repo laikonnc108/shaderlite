@@ -30,6 +30,7 @@
               <td>
                 {{item.customer_name}}
                 {{item.supplier_name}}
+                {{item.dealer_name}}
               </td>
               <td>{{$store.state.transtypes_arr[item.state]}}
                 <span v-if="item.d_product"> - {{ item.d_product | productsFilter }}</span>
@@ -42,7 +43,7 @@
               </td>
               <td>{{item.notes}}</td>
               <td v-if="flags.can_remove">
-                <button class="btn text-danger" @click="removeCashflow(item.id)" >
+                <button class="btn text-danger" @click="removeCashflow(item)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[item.id]"> </template>
                   <template v-if="confirm_step[item.id]"> تأكيد </template>
@@ -81,14 +82,21 @@ export default {
     }
   },
   methods: {
-    async removeCashflow(cashflow_id) {
-      if( this.confirm_step[cashflow_id] ) {
-        await this.cashflowCtrl.deleteById(cashflow_id)
+    /**@param {CashflowDAO} cashflow */
+    async removeCashflow(cashflow) {
+      if(cashflow.receipt_id){
+
+        window.alert('لا يمكن الحذف , يجب حذف الفاتورة او اعادة انشاءها من الفواتير ');
+        return
+      }
+      let id = cashflow.id
+      if( this.confirm_step[id] ) {
+        await this.cashflowCtrl.deleteById(id)
         this.$emit('refresh')
       }
       else {
         this.confirm_step = []
-        this.confirm_step[cashflow_id] = true
+        this.confirm_step[id] = true
       }
     },
   },

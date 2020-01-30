@@ -1,6 +1,28 @@
 -- https://github.com/fireb1001/shaderlite/releases/
+
+
+
 INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category") 
 VALUES ('dealer_init', 'رصيد', 'default', '+', '', 'dealer_trans');
+
+INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category", "map_cashflow") 
+VALUES ('dealer_pay', 'دفع تعامل', 'default', '+', '', 'dealer_trans', 'dealer_pay');
+
+INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category", "map_cashflow") 
+VALUES ('dealer_pay', 'دفع تعامل', 'default', '-', '', 'cashflow', '');
+
+INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category", "map_cashflow") 
+VALUES ('dealer_collect', 'تحصيل تعامل', 'default', '-', '', 'dealer_trans', 'dealer_collect');
+
+INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category", "map_cashflow") 
+VALUES ('dealer_collect', 'تحصيل تعامل', 'default', '+', '', 'cashflow', '');
+
+INSERT INTO "main"."shader_configs" 
+("config_name", "config_value", "config_verify", "shader_name", "category") 
+VALUES ('manage_dealers', 'ادارة المعاملات', '', 'default', 'label');
+
+
+alter TABLE cashflow add dealer_id INTEGER;
 
 CREATE TABLE dealers (
 	id	INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -11,7 +33,6 @@ CREATE TABLE dealers (
 	notes	TEXT
 );
 
-ALTER TABLE dealers add balance REAL;
 
 CREATE TABLE dealer_trans (id INTEGER PRIMARY KEY AUTOINCREMENT,
 day TEXT NOT NULL,
