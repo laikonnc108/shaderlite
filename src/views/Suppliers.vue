@@ -115,9 +115,9 @@
               <td></td>
               <th> الكود </th>
               <th>الاسم</th>
-              <th>رقم التليفون </th>
-              <th>الرصيد الحالي</th>
-              <th></th>
+              <th>رصيد</th>
+              <th>{{'sum_rasd' | tr_label}}</th>
+              <td></td>
             </tr>
           </thead>
           <tbody>
@@ -129,8 +129,8 @@
                   {{item.name}}
                 </router-link>
                </td>
-              <td>{{item.phone}}</td>
-              <td>{{item.sum_debt |  toAR}}</td>
+              <td>{{item.sum_debt | round | toAR}}</td>
+              <td>{{item.sum_net_rasd | round | toAR}}</td>
               <td class="d-print-none">
                 <button class="btn text-danger" @click="archive(item.id)"  v-if="flags.detailed && ! item.deleted_at">
                   <span class="fa fa-archive "></span> 

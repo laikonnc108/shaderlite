@@ -151,7 +151,13 @@ export default {
 
         let netcashYesterday = await this.cashflowCtrl.getNetCash({day: isoyesterDay})
         console.log(day_incs.length, cashflow_rasid.length)
-        if(day_incs.length == 0 && cashflow_rasid.length == 0 && netcashYesterday >  0) {
+
+        if(
+          this.shader_configs['shader_name'] != 'nada' && 
+          day_incs.length == 0 && 
+          cashflow_rasid.length == 0 && 
+          netcashYesterday >  0
+        ) {
           await this.cashflowCtrl.save(new CashflowDAO({
             amount: netcashYesterday,
             state: 'inc_collect',

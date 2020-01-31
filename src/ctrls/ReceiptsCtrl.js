@@ -36,6 +36,7 @@ export class ReceiptDAO {
 
   constructor(data = {}) {
     Object.assign(this, data);
+    console.log(this)
   }
 
   parseTypes() {

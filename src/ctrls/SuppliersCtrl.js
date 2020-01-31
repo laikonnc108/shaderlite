@@ -7,13 +7,16 @@ export class SupplierDAO {
   id 
   name 
   balance 
-  sum_debt
+  
   phone
   address
   notes
   //is_self
   deleted_at
   box_count
+
+  sum_debt
+  sum_net_rasd
 
   static get INIT_DAO() {
     return { name: '' }
@@ -23,11 +26,14 @@ export class SupplierDAO {
     this.balance = this.balance ? parseFloat(this.balance) : 0 
     this.name = (""+this.name).trim()
     delete this.sum_debt
+    delete this.sum_net_rasd
+
     delete this.trans
     delete this.supplier_id
   }
 
   constructor (data) {
+    console.log(data)
     Object.assign(this, data)
   }
 }
@@ -164,12 +170,21 @@ export class SuppliersCtrl {
     return all.map( _=> new SupplierDAO(_.attributes))
     */
     console.log(options)
-    let results = await knex.raw(`
-    select * from (select * from suppliers ${options.softDelete ? 'where deleted_at is null': ''}) suppliers_g
-    LEFT JOIN ( select supplier_id, sum(amount) as sum_debt from supplier_trans group by supplier_id ) supplier_trans_g
-    ON suppliers_g.id = supplier_trans_g.supplier_id ${options.orderByBalance ? 'order by balance desc' : ''}
-    ${filter.limit ? "limit " + parseInt(filter.limit) : ""}
-    `)
+    let SQL = `
+select * from (select * from suppliers ${options.softDelete ? 'where deleted_at is null': ''}) suppliers_g
+LEFT JOIN ( 
+  select supplier_id, sum(amount) as sum_debt from supplier_trans group by supplier_id 
+) supplier_trans_g
+ON suppliers_g.id = supplier_trans_g.supplier_id 
+LEFT JOIN (
+  select supplier_id, sum(net_value) as sum_net_rasd from receipts group by supplier_id 
+) supp_recp_g
+ON  suppliers_g.id = supp_recp_g.supplier_id
+${options.orderByBalance ? 'order by balance desc' : ''}
+${filter.limit ? "limit " + parseInt(filter.limit) : ""}
+`
+    let results = await knex.raw(SQL)
+    console.log(SQL)
 
     return results.map( _=> {return new SupplierDAO(_)})
   }

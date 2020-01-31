@@ -84,7 +84,6 @@ export class DealersCtrl {
 
       let selectedTrans = await new TransTypesCtrl().findOne({name: 'dealer_init' , category: 'dealer_trans'})
       transDAO.transType = selectedTrans
-      console.log(transDAO)
       await this.createDealerTrans(transDAO)
     }
     return record.id

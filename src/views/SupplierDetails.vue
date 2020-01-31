@@ -19,10 +19,12 @@
     </section>
     <section class="row">
       <div class="col-5 pr-hideme">
-<div class="m-2" v-if="supplier.box_count">
+        <div class="m-2" v-if="supplier.box_count">
           <h4>لديه {{supplier.box_count}} عداية</h4>
         </div>
-        <button v-b-toggle.collapse_boxes class=" btn btn-success m-2" >
+        <button 
+        v-if="shader_configs['shader_name'] != 'nada'"
+        v-b-toggle.collapse_boxes class=" btn btn-success m-2" >
           <span class="fa fa-box"></span> &nbsp; 
         اضافة /تخفيض عدايات
         </button>
@@ -52,16 +54,57 @@
           </form>
         </div>
       </b-collapse>
+
       <br/>
         <router-link class="btn btn-primary m-2" :to="{name:'supp_recp_details', params: {supplier_id: supplier.id}}">
          فواتير اليوم
         </router-link>
         <br/>
+        
+        <button 
+        v-b-toggle.collapse_closer
+        v-if="shader_configs['shader_name'] == 'nada'"
+        class=" btn btn-danger m-2" >
+          <span class="fa fa-table"></span> &nbsp; 
+        تصفية سنوية
+        </button>
+
+        <br/>
+
+      <b-collapse id="collapse_closer" style="padding:25px;" class="pr-hideme">
+        <div class="entry-form">
+          <form  @submit="yeralyCloser">
+
+          <div class="form-group row">
+            <label  class="col-sm-2">التصفية لعام</label>
+            <div class="col-sm-10">
+              <input v-model="yearly_closer.year" class="form-control "  placeholder="ادخل العام">
+            </div>
+          </div>
+
+          <div
+            class="p-1 m-1 alerty" 
+          >
+            سوف يتم تصفية حساب العميل {{supplier.name}} لعام {{yearly_closer.year}}
+            <br/>
+            سوف يتم انشاء حساب جديد للعميل باجمالي رصيد
+            {{ parseFloat(supp_trans_sums.total_debt) - parseFloat(supp_recps_sums.total_rasd) | round}}
+          </div>
+
+          <button type="submit" class="btn btn-danger" >
+            <span>تصفية</span>
+          </button>
+
+          <button type="button" class="btn btn-danger mr-1"  v-b-toggle.collapse_closer >  اغلاق</button>
+          </form>
+        </div>
+      </b-collapse>
+
         <router-link class="btn btn-primary m-2" :to="{name:'supp_inc_details', params: {supplier_id: supplier.id}}">
          تفاصيل الزرع 
         </router-link>
         <br/>
-        
+
         <button v-b-toggle.collapse_pay class=" btn btn-success m-2" >
           <span class="fa fa-money-bill-wave"></span> &nbsp; 
         اضافة فواتير سابقة / دفعات / تحصيلات
@@ -75,9 +118,7 @@
             <b-form-radio-group  v-model="trans_form.trans_type">
               <b-form-radio value="supp_init_payment">رصيد </b-form-radio>
               <b-form-radio value="supp_pre_payment">دفعة سابقة</b-form-radio>
-              <!--
               <b-form-radio value="supp_pre_recp">فاتورة سابقة</b-form-radio>
-              -->
               <b-form-radio value="supp_collect">تحصيل</b-form-radio>
               <b-form-radio value="supp_payment">دفعة اليوم</b-form-radio>
               <!--
@@ -213,7 +254,8 @@
           </router-link>
               </td>
               <td> 
-                <button v-if="false" class="btn text-danger" @click="removeRecpItself(receipt.id)" >
+                <button v-if="shader_configs['shader_name'] == 'nada'" 
+                class="btn text-danger" @click="removeRecp(receipt)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step_recp[receipt.id]"> حذف الفاتورة</template>
                   <template v-if="confirm_step_recp[receipt.id]"> تأكيد </template>
@@ -264,6 +306,7 @@ export default {
       add_box_count:{amount:0, type:'+'},
       suppliersCtrl: new SuppliersCtrl(),
       trans_form: {trans_type: 'supp_payment'},
+      yearly_closer: {year: new Date().getFullYear()}
     }
   },
   components:{
@@ -277,6 +320,30 @@ export default {
       this.supplier = dao
       this.supplier_trans = trans
       this.supplier_receipts = await new ReceiptsCtrl().findAll({supplier_id: this.supplier.id})
+    },
+    async yeralyCloser(evt) {
+      evt.preventDefault();
+      let net_acc = parseFloat(this.supp_trans_sums.total_debt) - parseFloat(this.supp_recps_sums.total_rasd)
+      console.log(this.yearly_closer.year, net_acc)
+      let newSupp = { ...this.supplier }
+      newSupp.balance = net_acc
+      delete newSupp.id
+      this.supplier.name += ' ' +this.yearly_closer.year
+      await this.suppliersCtrl.save(this.supplier)
+      await this.suppliersCtrl.deleteById(this.supplier_id)
+      await this.suppliersCtrl.save(new SupplierDAO(newSupp))
+      this.$router.push("suppliers");
+    },
+    async removeRecp(recp) {
+      console.log(recp)
+      if( this.confirm_step_recp[recp.id] ) {
+        await new ReceiptsCtrl().deleteById(recp.id)
+        this.refresh_all()
+      }
+      else {
+        this.confirm_step_recp = []
+        this.confirm_step_recp[recp.id] = true
+      }
     },
     async removeTrans(trans) {
       if( this.confirm_step[trans.id] ) {
@@ -312,7 +379,7 @@ export default {
       }
       let transTypesCtrl = new TransTypesCtrl()
       let selectedTrans = await transTypesCtrl.findOne({name: this.trans_form.trans_type , category: 'supplier_trans'})
-      console.log(selectedTrans)
+      
       if(selectedTrans) {
         let cashflow_id = null
         if(selectedTrans.map_cashflow){
@@ -335,6 +402,8 @@ export default {
         suppTransDAO.transType = selectedTrans
         await this.suppliersCtrl.updateBalanceByTrans(suppTransDAO)
       }
+
+
       /*
       if(this.trans_form.sum === '+' ) {
         this.trans_form.amount = parseFloat(this.trans_form.amount)
@@ -387,10 +456,6 @@ export default {
         this.trans_form.amount = parseFloat(this.trans_form.amount)
       }
       */
-
-      if(this.trans_form.trans_type !== 'supp_pre_recp' ) {
-        //await SuppliersDB.updateBalance(this.supplier_id, this.trans_form)
-      }
         
       if (this.trans_form.trans_type == 'supp_pre_recp') {
         let recp = new ReceiptDAO({
@@ -401,7 +466,7 @@ export default {
           supplier_id: this.supplier_id,
           recp_paid: 1
         })
-        console.log()
+        console.log(recp)
         await new ReceiptsCtrl().save(recp)
       }
       

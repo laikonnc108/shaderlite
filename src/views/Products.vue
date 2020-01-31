@@ -32,7 +32,7 @@
         </div>
       </div>
 
-      <div class="form-group row">
+      <div class="form-group row" v-if="app_config.shader_name != 'nada'">
         <label  class="col-sm-2">خصم من الوزن</label>
         <div class="col-sm-10">
           <input v-model="product_form.weight_deduct" class="form-control "  placeholder="ادخل الوزن المخصوم من العبوة">
@@ -97,7 +97,7 @@
               <th>اسم الصنف</th>
               <th>بياعة </th>
               <th v-if="shader_configs['product_rahn']">رهن </th>
-              <th>خصم وزن</th>
+              <th v-if="app_config.shader_name != 'nada'">خصم وزن</th>
               <th></th>
             </tr>
           </thead>
@@ -109,7 +109,7 @@
               <td v-if="shader_configs['product_rahn']">
                 {{item.product_rahn}}
               </td>
-              <td>{{item.weight_deduct}}</td>
+              <td v-if="app_config.shader_name != 'nada'">{{item.weight_deduct}}</td>
               <td>{{item.notes}}</td>
               <td class="d-print-none">
                 <button class="btn text-danger" @click="archive(item.id)" v-if="! item.deleted_at">

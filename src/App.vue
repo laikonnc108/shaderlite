@@ -567,6 +567,14 @@ select.form-control {
 .alert-bg {
   background-color: yellow;
 }
+
+.alerty {
+  border-radius: 10px;
+  text-align: center;
+  font-size: 1.2em;
+  background-color: yellow;
+}
+
 /* printing */
 @media print {
   .col-print-1 {
