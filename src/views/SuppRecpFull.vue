@@ -252,9 +252,12 @@ v-if="app_config.shader_name == 'magdy'" >
           </button>
 
           &nbsp;
-          <button class="btn btn-primary pr-hideme" v-if="modal_recp.id && modal_recp.recp_paid != 2"
+          <button class="btn btn-primary pr-hideme" 
+          :disabled="day.stricted"
+          v-if="modal_recp.id && modal_recp.recp_paid != 2"
           @click="setRecpPaid(modal_recp, 2)" >
             <span class="fa fa-money-bill "></span> &nbsp;
+            <span v-if="day.stricted"> لا يمكن </span>
             صرف
           </button>
           &nbsp;

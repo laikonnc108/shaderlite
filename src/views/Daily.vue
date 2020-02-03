@@ -14,8 +14,9 @@
 </template>
 
 <script >
-import { moment } from '../main.js'
+
 import { Settings, DateTime } from 'luxon'
+import { MainMixin } from '../mixins/MainMixin'
 
 Settings.defaultLocale = 'ar'
 Settings.defaultZoneName = 'UTC'
@@ -29,18 +30,8 @@ export default {
     }
   },
   methods: {
-    change_luxon_date(date){
-      let dateTime = DateTime.fromISO(date)
-      let old_day = this.$store.state.day.should_be
-      if(dateTime.valueOf()) {
-        this.$store.commit('setDay' ,{
-          ts: dateTime.valueOf(),
-          iso: dateTime.toISODate(),
-          d_week: dateTime.toLocaleString({ weekday: 'long'}),
-          arab: moment(dateTime.toISODate()).format('LL'),
-          should_be: old_day
-        })
-      }
+    async change_luxon_date(date){
+      await this.change_day(date)
     }
   },
   mounted () {
@@ -51,6 +42,7 @@ export default {
     }
     // this.luxon_date = DateTime.fromISO(this.$store.state.day.iso).toString()
   },
+  mixins:[MainMixin],
   components: {
   }
 }

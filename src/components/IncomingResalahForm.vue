@@ -111,7 +111,7 @@ import { SuppliersCtrl, SupplierDAO } from '../ctrls/SuppliersCtrl';
 import { IncomingsCtrl,IncomingsData } from '../ctrls/IncomingsCtrl'
 import { MainMixin } from '../mixins/MainMixin'
 import { ProductsCtrl, ProductDAO } from '../ctrls/ProductsCtrl';
-import { MyStoreMutations } from '../main'
+import { MyStoreMutations, knex } from '../main'
 import { CashflowCtrl, CashflowDAO } from '../ctrls/CashflowCtrl';
 
 export default {
@@ -148,10 +148,8 @@ export default {
         moment.locale('en')
         let isoyesterDay = moment(moment(this.day.iso).subtract(1, 'days')).format('YYYY-MM-DD')
         moment.locale('ar')
-
         let netcashYesterday = await this.cashflowCtrl.getNetCash({day: isoyesterDay})
-        console.log(day_incs.length, cashflow_rasid.length)
-
+        // init net_cash & close yesterday
         if(
           this.shader_configs['shader_name'] != 'nada' && 
           day_incs.length == 0 && 
@@ -163,8 +161,19 @@ export default {
             state: 'inc_collect',
             notes: 'عهده',
             sum: '+',
+            d_product: 'a',
             day: this.day.iso
-          }))
+          }));
+          if(this.shader_configs['F_STRICT_MODE']) {
+            // INSERT INTO daily_close ("day", "closed", "net_cash") VALUES ('2020-02-01', 'true', '2000.0');
+            try {
+              await knex.raw(`INSERT INTO daily_close ("day", "closed", "net_cash") 
+              VALUES ('${isoyesterDay}', 'true', ${parseFloat(netcashYesterday)});`)
+            } catch (error) {
+              console.error(error)
+            }
+
+          }
         }
         await this.incomingsCtrl.saveIncomingsData(this.incomings_data)
       }

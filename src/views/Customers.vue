@@ -1,5 +1,27 @@
 <template>
   <section class="customers row">
+
+        <b-modal
+          id="pass-in"
+          hide-footer
+          no-close-on-esc
+          no-close-on-backdrop
+          hide-header-close
+          class="p-4"
+        >
+          <form @submit="passSubmit">
+            <p class="h4 text-center mb-4">ادخل كلمة المرور</p>
+            <br />
+            <label for="defaultFormLoginPasswordEx" class="grey-text">كلمة المرور</label>
+            <input type="password" v-model="password" class="form-control" />
+            <div class="text-center mt-4">
+              <button class="btn btn-success" type="submit">عرض</button> 
+              <span>&nbsp;</span>
+              <button class="btn btn-danger" @click="$bvModal.hide('pass-in')">اغلاق</button> 
+            </div>
+          </form>
+        </b-modal>
+
     <div class="col-5 d-print-none" v-if="! flags.detailed">
           <br/>
         <div class="row detailed" v-if="logged_in_user.user_type != 'editor'">
@@ -7,7 +29,9 @@
             <span class="btn text-primary h3">
             {{custom_labels['sum_customers_debt']}}
             </span>
-            <span class="btn text-primary h3" @click="flags.show_sum_debt = ! flags.show_sum_debt">
+
+            <span class="btn text-primary h3" 
+            @click="show_dialog()">
               <span v-if="! flags.show_sum_debt" >+</span>
               <span v-else>-</span>
             </span>
@@ -149,8 +173,8 @@
   <h3 v-if="flags.zm_mode">
     {{now_day}} - {{now_hour}}
   </h3>
-      <div class="table-responsive">
-        <table class="table table-striped table-sm">
+      <div class="table-responsive m-3">
+        <table class="table table-striped table-sm ">
           <thead>
             <tr>
               <th></th>
@@ -200,7 +224,9 @@
                 <button class="btn text-primary" @click="edit(item.id)" v-if="! item.deleted_at">
                   تعديل
                 </button>
-                <button class="btn text-primary" @click="initCollect(item);$bvModal.show('modal-collect')" v-if="! item.deleted_at">
+                <button class="btn text-primary" 
+                @click="initCollect(item);$bvModal.show('modal-collect')" 
+                v-if="! item.deleted_at && ! day.stricted">
                   تحصيل
                 </button>
               </td>
@@ -260,7 +286,7 @@ import { CashflowDAO, CashflowCtrl } from '../ctrls/CashflowCtrl'
 import { TransTypesCtrl } from '../ctrls/TransTypesCtrl'
 import { MainMixin } from '../mixins/MainMixin'
 import AlertDay from '@/components/AlertDay.vue'
-
+// import { remote } from 'electron'
 export default {
   name: 'customers',
   data () {
@@ -284,11 +310,28 @@ export default {
       search_placeholder: '',
       now_day: moment().format('LL'),
       now_hour: moment().format('hh:mm a'),
-      sum_debt: 0
+      sum_debt: 0,
+      password: null
     }
   },
   mixins: [MainMixin],
   methods: {
+    async show_dialog() {
+      //const dialogOptions = {type: 'info', buttons: ['OK', 'Cancel'], message: 'Do it?'}
+      //remote.dialog.showMessageBox(dialogOptions, i => console.log(i))
+      if(this.shader_configs['F_MMN1_PASS']) {
+        this.$bvModal.show("pass-in");
+      } else {
+        this.flags.show_sum_debt = ! this.flags.show_sum_debt
+      }
+    },
+    async passSubmit(evt){
+      evt.preventDefault();
+      if(this.shader_configs['F_MMN1_PASS'] == this.password){
+        this.flags.show_sum_debt = ! this.flags.show_sum_debt
+        this.$bvModal.hide("pass-in");
+      }
+    },
     async refresh_all() {
       let init_time = new Date().getTime()
       let soft_delete = this.flags.show_active

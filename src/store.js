@@ -11,7 +11,8 @@ const store = new Vuex.Store({
     products_arr: [],
     transtypes_arr: [],
     app_config: {},
-    logged_in_user: {}
+    logged_in_user: {},
+    closed_days: {}
   },
   mutations: {
     setDay (state, day) {
@@ -36,6 +37,9 @@ const store = new Vuex.Store({
     setLoggedInUser(state, payload) {
       state.logged_in_user = payload
     },
+    setClosedDays(state, payload) {
+      state.closed_days = payload
+    }
   },
   actions: {
 
@@ -49,5 +53,6 @@ class MyStoreMutations {
   static setProductsArr = 'setProductsArr'
   static setTranstypesArr = 'setTranstypesArr'
   static setLoggedInUser = 'setLoggedInUser'
+  static setClosedDays = 'setClosedDays'
 }
 export {store, MyStoreMutations}

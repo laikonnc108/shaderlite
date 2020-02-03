@@ -1,5 +1,27 @@
 <template>
   <section class="suppliers row">
+
+    <b-modal
+      id="pass-in"
+      hide-footer
+      no-close-on-esc
+      no-close-on-backdrop
+      hide-header-close
+      class="p-4"
+    >
+      <form @submit="passSubmit">
+        <p class="h4 text-center mb-4">ادخل كلمة المرور</p>
+        <br />
+        <label for="defaultFormLoginPasswordEx" class="grey-text">كلمة المرور</label>
+        <input type="password" v-model="password" class="form-control" />
+        <div class="text-center mt-4">
+          <button class="btn btn-success" type="submit">عرض</button> 
+          <span>&nbsp;</span>
+          <button class="btn btn-danger" @click="$bvModal.hide('pass-in')">اغلاق</button> 
+        </div>
+      </form>
+    </b-modal>
+
     <div class="col-5 d-print-none " v-if="! flags.detailed">
       <br/>
         <div class="row detailed" v-if="logged_in_user.user_type != 'editor'" >
@@ -7,7 +29,7 @@
             <span class="btn text-primary h3">
             {{custom_labels['sum_suppliers_debt']}}
             </span>
-            <span class="btn text-primary h3" @click="flags.show_sum_debt = ! flags.show_sum_debt">
+            <span class="btn text-primary h3" @click="show_dialog">
               <span v-if="! flags.show_sum_debt" >+</span>
               <span v-else>-</span>
             </span>
@@ -108,7 +130,7 @@
       <span v-if="! show_active"> {{custom_labels['archive']}} </span>
       العملاء
   </h2>
-      <div class="table-responsive">
+      <div class="table-responsive m-3">
         <table class="table table-striped table-sm ">
           <thead>
             <tr>
@@ -187,10 +209,27 @@ export default {
       form_collabsed: true,
       flags: {detailed: false, show_sum_debt: false},
       sum_debt: 0,
+      password: null
     }
   },
   mixins: [MainMixin],
   methods: {
+    async show_dialog() {
+      //const dialogOptions = {type: 'info', buttons: ['OK', 'Cancel'], message: 'Do it?'}
+      //remote.dialog.showMessageBox(dialogOptions, i => console.log(i))
+      if(this.shader_configs['F_MMN1_PASS']) {
+        this.$bvModal.show("pass-in");
+      } else {
+        this.flags.show_sum_debt = ! this.flags.show_sum_debt
+      }
+    },
+    async passSubmit(evt){
+      evt.preventDefault();
+      if(this.shader_configs['F_MMN1_PASS'] == this.password){
+        this.flags.show_sum_debt = ! this.flags.show_sum_debt
+        this.$bvModal.hide("pass-in");
+      }
+    },
     async saveSupplier(evt) {
       evt.preventDefault()
       if(this.app_config.shader_name == 'amn1') {

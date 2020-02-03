@@ -42,7 +42,7 @@
                 </span>
               </td>
               <td>{{item.notes}}</td>
-              <td v-if="flags.can_remove">
+              <td v-if="flags.can_remove && ! day.stricted" >
                 <button class="btn text-danger" @click="removeCashflow(item)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[item.id]"> </template>

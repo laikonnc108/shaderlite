@@ -1,5 +1,21 @@
--- https://github.com/fireb1001/shaderlite/releases/
 
+-- 1.42
+INSERT INTO "shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") 
+VALUES ('F_MMN1_PASS', '4242', '', 'mmn1', 'config');
+
+CREATE TABLE "daily_close" (
+	"day"	TEXT NOT NULL,
+	"closed"	TEXT,
+	"net_cash"	REAL,
+	"json"	TEXT,
+	PRIMARY KEY("day")
+);
+
+insert into daily_close ('day', 'closed') 
+select DISTINCT(day), 'true' as true from cashflow where day < '2020-02-01';
+
+-- 1.41
+-- https://github.com/fireb1001/shaderlite/releases/
 
 INSERT INTO "main"."trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category") 
 VALUES ('dealer_init', 'رصيد', 'default', '+', '', 'dealer_trans');

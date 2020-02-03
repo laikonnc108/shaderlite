@@ -1,6 +1,7 @@
 import { bookshelf, knex } from '../main'
 import { store } from '../store'
 import { TransTypesCtrl } from './TransTypesCtrl'
+import { CashflowCtrl } from './CashflowCtrl'
 
 export class DealerDAO {
 
@@ -73,6 +74,7 @@ export class DealersCtrl {
   /**@param {DealerDAO} data */
   async save(data) {
     data.parseTypes()
+    console.log(data)
     let record = await this.model.forge(data).save()
     if(! data.id && data.balance ) {
       // new one with init debt
@@ -170,6 +172,10 @@ export class DealersCtrl {
 
     await instance.save({balance: balance})
     await transInstance.destroy()
+
+    await new CashflowCtrl().rawDelete({
+      cashflow_id: transDAO.cashflow_id
+    });
     return true 
   }
 

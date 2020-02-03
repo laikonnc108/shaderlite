@@ -10,7 +10,9 @@
             <div class="pl-2 pr-2" v-if="false">مرحباً {{logged_in_user.username}}</div>
             <h4 class="d-flex justify-content-between align-items-center px-3 mb-1 text-muted">
               <router-link to="/daily">
-               <span :class="{'alert-bg': day.iso != day.should_be }">{{ day.iso | arDate(app_config.shader_name) }} </span>
+                <span :class="{'alert-bg': day.iso != day.should_be, 'red-wedding': day.stricted }">
+                 {{ day.iso | arDate(app_config.shader_name) }}
+                </span>
               </router-link>
             </h4>
             <div class="p-3" >
@@ -130,7 +132,14 @@
               </li>
 
               <li class="nav-item" 
-              
+              v-if="app_config.shader_name == 'amn1' && logged_in_user.user_type != 'editor'">
+                <router-link class="nav-link active" to="/daily_revenue">
+                  <span class="fa fa-calendar-alt"></span>
+                  مجمع الارباح
+                </router-link>
+              </li>
+
+              <li class="nav-item" 
               v-if="app_config.shader_name != 'magdy' && logged_in_user.user_type != 'editor'">
                 <router-link class="nav-link active" to="/daily_expenses">
                   <span class="fa fa-calendar-alt"></span>
@@ -281,13 +290,15 @@ export default {
     }
 
     moment.locale("ar");
-
+    let iso =  dateTime.toISODate()
+    let [stricted] = await knex.raw(`select closed from daily_close where day = '${iso}'`);
     const day = {
       ts: dateTime.valueOf(),
       iso: dateTime.toISODate(),
       d_week: dateTime.toLocaleString({ weekday: "long" }),
       arab: moment(dateTime.toISODate()).format("LL"),
-      should_be : dateTime.toISODate()
+      should_be : dateTime.toISODate(),
+      stricted: stricted && stricted.closed == 'true' ? true : false
     };
     this.$store.commit("setDay", day);
   }
@@ -567,6 +578,11 @@ select.form-control {
 .alert-bg {
   background-color: yellow;
 }
+
+.red-wedding {
+  background-color: #ff847e;
+}
+
 
 .alerty {
   border-radius: 10px;

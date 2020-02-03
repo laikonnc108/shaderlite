@@ -20,6 +20,7 @@ import Cashflow from "./views/Cashflow.vue";
 import DailyMoves from "./views/DailyMoves.vue";
 import Users from "./views/Users.vue";
 import DailyTotals from "./views/DailyTotals.vue";
+import DailyRevenue from "./views/DailyRevenue.vue";
 import DailyExpenses from "./views/DailyExpenses.vue";
 import CtgReceipts from "./views/CtgReceipts.vue";
 import SuppIncDetails from "./views/SuppIncDetails.vue";
@@ -44,6 +45,11 @@ export default new Router({
       path: "/daily_totals",
       name: "daily_totals",
       component: DailyTotals
+    },
+    {
+      path: "/daily_revenue",
+      name: "daily_revenue",
+      component: DailyRevenue
     },
     {
       path: "/daily_expenses",

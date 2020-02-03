@@ -88,7 +88,6 @@
       <span v-if="! flags.show_active"> ارشيف </span>
      الاصناف 
     </h2>
-
       <div class="table-responsive">
         <table class="table table-striped table-sm">
           <thead>

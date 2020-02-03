@@ -33,7 +33,6 @@ export class SupplierDAO {
   }
 
   constructor (data) {
-    console.log(data)
     Object.assign(this, data)
   }
 }

@@ -113,7 +113,8 @@ hide-header hide-footer hide-header-close hide-backdrop>
 
           <tr v-if="app_config.shader_name != 'nada'"
           :class="{'pr-hideme': !d_collect_form.amount }">
-            <td ><input v-if="! d_collect_form.id" 
+            <td >
+              <input v-if="! d_collect_form.id && ! day.stricted" 
               v-model="d_collect_form.amount" class="form-control" placeholder="ادخل مبلغ التحصيل" >
               <span v-if="d_collect_form.id">({{d_collect_form.amount | toAR}})</span>
               </td>
@@ -122,7 +123,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             </td>
 
             <td style="border: none !important;">
-                <button  v-if="d_collect_form.id"
+                <button  v-if="d_collect_form.id && ! day.stricted"
                 class="btn text-danger pr-hideme" @click="removeTrans(d_collect_form,true)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[d_collect_form.id]"> حذف </template>
@@ -133,7 +134,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
 
           <tr v-if="app_config.shader_name != 'nada'"
           :class="{'pr-hideme': !msh_collect_form.amount }">
-            <td ><input v-if="! msh_collect_form.id" 
+            <td ><input v-if="! msh_collect_form.id && ! day.stricted" 
               v-model="msh_collect_form.amount" class="form-control" placeholder="ادخل مبلغ المشال" >
               <span v-if="msh_collect_form.id">{{msh_collect_form.amount | toAR}}</span>
               </td>
@@ -142,7 +143,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             </td>
 
             <td style="border: none !important;">
-                <button  v-if="msh_collect_form.id"
+                <button  v-if="msh_collect_form.id && ! day.stricted"
                 class="btn text-danger pr-hideme" @click="removeTrans(msh_collect_form,true)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[msh_collect_form.id]"> حذف </template>
@@ -153,7 +154,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
 
           <tr v-if="shader_configs['F_AARBON_KASHF']"
           :class="{'pr-hideme': !aarbon_form.amount }">
-            <td ><input v-if="! aarbon_form.id" 
+            <td ><input v-if="! aarbon_form.id && ! day.stricted" 
               v-model="aarbon_form.amount" class="form-control" placeholder="ادخل مبلغ العربون" >
               <span v-if="aarbon_form.id">({{aarbon_form.amount | toAR}})</span>
               </td>
@@ -162,7 +163,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             </td>
 
             <td style="border: none !important;">
-                <button  v-if="aarbon_form.id"
+                <button  v-if="aarbon_form.id && ! day.stricted"
                 class="btn text-danger pr-hideme" @click="removeTrans(aarbon_form,true)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[aarbon_form.id]"> حذف </template>
@@ -173,7 +174,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
 
           <tr v-if="shader_configs['F_REPAY_RAHN_KASHF']"
           :class="{'pr-hideme': !d_down_rahn_form.amount }">
-            <td ><input v-if="! d_down_rahn_form.id" 
+            <td ><input v-if="! d_down_rahn_form.id && ! day.stricted " 
               v-model="d_down_rahn_form.amount" class="form-control" placeholder="ادخل مبلغ رد الرهن" >
               <span v-if="d_down_rahn_form.id">({{d_down_rahn_form.amount | toAR}})</span>
               </td>
@@ -182,7 +183,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             </td>
 
             <td style="border: none !important;">
-                <button  v-if="d_down_rahn_form.id"
+                <button  v-if="d_down_rahn_form.id && ! day.stricted"
                 class="btn text-danger pr-hideme" @click="removeTrans(d_down_rahn_form,true)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[d_down_rahn_form.id]"> حذف </template>

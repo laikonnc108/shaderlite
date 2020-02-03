@@ -1,10 +1,15 @@
 <template>
 <div class="incomings home row">
   
-  <IncomingResalahForm class="col-6 bg-incoming minh90 d-print-none"
-  @saved="refresh_all"
-  v-if="! flags.detailed">
-  </IncomingResalahForm>
+  <div class="col-6 bg-incoming minh90 d-print-none" v-if="! flags.detailed">
+    <div class="m-2 alerty" 
+    v-if="net_cash_yesterday > 0 && !incomings_arr.length && ! cashflow_rasid.length">
+      سوف يتم انشاء عهده لليوم
+       بمبلغ { {{ net_cash_yesterday }} }
+        مرحل من امس
+    </div>
+    <IncomingResalahForm  @saved="refresh_all"  v-if=" ! day.stricted" />
+  </div>
 
   <div class=" p-4 col-print-10 pr-me" :class="{ 'col-6': ! flags.detailed , 'col-11':  flags.detailed }" >
 
@@ -48,7 +53,7 @@
               <td>{{incom.count}}</td>
               <td v-if="flags.detailed">{{incom.nolon}}</td>
               <td v-if="flags.detailed">{{incom.given}}</td>
-              <td v-if="flags.detailed" class="d-print-none">
+              <td v-if="flags.detailed && !day.stricted" class="d-print-none">
                 <button class="btn text-danger" @click="discard(incom.id)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[incom.id]"> حذف </template>
@@ -83,6 +88,7 @@
 import IncomingResalahForm from '@/components/IncomingResalahForm.vue'
 import { IncomingsCtrl, IncomingDAO } from '../ctrls/IncomingsCtrl'
 import { MainMixin } from '../mixins/MainMixin'
+import { CashflowCtrl } from '../ctrls/CashflowCtrl'
 
 export default {
   name: 'incomings',
@@ -91,8 +97,11 @@ export default {
       incomings_arr: [],
       active_suppliers: [],
       incomingsCtrl: new IncomingsCtrl(),
+      cashflowCtrl: new CashflowCtrl(),
       active_products: [],
       confirm_step: [],
+      cashflow_rasid: 0,
+      net_cash_yesterday: 0,
       discard_success: null,
       flags:{detailed: false},
       incoming_form: new IncomingDAO(IncomingDAO.INIT_DAO) // set defaults 
@@ -118,6 +127,14 @@ export default {
     }
   },
   async mounted() {
+    const moment = require('moment');
+
+    this.cashflow_rasid = await this.cashflowCtrl.findAll({day: this.day.iso,state: 'inc_collect', notes: 'عهده'})
+    moment.locale('en')
+    let isoyesterDay = moment(moment(this.day.iso).subtract(1, 'days')).format('YYYY-MM-DD')
+    moment.locale('ar')
+    this.net_cash_yesterday = await this.cashflowCtrl.getNetCash({day: isoyesterDay})
+    console.log(this.net_cash_yesterday)
     this.refresh_all()
   },
   computed: {

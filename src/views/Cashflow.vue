@@ -3,7 +3,16 @@
   <div class="col-5">
     <AlertDay />
 
-    <button class="btn btn-success" v-b-toggle.collapse_cash >اضافة جديد </button>
+    <div class="alerty m-2" v-if="day.stricted">
+      لا يمكن اضافة او تعديل علي يومية مغلقة, يمكن اعادة فتح اليومية للتعديل مع ملاحظة عدم ترحيل صافي الخزينة بالمبلغ الجديد
+      <button @click="reopen_day"
+      class="m-2 btn btn-danger"> اعادة فتح اليومية</button>
+    </div> 
+    
+    <button class="btn btn-success" 
+    v-else
+    v-b-toggle.collapse_cash >اضافة جديد </button>
+
     <br/>
     <br/>
       <b-collapse id="collapse_cash" class="m-1">
@@ -111,6 +120,10 @@ export default {
       if(day_count_res && day_count_res [0] && day_count_res[0].sum_count)
         this.day_count = day_count_res[0].sum_count
       
+    },
+    async reopen_day(){
+      await knex.raw(`update daily_close set closed='false' where day = '${this.day.iso}'`)
+      await this.change_day(this.day.iso)
     },
     async addCashflow(evt) {
       evt.preventDefault()

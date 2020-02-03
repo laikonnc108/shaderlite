@@ -31,6 +31,7 @@
 
 <div v-for="(incom, idx) in fltrd_avilable_incomings" :key="idx" class="row m-1">
   <button  v-b-toggle.collapse2 
+  :disabled="day.stricted"
   @click="setSelectedInc(incom)"
   class="btn btn-lg btn-block col-10" 
   :class="{'btn-primary': incom.day === day.iso, 'btn-danger': incom.day !== day.iso}">
@@ -44,7 +45,9 @@
     </span>
   </button>
 
-  <button  class="btn text-danger col-2" @click="removeRestIncom(incom, idx)" >
+  <button 
+    v-if="! day.stricted"
+   class="btn text-danger col-2" @click="removeRestIncom(incom, idx)" >
     <span class="fa fa-caret-square-down "></span> 
     <template v-if="! confirm_step_rest[idx]">  </template>
     <template v-if="confirm_step_rest[idx]"> تأكيد </template>
@@ -250,7 +253,7 @@
               <td>{{item.kg_price}}</td>
               <th>{{item.value_calc | round2 }}</th>
               <td v-if="flags.detailed ">{{item.notes}}</td>
-              <td v-if="flags.detailed" class="d-print-none">
+              <td v-if="flags.detailed && ! day.stricted" class="d-print-none">
                 <button class="btn text-danger" @click="discard(item.id)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[item.id]"> حذف </template>

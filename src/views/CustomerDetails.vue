@@ -174,7 +174,9 @@
                 <span v-if="trans.notes">- {{trans.notes}} </span> 
               </td>              
               <td>
-                <button  v-if="trans.id"
+                <button  
+                :disabled="day.stricted || closed_days[trans.day]"
+                v-if="trans.id"
                 class="btn text-danger pr-hideme" @click="removeTrans(trans)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[trans.id]"> حذف </template>
@@ -284,13 +286,13 @@ hide-header hide-footer hide-header-close hide-backdrop>
           <tr :class="{'pr-hideme': !d_collect_form.amount }" 
           v-if="app_config.shader_name != 'nada' ">
             <td ><input 
-              v-if="! d_collect_form.id && outg_day == day.iso" 
+              v-if="! d_collect_form.id && outg_day == day.iso && ! day.stricted && ! closed_days[outg_day]" 
               v-model="d_collect_form.amount" class="form-control" placeholder="ادخل مبلغ التحصيل" >
               <span v-if="d_collect_form.id">({{d_collect_form.amount | toAR}})</span>
               </td>
             <td style="border: none !important;"> {{'collect' | tr_label}} </td>
             <td style="border: none !important;">
-                <button  v-if="d_collect_form.id"
+                <button  v-if="d_collect_form.id && ! day.stricted && ! closed_days[outg_day]"
                 class="btn text-danger pr-hideme" @click="removeTrans(d_collect_form,true)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[d_collect_form.id]"> حذف </template>
@@ -302,13 +304,13 @@ hide-header hide-footer hide-header-close hide-backdrop>
           <tr :class="{'pr-hideme': !msh_collect_form.amount }" 
           v-if="app_config.shader_name != 'nada' ">
             <td ><input 
-              v-if="! msh_collect_form.id && outg_day == day.iso" 
+              v-if="! msh_collect_form.id && outg_day == day.iso && ! day.stricted && ! closed_days[outg_day]" 
               v-model="msh_collect_form.amount" class="form-control" placeholder="ادخل مبلغ المشال" >
               <span v-if="msh_collect_form.id">{{msh_collect_form.amount | toAR}}</span>
               </td>
             <td style="border: none !important;"> {{'mashal' | tr_label}} </td>
             <td style="border: none !important;">
-                <button  v-if="msh_collect_form.id"
+                <button  v-if="msh_collect_form.id && ! day.stricted && ! closed_days[outg_day]"
                 class="btn text-danger pr-hideme" @click="removeTrans(msh_collect_form,true)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[msh_collect_form.id]"> حذف </template>
@@ -319,7 +321,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
 
           <tr v-if="shader_configs['F_AARBON_KASHF']"
           :class="{'pr-hideme': !aarbon_form.amount }">
-            <td ><input v-if="! aarbon_form.id && outg_day == day.iso" 
+            <td ><input v-if="! aarbon_form.id && outg_day == day.iso && ! day.stricted && ! closed_days[outg_day]" 
               v-model="aarbon_form.amount" class="form-control" placeholder="ادخل مبلغ العربون" >
               <span v-if="aarbon_form.id">({{aarbon_form.amount | toAR}})</span>
               </td>
@@ -328,7 +330,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             </td>
 
             <td style="border: none !important;">
-                <button  v-if="aarbon_form.id "
+                <button  v-if="aarbon_form.id && ! day.stricted && ! closed_days[outg_day]"
                 class="btn text-danger pr-hideme" @click="removeTrans(aarbon_form,true)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[aarbon_form.id]"> حذف </template>
@@ -339,7 +341,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
 
           <tr v-if="shader_configs['F_REPAY_RAHN_KASHF']"
           :class="{'pr-hideme': !d_down_rahn_form.amount }">
-            <td ><input v-if="! d_down_rahn_form.id && outg_day == day.iso" 
+            <td ><input v-if="! d_down_rahn_form.id && outg_day == day.iso && ! day.stricted && ! closed_days[outg_day]" 
               v-model="d_down_rahn_form.amount" class="form-control" placeholder="ادخل مبلغ رد الرهن" >
               <span v-if="d_down_rahn_form.id">({{d_down_rahn_form.amount | toAR}})</span>
               </td>
@@ -348,7 +350,7 @@ hide-header hide-footer hide-header-close hide-backdrop>
             </td>
 
             <td style="border: none !important;">
-                <button  v-if="d_down_rahn_form.id"
+                <button  v-if="d_down_rahn_form.id && ! day.stricted && ! closed_days[outg_day]"
                 class="btn text-danger pr-hideme" @click="removeTrans(d_down_rahn_form,true)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[d_down_rahn_form.id]"> حذف </template>

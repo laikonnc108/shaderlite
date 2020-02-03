@@ -169,8 +169,11 @@
           <span class="fa fa-money-check"></span>
         رصد    
         </button>&nbsp;
-        <button  class="btn btn-primary" v-if=" recp_1.recp_paid != 2" @click="setRecpPaid(recp_1, 2)">
+        <button  
+        :disabled="day.stricted"
+        class="btn btn-primary" v-if=" recp_1.recp_paid != 2" @click="setRecpPaid(recp_1, 2)">
           <span class="fa fa-money-bill"></span>
+          <span v-if="day.stricted"> لا يمكن </span>
         صرف    
         </button> &nbsp;
 
@@ -235,8 +238,11 @@
           <span class="fa fa-money-check"></span>
         رصد    
         </button>&nbsp;
-        <button  class="btn btn-primary" v-if="recp_2.recp_paid != 2" @click="setRecpPaid(recp_2, 2)">
+        <button  class="btn btn-primary" 
+        :disabled="day.stricted"
+        v-if="recp_2.recp_paid != 2" @click="setRecpPaid(recp_2, 2)">
           <span class="fa fa-money-bill"></span>
+          <span v-if="day.stricted"> لا يمكن </span>
         صرف   
         </button> &nbsp;
 
@@ -310,7 +316,9 @@
 
       <!-- end recps -->
 
-      <button  class="btn btn-primary" @click="addReceipt(2)" v-if="show_receipts[1] && ! show_receipts[2]">
+      <button 
+       class="btn btn-primary" @click="addReceipt(2)"
+       v-if="! day.stricted && show_receipts[1] && ! show_receipts[2]">
       اضافة فاتورة   &nbsp; <span class="fa fa-external-link-square-alt"></span>
       <br/>
         2
@@ -333,7 +341,7 @@
       </div>
     </div>
 
-    <div class="mt-3">
+    <div class="mt-3" v-if="!day.stricted">
       <button  class="btn btn-primary" @click="saveAll()"> <span class="fa fa-save"></span> &nbsp;
       حفظ الفواتير   
       </button> &nbsp;
@@ -375,7 +383,9 @@
   </table>
 
   <div class="m-2">
-    <button class="btn btn-success pr-hideme" @click="$bvModal.hide('modal-nolons');saveNolons()" >
+    <button class="btn btn-success pr-hideme" 
+    :disabled="day.stricted"
+    @click="$bvModal.hide('modal-nolons');saveNolons()" >
       <span class="fa fa-check "></span> &nbsp;
       حفظ
     </button>
@@ -406,7 +416,9 @@
   </table>
 
   <div class="m-2">
-    <button class="btn btn-success pr-hideme" @click="$bvModal.hide('modal-expenses');saveExpenses()" >
+    <button class="btn btn-success pr-hideme"
+    :disabled="day.stricted"
+     @click="$bvModal.hide('modal-expenses');saveExpenses()" >
       <span class="fa fa-check "></span> &nbsp;
       حفظ
     </button>
@@ -661,9 +673,12 @@ v-if="app_config.shader_name == 'magdy'" >
           </button>
 
           &nbsp;
-          <button class="btn btn-primary pr-hideme" v-if="modal_recp.id && modal_recp.recp_paid != 2"
+          <button class="btn btn-primary pr-hideme" 
+          :disabled="day.stricted"
+          v-if="modal_recp.id && modal_recp.recp_paid != 2"
           @click="setRecpPaid(modal_recp, 2)" >
             <span class="fa fa-money-bill "></span> &nbsp;
+            <span v-if="day.stricted"> لا يمكن </span>
             صرف
           </button>
           &nbsp;

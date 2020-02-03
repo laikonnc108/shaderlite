@@ -56,6 +56,7 @@
     <div>Check if Curl installed {{is_curl_ok}}</div>
     
     <pre>{{ $store.state.app_config }}</pre>
+    
 
       <h5 class="card-title">System printers </h5>
       <p class="card-text">{{printers}}</p>
@@ -94,9 +95,10 @@ export default {
   components: {
   },
   async mounted() {
+    console.log(this.shader_configs);
     try {
-      let results = await knex.raw('PRAGMA integrity_check;')
-      console.log("integrity_check : ",results)
+      let [result] = await knex.raw('PRAGMA integrity_check;')
+      console.log("integrity_check : ",result)
       await new ProductsCtrl().findAll()
       this.working_db = true
     } catch (error) {

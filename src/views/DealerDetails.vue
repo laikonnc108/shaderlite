@@ -3,7 +3,9 @@
     <div class="col-5 pr-hideme">
       <h3>{{ dealer.name }}</h3>
       <hr>
-      <button v-b-toggle.collapse_pay class=" btn btn-success m-2" >
+      <button 
+      :disabled="day.stricted"
+      v-b-toggle.collapse_pay class=" btn btn-success m-2" >
         <span class="fa fa-money-bill-wave"></span> &nbsp; 
        صرف / تحصيل
       </button>
@@ -73,7 +75,7 @@
                 <span v-else> {{payment.amount | toAR}} </span>
               </td>
               <td>
-                <button  v-if="payment.id"
+                <button  v-if="payment.id && ! day.stricted"
                 class="btn text-danger pr-hideme" @click="removeTrans(payment)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[payment.id]"> حذف </template>

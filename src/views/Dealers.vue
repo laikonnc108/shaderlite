@@ -79,7 +79,7 @@
       <span v-if="! show_active"> {{custom_labels['archive']}} </span>
       المعاملات
   </h2>
-      <div class="table-responsive">
+      <div class="table-responsive m-3">
         <table class="table table-striped table-sm ">
           <thead>
             <tr>
