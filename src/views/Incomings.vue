@@ -5,7 +5,7 @@
     <div class="m-2 alerty" 
     v-if="net_cash_yesterday > 0 && !incomings_arr.length && ! cashflow_rasid.length">
       سوف يتم انشاء عهده لليوم
-       بمبلغ { {{ net_cash_yesterday }} }
+       بمبلغ { {{ net_cash_yesterday | round }} }
         مرحل من امس
     </div>
     <IncomingResalahForm  @saved="refresh_all"  v-if=" ! day.stricted" />

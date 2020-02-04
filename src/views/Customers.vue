@@ -13,7 +13,7 @@
             <p class="h4 text-center mb-4">ادخل كلمة المرور</p>
             <br />
             <label for="defaultFormLoginPasswordEx" class="grey-text">كلمة المرور</label>
-            <input type="password" v-model="password" class="form-control" />
+            <input type="password" v-model.lazy="password" class="form-control"/>
             <div class="text-center mt-4">
               <button class="btn btn-success" type="submit">عرض</button> 
               <span>&nbsp;</span>

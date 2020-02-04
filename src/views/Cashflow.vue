@@ -2,6 +2,60 @@
   <section class="cashflow m-3 row">
   <div class="col-5">
     <AlertDay />
+    <b-modal
+      id="pass-in"
+      hide-footer
+      no-close-on-esc
+      no-close-on-backdrop
+      hide-header-close
+      class="p-4"
+    >
+      <form @submit="passSubmit">
+        <p class="h4 text-center mb-4">ادخل كلمة المرور</p>
+        <br />
+        <label for="defaultFormLoginPasswordEx" class="grey-text">كلمة المرور</label>
+        <input type="password" v-model.lazy="password" class="form-control" />
+        <div class="text-center mt-4">
+          <button class="btn btn-success" type="submit">عرض</button> 
+          <span>&nbsp;</span>
+          <button class="btn btn-danger" @click="$bvModal.hide('pass-in')">اغلاق</button> 
+        </div>
+      </form>
+    </b-modal>
+
+        <div class="row detailed" 
+        v-if="app_config.shader_name == 'mmn1' && logged_in_user.user_type != 'editor'">
+          <div class="col-6">
+            <span class="btn text-primary h3">
+            {{'sum_capital' | tr_label}}
+            </span>
+
+            <span class="btn text-primary h3" 
+            @click="show_dialog()">
+              <span v-if="! flags.show_sum_capital" >+</span>
+              <span v-else>-</span>
+            </span>
+          </div>
+          <div class="col-6 btn text-primary" v-if="flags.show_sum_capital">
+            <span class="h3">
+            {{ sum_capital | round | toAR}}
+            </span>
+            <span class="fa fa-table"></span>
+          </div>
+        </div>
+        <div class="row detailed" >
+          <div class="col-6">
+            <span class="btn text-primary h3">
+            صافي الخزينة الان
+            </span>
+          </div>
+          <div class="col-6 btn text-primary" >
+            <span class="h3">
+            {{ net_cash | round | toAR}}
+            </span>
+            <span class="fa fa-table"></span>
+          </div>
+        </div>
 
     <div class="alerty m-2" v-if="day.stricted">
       لا يمكن اضافة او تعديل علي يومية مغلقة, يمكن اعادة فتح اليومية للتعديل مع ملاحظة عدم ترحيل صافي الخزينة بالمبلغ الجديد
@@ -83,11 +137,15 @@ import CashflowTable from '@/components/CashflowTable.vue'
 import AlertDay from '@/components/AlertDay.vue'
 import { MainMixin } from '../mixins/MainMixin'
 import { knex } from '../main';
+import { CustomersCtrl } from '../ctrls/CustomersCtrl';
+import { SuppliersCtrl } from '../ctrls/SuppliersCtrl';
+import { ReceiptsCtrl } from '../ctrls/ReceiptsCtrl';
 
 export default {
   name: 'cashflow',
   data () {
     return {
+      flags: { show_sum_capital : false },
       cashflow_arr: [],
       ex_items_arr: [],
       store_day: this.$store.state.day,
@@ -95,10 +153,27 @@ export default {
       cashflowCtrl: new CashflowCtrl(),
       day_count : 0,
       men_rate : 1.5,
+      password: null,
+      sum_capital: 0,
+      net_cash: 0
     }
   },
   mixins:[MainMixin],
   methods: {
+    async show_dialog() {
+      if(this.shader_configs['F_MMN1_PASS']) {
+        this.$bvModal.show("pass-in");
+      } else {
+        this.flags.show_sum_capital = ! this.flags.show_sum_capital
+      }
+    },
+    async passSubmit(evt){
+      evt.preventDefault();
+      if(this.shader_configs['F_MMN1_PASS'] == this.password){
+        this.flags.show_sum_capital = ! this.flags.show_sum_capital
+        this.$bvModal.hide("pass-in");
+      }
+    },
     async refresh_all() {
       this.cashflow_form = new CashflowDAO(CashflowDAO.INIT_DAO)
       // let states = null
@@ -116,6 +191,9 @@ export default {
       this.cashflow_arr = await this.cashflowCtrl.findAll({sum: sum, day: this.$store.state.day.iso})
       this.ex_items_arr = await this.cashflowCtrl.getExItems();
       let day_count_res = await knex.raw(`SELECT sum(count) as sum_count FROM outgoings where day='${this.$store.state.day.iso}'`)
+
+      let net_cash = await this.cashflowCtrl.getNetCash({day: this.day.iso})
+      this.net_cash = net_cash
 
       if(day_count_res && day_count_res [0] && day_count_res[0].sum_count)
         this.day_count = day_count_res[0].sum_count
@@ -163,8 +241,16 @@ export default {
     CashflowTable,
     AlertDay
   },
-  mounted() {
+  async mounted() {
     this.men_rate =this.shader_configs['men_rate'] ? parseFloat(this.shader_configs['men_rate']) : this.men_rate;
+    
+    let { sum_debt: cust_sum_debt } = await new CustomersCtrl().sumDebt()
+    let {sum_debt: supp_sum_debt } = await new SuppliersCtrl().sumDebt()
+    let net_cash = await this.cashflowCtrl.getNetCash({day: this.day.iso})
+    this.net_cash = net_cash
+    let {sum_net_rasd} = await new ReceiptsCtrl().sumNetRasd()
+    console.log(cust_sum_debt, supp_sum_debt ,net_cash, sum_net_rasd)
+    this.sum_capital = cust_sum_debt + supp_sum_debt + net_cash - sum_net_rasd
     this.refresh_all()
   },
   updated() {

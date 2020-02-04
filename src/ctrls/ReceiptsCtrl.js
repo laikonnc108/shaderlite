@@ -133,6 +133,11 @@ export class ReceiptsCtrl {
     });
   }
 
+  async sumNetRasd(){
+    let result = await knex.raw(`select sum(net_value) sum_net_rasd from receipts where recp_paid=1`)
+    return result.length > 0 ? result[0] : null
+  }
+
   /**@returns {Array} */
   async findDailyReceipts(filter = { day: null }) {
     return await knex("v_recp_sums").where("day", filter.day);

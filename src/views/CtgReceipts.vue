@@ -97,13 +97,12 @@ export default {
   data() {
     return {
       rasd_recps_arr: [],
-      receiptsCtrl: new ReceiptsCtrl()
     };
   },
   mixins: [MainMixin],
   methods: {
     async refresh_all() {
-      this.rasd_recps_arr = await this.receiptsCtrl.findAll({ recp_paid: 1 });
+      this.rasd_recps_arr = await new ReceiptsCtrl().findAll({ recp_paid: 1 });
     }
   },
   components: {AlertDay},

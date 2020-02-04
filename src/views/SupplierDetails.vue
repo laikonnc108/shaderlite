@@ -199,6 +199,7 @@
               </td>
               <td>
                 <button  v-if="payment.id"
+                :disabled="day.stricted || closed_days[payment.day]"
                 class="btn text-danger pr-hideme" @click="removeTrans(payment)" >
                   <span class="fa fa-archive "></span> 
                   <template v-if="! confirm_step[payment.id]"> حذف </template>
