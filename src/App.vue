@@ -305,6 +305,7 @@ export default {
 };
 </script>
 <style>
+
 body {
   direction: rtl;
   text-align: right;

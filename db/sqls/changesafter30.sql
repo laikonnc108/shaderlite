@@ -1,13 +1,12 @@
 
 -- 1.42
+
+
 INSERT INTO "shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category")
 VALUES ('sum_capital', 'اجمالي رأس المال', '', 'default', 'label');
 
 INSERT INTO "shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") 
 VALUES ('sum_rasd', 'اجمالي الرصد', '', 'default', 'label');
-
-INSERT INTO "shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") 
-VALUES ('F_MMN1_PASS', '4242', '', 'mmn1', 'config');
 
 CREATE TABLE "daily_close" (
 	"day"	TEXT NOT NULL,
@@ -17,7 +16,11 @@ CREATE TABLE "daily_close" (
 	PRIMARY KEY("day")
 );
 
-/** only 4 mmn1 
+/**  only 4 mmn1
+
+INSERT INTO "shader_configs" ("config_name", "config_value", "config_verify", "shader_name", "category") 
+VALUES ('F_MMN1_PASS', '4242', '', 'mmn1', 'config');
+
 insert into daily_close ('day', 'closed') 
 select DISTINCT(day), 'true' as true from cashflow where day < '2020-02-05';
 */
