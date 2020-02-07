@@ -147,7 +147,7 @@ ${filter.limit ? "limit " + parseInt(filter.limit) : ""}
     ${options.softDelete ? " and deleted_at is null" : ""}
      ) customers_g
    ON customer_trans_g.customer_id = customers_g.id 
-   order by debt desc
+   ${options.orderByDebt ? 'order by debt desc' : 'order by name '}
    ${filter.limit ? "limit " + parseInt(filter.limit) : ""}
    `;
 

@@ -301,6 +301,14 @@ export default {
       stricted: stricted && stricted.closed == 'true' ? true : false
     };
     this.$store.commit("setDay", day);
+
+    // get all stricted days
+    let all = await knex.raw(`select day,closed from daily_close`);
+    let assos = all.reduce((a,b)=>{
+      a[b.day]= b.closed == 'true'
+      return a;
+    },{})
+    this.$store.commit('setClosedDays' , assos )
   }
 };
 </script>
