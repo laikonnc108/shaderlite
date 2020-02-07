@@ -165,7 +165,14 @@
           </thead>
           <tbody>
             <template v-for="(trans, idx) in comp_customer_trans" >
-            <tr :key='idx' v-if="trans.amount && ! show_trans_after || Date.parse(trans.day) >= Date.parse(show_trans_after)">
+            <tr :key='idx' 
+            v-if="
+            trans.amount && 
+            trans.trans_type != 'coll_anti_rahn' &&
+            trans.trans_type != 'repay_rahn_auto' &&
+            ! show_trans_after || 
+            Date.parse(trans.day) >= Date.parse(show_trans_after)
+            ">
               <td>{{trans.day | arDate }}</td>
               <td class="text-primary">{{trans.c_debt_was | round | toAR}}</td>
               <td>{{trans.amount | round | toAR}}</td>
@@ -446,7 +453,7 @@ export default {
       console.log(this.customer_trans);
       this.net_rahn = await this.customersCtrl.getCustomerNetRahn({id: this.customer_id})
       console.log(this.net_rahn)
-      this.trans_types_opts = await this.transTypesCtrl.findAll({category: 'customer_trans', optional: 3 })
+      this.trans_types_opts = await this.transTypesCtrl.findAll({category: 'customer_trans', flags: 'CUST_FORM' })
       if(this.customer.is_self ) {
         this.self_rest_products = await this.customersCtrl.getRestInSelf(this.customer_id)
       }
@@ -586,6 +593,19 @@ export default {
         custtransDAO.cashflow_id = cashflow_id
         custtransDAO.transType = selectedTrans
         await this.customersCtrl.updateDebtByTrans(custtransDAO)
+
+        if(selectedTrans.map_customer_trans){
+          console.log(selectedTrans)
+          // get selected customer trans
+          let selectedCustTrans = await this.transTypesCtrl.findOne({name: selectedTrans.map_customer_trans , category: 'customer_trans'})
+          let custtransDAO = new CustomerTransDAO(trans_form)
+          custtransDAO.day = this.$store.state.day.iso
+          custtransDAO.customer_id = this.customer_id
+          custtransDAO.cashflow_id = cashflow_id
+          custtransDAO.transType = selectedCustTrans
+          await this.customersCtrl.updateDebtByTrans(custtransDAO)
+        }
+
       }
       
       this.getCustomerDetails()

@@ -240,6 +240,8 @@ export default {
     let custom_labels = null;
     try {
       await knex.raw("PRAGMA integrity_check;");
+      let [fk] = await knex.raw("PRAGMA foreign_keys = true ;");
+      console.log(fk)
       let [tables] = await knex.raw("SELECT name FROM sqlite_master WHERE type = 'table';");
       if(! tables) throw "Empty DB - No Tables"
     } catch (error) {

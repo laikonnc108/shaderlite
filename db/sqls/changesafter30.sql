@@ -1,3 +1,110 @@
+-- 1.43
+-- Solve PRAGMA foreign_key_check;
+-- select * from receipts where cashflow_id not in (select id from cashflow);
+
+alter TABLE trans_types add COLUMN map_customer_trans TEXT;
+alter TABLE trans_types add COLUMN sum_rahn TEXT;
+alter TABLE trans_types add COLUMN flags TEXT;
+
+update trans_types set flags = 'DEDUCT' where optional = 1;
+update trans_types set flags = 'CUST_FORM' where optional = 3;
+
+INSERT INTO "trans_types" ("name", "ar_name", "shader_name", "sum", "optional", "category", "map_cashflow", "map_customer_trans", "sum_rahn", "flags")
+VALUES ('repay_rahn_auto', 'تنزيل رهن بدون تأثير علي الحساب', 'default', '-', '', 'customer_trans', '', 'coll_anti_rahn', '', 'CUST_FORM');
+
+-- change CUST_FORM for coll_anti_rahn
+-- rename repay_rahn_internal label
+--- 
+PRAGMA foreign_keys = 0;
+
+CREATE TABLE sqlitestudio_temp_table AS SELECT *
+                                          FROM receipts;
+
+DROP TABLE receipts;
+
+CREATE TABLE receipts (
+    id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+    supplier_id        INTEGER NOT NULL,
+    day                TEXT    NOT NULL,
+    total_nolon        REAL,
+    recp_given         REAL,
+    comm_rate          REAL,
+    sale_value         REAL,
+    net_value          REAL,
+    recp_paid          INTEGER,
+    products_arr       TEXT,
+    total_current_rest INTEGER,
+    total_count        INTEGER,
+    total_sell_comm    REAL,
+    recp_comm          REAL,
+    supplier_name      TEXT,
+    out_sale_value     REAL,
+    recp_expenses      REAL,
+    serial             INTEGER,
+    printed            INTEGER,
+    recp_deducts       REAL,
+    balance_was        REAL,
+    recp_others        REAL,
+    cashflow_id        INTEGER,
+    FOREIGN KEY (
+        cashflow_id
+    )
+    REFERENCES cashflow (id) ON DELETE RESTRICT
+);
+
+INSERT INTO receipts (
+                         id,
+                         supplier_id,
+                         day,
+                         total_nolon,
+                         recp_given,
+                         comm_rate,
+                         sale_value,
+                         net_value,
+                         recp_paid,
+                         products_arr,
+                         total_current_rest,
+                         total_count,
+                         total_sell_comm,
+                         recp_comm,
+                         supplier_name,
+                         out_sale_value,
+                         recp_expenses,
+                         serial,
+                         printed,
+                         recp_deducts,
+                         balance_was,
+                         recp_others,
+                         cashflow_id
+                     )
+                     SELECT id,
+                            supplier_id,
+                            day,
+                            total_nolon,
+                            recp_given,
+                            comm_rate,
+                            sale_value,
+                            net_value,
+                            recp_paid,
+                            products_arr,
+                            total_current_rest,
+                            total_count,
+                            total_sell_comm,
+                            recp_comm,
+                            supplier_name,
+                            out_sale_value,
+                            recp_expenses,
+                            serial,
+                            printed,
+                            recp_deducts,
+                            balance_was,
+                            recp_others,
+                            cashflow_id
+                       FROM sqlitestudio_temp_table;
+
+DROP TABLE sqlitestudio_temp_table;
+
+PRAGMA foreign_keys = 1;
 
 -- 1.42
 

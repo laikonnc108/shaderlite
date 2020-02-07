@@ -5,9 +5,10 @@ export class TransTypeDAO {
   name 
   ar_name
   sum
-  optional
   category
   map_cashflow
+  map_customer_trans
+  flags
 
   static get INIT_DAO() {
     return { }
