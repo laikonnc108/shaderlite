@@ -358,7 +358,8 @@ export default {
           supplier_id: this.supplier_id,
           amount: receipt.net_value,
           d_product: receipt.products_arr,
-          receipt_id: receipt.id
+          receipt_id: receipt.id,
+          income_day: receipt.day
         })
         let transType = await new TransTypesCtrl().findOne({name: 'recp_paid', category: 'cashflow'})
         cashflowDAO.transType = transType

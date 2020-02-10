@@ -54,7 +54,7 @@ export class InoutHeadCtrl {
     and inoutv.supplier_id in (SELECT supplier_id from outgoings where day= '${filter.day}' and income_day <> '${filter.day}')
   )
 `
-
+    console.log(query)
     return await knex.raw(query)
   }
 

@@ -170,6 +170,8 @@
             trans.amount && 
             trans.trans_type != 'coll_anti_rahn' &&
             trans.trans_type != 'repay_rahn_auto' &&
+            trans.trans_type != 'add_rahn_auto' &&
+            trans.trans_type != 'cust_add_rahn' &&
             ! show_trans_after || 
             Date.parse(trans.day) >= Date.parse(show_trans_after)
             ">

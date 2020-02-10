@@ -81,13 +81,14 @@ export class CashflowCtrl {
       .fetchAll({ withRelated: ["outgoing", "customer", "supplier","dealer"] });
     return all.map(_ => {
       let cashDAO = new CashflowDAO(_.attributes);
-      cashDAO.income_day = _.related("outgoing").get("income_day");
+      cashDAO.income_day = _.related("outgoing").get("income_day") ? _.related("outgoing").get("income_day") : _.attributes.income_day;
       cashDAO.count = _.related("outgoing").get("count");
       cashDAO.kg_price = _.related("outgoing").get("kg_price");
       cashDAO.weight = _.related("outgoing").get("weight");
       cashDAO.customer_name = _.related("customer").get("name");
       cashDAO.supplier_name = _.related("supplier").get("name");
       cashDAO.dealer_name = _.related("dealer").get("name");
+      // if(cashDAO.state == 'recp_paid') console.log(cashDAO.income_day)
       return cashDAO;
     });
   }

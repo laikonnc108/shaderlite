@@ -341,7 +341,7 @@
       </div>
     </div>
 
-    <div class="mt-3" v-if="!day.stricted">
+    <div class="mt-3" >
       <button  class="btn btn-primary" @click="saveAll()"> <span class="fa fa-save"></span> &nbsp;
       حفظ الفواتير   
       </button> &nbsp;
@@ -803,7 +803,7 @@ export default {
           state: 'nolon',
           sum: '-',
           supplier_id: this.supplier.id,
-          day: this.day.iso,
+          day: this.recp_day,
           amount: 0
         }))
       }
@@ -830,7 +830,14 @@ export default {
       }
         
       // TODO delete also تاريخ الصرف
-      await this.cashflowCtrl.rawDelete({day: this.recp_day, supplier_id: this.supplier_id, state: 'recp_paid'})
+      // ياخي قحا
+      /*
+      await this.cashflowCtrl.rawDelete({
+        day: this.recp_day,
+        supplier_id: this.supplier_id,
+        state: 'recp_paid'
+      })
+      */
       await this.refresh_all()
     },
     async setRecpPaid( receipt, recp_paid ) {
@@ -843,7 +850,8 @@ export default {
           supplier_id: this.supplier_id,
           amount: receipt.net_value,
           d_product: receipt.products_arr,
-          receipt_id: receipt.id
+          receipt_id: receipt.id,
+          income_day: receipt.day
         })
         let transType = await new TransTypesCtrl().findOne({name: 'recp_paid', category: 'cashflow'})
         cashflowDAO.transType = transType
@@ -901,9 +909,8 @@ export default {
       }
     },
     async saveNolons(){
-      this.today_nolons.forEach(async (nolonCashflow) => {
-        await this.cashflowCtrl.save(nolonCashflow)
-      })
+      let [only_one_nolon] = this.today_nolons;
+      await this.cashflowCtrl.save(only_one_nolon);
       this.refresh_all()
     },
     async saveExpenses(){
@@ -946,10 +953,10 @@ export default {
       this.recp_1.details.forEach( item => {        
         let index = this.inc_headers.findIndex( _ => _.product_id === item.product_id )
         if(index >= 0){
-          console.log(this.inc_headers[index].recp_in_count , item.count)
+          //console.log(this.inc_headers[index].recp_in_count , item.count)
           this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count ? parseInt(this.inc_headers[index].recp_in_count) : 0
           this.inc_headers[index].recp_in_count = this.inc_headers[index].recp_in_count + parseInt(item.count)
-          console.log(this.inc_headers[index].recp_in_count , item.count)
+          //console.log(this.inc_headers[index].recp_in_count , item.count)
         }
         this.recp_1.total_count += parseInt(item.count)
       })

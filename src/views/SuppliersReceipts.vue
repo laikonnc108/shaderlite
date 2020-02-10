@@ -149,7 +149,6 @@ export default {
   data () {
     return {
       today_suppliers_arr: [],
-      inoutHeadCtrl: new InoutHeadCtrl()
     }
   },
   mixins: [MainMixin],
@@ -160,7 +159,7 @@ export default {
       let ids = Object.keys(this.suppliers_headers_arr)
       this.suppliers_arr = await SuppliersDB.getAll(ids)
       */
-      this.today_suppliers_arr = await this.inoutHeadCtrl.findDailySuppliers({day: this.$store.state.day.iso})
+      this.today_suppliers_arr = await new InoutHeadCtrl().findDailySuppliers({day: this.$store.state.day.iso})
     },
     receiptsSepStatus(concat_recp_paid) {
       if(concat_recp_paid)
@@ -182,7 +181,7 @@ export default {
   computed: {
     fltrd_today_suppliers_arr: function(){
       return this.today_suppliers_arr.filter( item => {
-        console.log(item)
+        // console.log(item)
         return (item.supplier_name && item.supplier_name.includes(this.search_term))
       })
     }

@@ -34,11 +34,17 @@
               </td>
               <td>{{$store.state.transtypes_arr[item.state]}}
                 <span v-if="item.d_product"> - {{ item.d_product | productsFilter }}</span>
+                <!-- outgoing details -->
                 <span v-if="item.outgoing_id"> - عدد {{ item.count }} - وزن {{ item.weight }} - سعر {{ item.kg_price }}
                   <span v-if="item.income_day !== $store.state.day.iso " class="text-danger"> 
                     <br>
                       <span class="fa fa-star text-primary"></span> الزرع وارد يوم {{item.income_day | arDate }}
                   </span>
+                </span>
+                <!-- recp details --> 
+                <span v-if="item.receipt_id && item.income_day">
+                  <br>
+                  <span class="fa fa-receipt text-success"></span> فاتورة ليوم {{item.income_day | arDate }}
                 </span>
               </td>
               <td>{{item.notes}}</td>
