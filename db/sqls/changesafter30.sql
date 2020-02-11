@@ -2,6 +2,14 @@
 -- Solve PRAGMA foreign_key_check;
 -- select * from receipts where cashflow_id not in (select id from cashflow);
 
+-- incomings = 0 trigger
+CREATE TRIGGER validate_incomings_GT_0
+after update on incomings
+when old.count > new.count and new.count = 0
+BEGIN
+DELETE from incomings where count = 0 ;
+END;
+
 alter TABLE trans_types add COLUMN map_customer_trans TEXT;
 alter TABLE trans_types add COLUMN sum_rahn TEXT;
 alter TABLE trans_types add COLUMN flags TEXT;

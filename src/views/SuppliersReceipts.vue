@@ -20,6 +20,43 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
   </span>
 </router-link>
 -->
+<div v-if="not_created_recps.length > 0" class="alerty m-2">
+  يوجد عدد
+  {{not_created_recps.length}}
+   لفواتير لم يتم انشاءها 
+  <span 
+  @click="show_not_yet = true"
+style="
+    font-weight: bold;
+    color: #391dd6;
+">عرض</span>
+</div>
+
+  <template v-if="show_not_yet">
+      <div class="row" 
+    v-for="(row, idx) in not_created_recps" :key="idx">
+
+      <div class="col-5 btn btn-lg m-2 btn-block text-primary d-print-none pr-hideme">
+        <router-link  :to="{name:'supplier_details', params: {id: row.supplier_id}}">
+          ملف : {{row.supplier_name}}
+        </router-link>
+        <div v-if="row.day != day.iso" class="text-danger">وارد {{row.day | arDate }} </div> 
+      </div>
+
+      <router-link class="btn btn-danger col-5 m-1 btn btn-lg d-print-none pr-hideme "  
+        :to="{name:'supp_recp_full', params: {supplier_id: row.supplier_id, day: row.day}}">
+        <span class="fa fa-cash-register"></span>
+        <span>
+          انشاء
+          فاتورة 
+        </span>
+      </router-link>
+      <router-link class="nav-link " :to="{name:'supp_recp_details', params: {supplier_id: row.supplier_id, day: row.day}}">
+        تفاصيل اليوم
+      </router-link>
+    </div>
+  </template>
+
   <template v-if="app_config.shader_name =='amn1'">
     <div class="row" 
     v-for="(row, idx) in fltrd_today_suppliers_arr" :key="idx">
@@ -52,7 +89,7 @@ class="btn btn-lg btn-primary m-1 btn-block" :class="{'btn-danger':suppliers_hea
         </span>
       </router-link>
       <router-link class="nav-link " :to="{name:'supp_recp_details', params: {supplier_id: row.supplier_id, day: row.day}}">
-        تفاصيل الزرع
+        تفاصيل اليوم
       </router-link>
     </div>
     </template>
@@ -149,6 +186,8 @@ export default {
   data () {
     return {
       today_suppliers_arr: [],
+      not_created_recps: [],
+      show_not_yet: false
     }
   },
   mixins: [MainMixin],
@@ -159,7 +198,9 @@ export default {
       let ids = Object.keys(this.suppliers_headers_arr)
       this.suppliers_arr = await SuppliersDB.getAll(ids)
       */
-      this.today_suppliers_arr = await new InoutHeadCtrl().findDailySuppliers({day: this.$store.state.day.iso})
+      this.today_suppliers_arr = await new InoutHeadCtrl().findDailySuppliers({day: this.$store.state.day.iso});
+      this.not_created_recps = await new InoutHeadCtrl().findNotCreatedRecps();
+      console.log(this.not_created_recps);
     },
     receiptsSepStatus(concat_recp_paid) {
       if(concat_recp_paid)

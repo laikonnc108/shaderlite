@@ -25,6 +25,22 @@ export class InoutHeadCtrl {
     return results
   }
 
+  async findNotCreatedRecps() {
+    let query = `
+    SELECT * from (
+      select day, supplier_id, supplier_name, sum(diff) as sum_diff from v_inout_heads  GROUP by day , supplier_id HAVING sum_diff = 0
+      ) inout_heads
+      where not EXISTS (select * from receipts where receipts.supplier_id = inout_heads.supplier_id and receipts.day = inout_heads.day)
+    UNION
+    select day, supplier_id, suppliers.name as supplier_name, null as sum_diff from receipts 
+    JOIN suppliers
+    on receipts.supplier_id = suppliers.id
+    where recp_paid = 0
+`
+    console.log(query)
+    return await knex.raw(query)
+  }
+
   async findDailySuppliers(filter = { day: ''}) {
     let query = `
     SELECT 
