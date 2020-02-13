@@ -246,11 +246,13 @@ export default {
     
     let { sum_debt: cust_sum_debt } = await new CustomersCtrl().sumDebt()
     let {sum_debt: supp_sum_debt } = await new SuppliersCtrl().sumDebt()
+    let [ dealer_trans ]  = await knex.raw('select sum(amount) as sum_dealer_trans from dealer_trans');
+    let sum_dealer_trans = dealer_trans && dealer_trans.sum_dealer_trans ? parseFloat(dealer_trans.sum_dealer_trans) : 0
     let net_cash = await this.cashflowCtrl.getNetCash({day: this.day.iso})
     this.net_cash = net_cash
     let {sum_net_rasd} = await new ReceiptsCtrl().sumNetRasd()
-    console.log(cust_sum_debt, supp_sum_debt ,net_cash, sum_net_rasd)
-    this.sum_capital = cust_sum_debt + supp_sum_debt + net_cash - sum_net_rasd
+
+    this.sum_capital = cust_sum_debt + supp_sum_debt + net_cash - sum_net_rasd + sum_dealer_trans
     this.refresh_all()
   },
   updated() {

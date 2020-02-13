@@ -95,7 +95,7 @@
 
     <div>
       <hr>
-      <h4>اجمالي ايرادات اليوم : {{recp_sums.sum_income | round | toAR }}</h4>
+      <h4>اجمالي ايرادات اليوم : {{daily_totals.recp_sum_comm + daily_totals.out_sell_comm + (daily_totals.sum_out_value - daily_totals.recp_sum_sale) - daily_totals.sum_deducts | round | toAR }}</h4>
     </div>
 
     <div>
@@ -103,14 +103,14 @@
       <h4>اجمالي مصروفات تخصم من ايراد اليوم : {{daily_totals.sum_deducts | round | toAR }}</h4>
     </div>
   
-      <div>
+    <div>
       <hr>
       <h4>اجمالي مشال التجار  : {{daily_totals.sum_mashal | round | toAR }}</h4>
     </div>
 
     <div>
       <hr>
-      <h4>صافي الايراد اليومي : {{ (recp_sums.sum_income - daily_totals.sum_deducts) | round | toAR }}</h4>
+      <h4>صافي الايراد اليومي : {{ daily_totals.recp_sum_comm + daily_totals.out_sell_comm + (daily_totals.sum_out_value - daily_totals.recp_sum_sale) - daily_totals.sum_deducts| round | toAR }}</h4>
     </div>
   
     <div v-if="app_config.shader_name != 'magdy'">
@@ -122,6 +122,12 @@
       <hr>
       <h4>تحصيلات اليوم : {{ daily_totals.sum_collect_zm | round | toAR }}</h4>
     </div>
+  
+    <div v-if="app_config.shader_name == 'amn1'">
+      <hr>
+      <h4>{{'sum_capital' | tr_label}}: {{ sum_capital | round | toAR }}</h4>
+    </div>
+
   
   </section>
 
@@ -158,6 +164,8 @@ import { ReceiptsCtrl } from '../ctrls/ReceiptsCtrl'
 import CashflowTable from '@/components/CashflowTable.vue'
 import { MainMixin } from '../mixins/MainMixin'
 import { knex } from '../main'
+import { CustomersCtrl } from '../ctrls/CustomersCtrl'
+import { SuppliersCtrl } from '../ctrls/SuppliersCtrl'
 
 export default {
   name: 'daily-moves',
@@ -177,7 +185,8 @@ export default {
         sum_collect: null,
         sum_oncredit: null, // oncredit outgoings and also on credit cashflows paid , acc_rest
         sum_exp_no_deduct: null
-      }
+      },
+      sum_capital: 0
     }
   },
   methods: {
@@ -197,7 +206,16 @@ export default {
         return []
     }
   },
-  mounted() {
+  async mounted() {
+    let { sum_debt: cust_sum_debt } = await new CustomersCtrl().sumDebt()
+    let {sum_debt: supp_sum_debt } = await new SuppliersCtrl().sumDebt()
+    let [ dealer_trans ]  = await knex.raw('select sum(amount) as sum_dealer_trans from dealer_trans');
+    let sum_dealer_trans = dealer_trans && dealer_trans.sum_dealer_trans ? parseFloat(dealer_trans.sum_dealer_trans) : 0
+    let net_cash = await this.cashflowCtrl.getNetCash({day: this.day.iso})
+    this.net_cash = net_cash
+    let {sum_net_rasd} = await new ReceiptsCtrl().sumNetRasd()
+
+    this.sum_capital = cust_sum_debt + supp_sum_debt + net_cash - sum_net_rasd + sum_dealer_trans
     this.refresh_all()
   },
   computed: {
@@ -225,7 +243,6 @@ export default {
         sum_nolons: 0 ,
         sum_net: 0 , 
         sum_rasd_net: 0 ,
-        sum_income: 0 ,
         sum_out_comm: 0,
         sum_recp_comm: 0,
         sum_comms: 0 ,
@@ -237,7 +254,6 @@ export default {
         recp_sums.sum_diffs += ( recp.sum_out_value - recp.sum_sale_value )
         recp_sums.sum_nolons += parseFloat(recp.sum_total_nolon)
         recp_sums.sum_net += recp.sum_net_value
-        recp_sums.sum_income += recp.sum_sell_comm + recp.sum_recp_comm + ( recp.sum_out_value - recp.sum_sale_value )
         recp_sums.sum_comms += recp.sum_sell_comm + recp.sum_recp_comm 
         recp_sums.sum_out_comm += recp.sum_sell_comm
         recp_sums.sum_recp_comm += recp.sum_recp_comm

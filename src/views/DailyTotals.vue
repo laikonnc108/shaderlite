@@ -21,7 +21,9 @@
         </datetime>
       </div>
       <div class="col-4 mt-3">
-      <button v-if="show_daily == 'daily_totals'" class="btn btn-primary " @click="show_daily='daily_expenses';" >
+      <button 
+      v-if="show_daily == 'daily_totals' && ! show_only" 
+      class="btn btn-primary " @click="show_daily='daily_expenses';" >
         عرض المصاريف اليومية
         &nbsp; <span class="fa fa-money-bill"></span>
       </button>
@@ -163,8 +165,45 @@ repay_rahn
   </form>
 </div>
     </b-modal>
+
+
+    <!-- expenses Modal -->
+<b-modal id="modal-netincom"  
+ hide-footer hide-header-close hide-backdrop>
+  <template slot="modal-title">
+    صرف صافي ايراد ليوم {{netincom_form.day | arDate}}
+  </template>
+  <table class="table table-striped table-sm pr-me">
+    <thead>
+      <tr>
+        <th>المبلغ</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr >
+        <td>{{netincom_form.amount}}</td>
+        <td>
+          <input v-model="netincom_form.amount" class="form-control"  >
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="m-2">
+    <button class="btn btn-success pr-hideme"
+    :disabled="day.stricted"
+     @click="$bvModal.hide('modal-netincom');saveNetincome()" >
+      <span class="fa fa-check "></span> &nbsp;
+      حفظ
+    </button>
+  </div>
+</b-modal>
+
     <section class="m-2" v-if="show_daily == 'daily_totals'">
-    <h2>المجاميع اليومية</h2>
+    <h2 v-if="show_only =='rahn'">الرهونات اليومية</h2>
+    <h2 v-else-if="show_only =='revenue'">الارباح اليومية</h2>
+    <h2 v-else>المجاميع اليومية</h2>
       <div class="table-responsive">
         <table class="table table-striped table-sm pr-me-l">
           <thead>
@@ -300,10 +339,13 @@ sum_rahn_down
                 {{item.sum_deducts | round }}
               </td>
               <!-- Not inlude recp diff for mmn1 -->
-              <td v-if="show_totals.includes('net_income_no_diff')">
+              <td v-if="show_totals.includes('net_income_no_diff')" >
+                <span class="text-success" @click="showIncomeModal(100,item.day)">
                 {{item.recp_sum_comm + item.out_sell_comm - item.sum_deducts | round }}
+                </span>
               </td>
-              <td v-else-if="show_totals.includes('net_income')">
+              <td v-else-if="show_totals.includes('net_income')" >
+                
                 {{item.recp_sum_comm + item.out_sell_comm + (item.sum_out_value - item.recp_sum_sale) - item.sum_deducts | round }}
               </td>
               
@@ -331,7 +373,9 @@ sum_rahn_down
               <th v-if="show_totals.includes('comms')" >
                 {{sum_totals.sum_comm_plus_sell_comm | round}}
               </th>
-              <th v-if="show_totals.includes('recp_diff')"></th>
+              <th v-if="show_totals.includes('recp_diff')">
+                {{sum_totals.recp_sum_diff | round}}
+              </th>
               <th v-if="show_totals.includes('recp_others')">
                 {{sum_totals.recp_sum_others | round}}
               </th>
@@ -446,7 +490,8 @@ export default {
       max_datetime: '',
       show_daily: 'daily_totals',
       show_totals: '',
-      all_fukn_expenses: []
+      all_fukn_expenses: [],
+      netincom_form: {day: '', amount: 0}
     }
   },
   mixins:[MainMixin],
@@ -458,7 +503,7 @@ export default {
       this.$bvModal.show("init-modal");
     },
     async showExpModal() {
-      this.$bvModal.show("exp-modal");
+      this.$bvModal.show("modal-netincom");
     },
     async saveInitData(){
       console.log(this.init_data);
@@ -469,7 +514,10 @@ export default {
       )`);
       this.$bvModal.hide("init-modal");
     },
-
+    async showIncomeModal(amount, day) {
+      console.log(amount, day)
+      this.$bvModal.show('modal-recp')
+    },
     async saveExpData(){
       console.log(this.init_exp_data);
       await knex.raw(`delete from cashflow where d_product = 'init';`);
@@ -551,15 +599,20 @@ export default {
     }
   },
   async mounted() {
+    console.log(this.$route)
     this.refresh_all()
     this.show_totals = this.shader_configs['show_totals'] ? this.shader_configs['show_totals'] : ''
+    this.show_totals = this.show_only == 'rahn' ? 'rahn,repay_rahn' : this.show_totals
+    this.show_totals = this.show_only == 'revenue' ? 'comms,recp_diff,out_cashflow,net_income' : this.show_totals
   },
+  props: ['show_only'],
   computed: {
     sum_totals: function() {
 
       let sum_totals = {
         recp_sum_given: 0,
         recp_sum_others: 0,
+        recp_sum_diff: 0,
         sum_given: 0,
         sum_deducts: 0,
         sum_comm_plus_sell_comm: 0,
@@ -575,6 +628,7 @@ export default {
         sum_totals = {
           recp_sum_given: parseFloat( past_init_vals.recp_given ? past_init_vals.recp_given : 0),
           recp_sum_others: parseFloat( past_init_vals.recp_others ? past_init_vals.recp_others : 0),
+          recp_sum_diff: parseFloat( past_init_vals.recp_diff ? past_init_vals.recp_diff : 0),
           sum_given: parseFloat( past_init_vals.given ? past_init_vals.given : 0),
           sum_deducts: parseFloat( past_init_vals.out_cashflow ? past_init_vals.out_cashflow : 0),
           sum_comm_plus_sell_comm: parseFloat( past_init_vals.comms ? past_init_vals.comms : 0),
@@ -589,6 +643,7 @@ export default {
       this.daily_totals.forEach(one => {
         sum_totals.recp_sum_given += one.recp_sum_given 
         sum_totals.recp_sum_others += one.recp_sum_others 
+        sum_totals.recp_sum_diff += one.sum_out_value - one.recp_sum_sale
         sum_totals.sum_given += one.sum_given 
         sum_totals.sum_deducts += one.sum_deducts 
         sum_totals.sum_comm_plus_sell_comm += one.recp_sum_comm +one.out_sell_comm

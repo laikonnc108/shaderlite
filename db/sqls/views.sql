@@ -126,14 +126,14 @@ LEFT JOIN
 	sum(case when state in ('collecting','cust_collecting','cust_in_collecting') then amount else null end) as sum_collect_zm,
 	sum(case when state = 'supp_payment' then amount else null end) as sum_supp_payment,
              sum(case when state = 'supp_collect' then amount else null end) as sum_supp_collect,
-	sum(case when state in (select name FROM trans_types where category = 'cashflow' and flags like '%DEDUCT%') then amount else null end) sum_deducts
+	sum(case when state in (select name FROM trans_types where category = 'cashflow' and optional = 1) then amount else null end) sum_deducts
 	from cashflow  GROUP by day ) cash_deducts
 	ON  days.day = cash_deducts.day
 LEFT JOIN 
 	(select day,
 	sum(case when trans_type = 'product_rahn' then amount else null end) as sum_product_rahn,
 	sum(case when trans_type = 'mashal' then amount else null end) as sum_mashal,
-	abs(sum(case when trans_type = 'repay_cust_rahn' then amount else null end)) as sum_repay_rahn
+	abs(sum(case when trans_type in ( 'repay_cust_rahn','repay_rahn_in','repay_rahn_internal') then amount else null end)) as sum_repay_rahn
 	from customer_trans group by day ) cust_rahn_g
 	ON  days.day = cust_rahn_g.day
 LEFT JOIN
